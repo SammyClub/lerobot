@@ -17,7 +17,7 @@ The SO-101 can lift roughly **200–500 g**. A standard clay brick weighs **1.9�
 
 | Stage | What | Hardware | Cost |
 |---|---|---|---|
-| 1 (now) | Miniature masonry: foam/printed minis → 1:12–1:6 kiln-fired clay minis; running-bond courses with even 3–5 mm gaps | SO-101 | ~$0–50 |
+| 1 (now) | Miniature masonry: wooden stacking-tower (Jenga-style) blocks → 1:12–1:6 kiln-fired clay minis; running-bond courses with even 3–5 mm gaps; endgame: rebuild the tower | SO-101 | ~$0–50 |
 | 2 | Half-scale real fired bricks (250–400 g) — the SO-101's ceiling; wider printed gripper, recovery demos | SO-101 | ~$50–150 |
 | 3 | Adhesive skills: servo-triggered glue-gun end effector, bead extrusion practice (hot glue → PU foam) | SO-101 → next arm | ~$100 |
 | 4 | Real masonry: **AAC blocks + thin-bed/PU adhesive on AgileX PiPER (~$2.5k)**; standard clay brick needs Unitree Z1 (~$15k) / UR5e ($30k+) | PiPER / Z1 / UR5e | $3k–40k |
@@ -46,7 +46,8 @@ Next action: [Phase 0 — prepare the kit](docs/03-phase0-prepare.md).
 - SO-101 leader arm + follower arm, full kit, **disassembled** (Partabot, [SO-ARM101](https://partabot.com/products/so-arm101))
 - 12× Feetech STS3215 servos (6 per arm; check voltage variants — see Phase 0)
 - 2× bus-servo control boards, USB-C cables, power supplies
-- Still to buy: 2× USB webcams, powered USB hub, table clamp, wrist camera mount, foam/mini bricks
+- Still to buy: 2× USB webcams, powered USB hub, table clamp, wrist camera mount
+- Stage-1 bricks on hand: wooden stacking-tower (Jenga-style) blocks (Flying Tiger) — ~10–20 g each, fits the gripper; later upgrade: kiln-fired 1:12 clay minis
 - Training machine: PC "Shav" with **2× NVIDIA RTX 3090 (24 GB VRAM each)**, WSL2 + Ubuntu already set up, reachable from the Macs over SSH (`ssh shav@<pc-ip>`). Mac drives the arms; PC trains. See Phase 5.
 - Front camera: Logitech StreamCam (from home) — lock its autofocus via Logi Tune before recording. Wrist camera: use the kit's camera if it is a small board cam; otherwise buy a small wide-angle fixed-focus UVC board cam (~$30, e.g. InnoMaker 130°).
 

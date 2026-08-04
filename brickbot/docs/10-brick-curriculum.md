@@ -14,16 +14,19 @@ The numbers that shape the plan:
 | 1:12–1:6 kiln-fired clay minis | grams |
 | **SO-101 usable payload** | **200–500 g** (500 g near base; 200–300 g at extension) |
 
-## Stage 1 — Miniature masonry on the SO-101 (now, ~$0–50)
+## Stage 1 — Miniature masonry with your stacking-tower blocks (now, ~$0)
 
-Foam and 3D-printed mini bricks, then 1:12–1:6 kiln-fired clay minis (real ceramic, real friction, real fragility). Make the **task** harder, not the object:
+The wooden stacking-tower (Jenga-style) blocks are the stage-1 bricks: brick-shaped, ~10–20 g, rigid, with real sliding friction. Make the **task** harder, not the object:
 
 1. Single placement (Phases 4–6 as written)
-2. A straight course of bricks along a guide line with even 3–5 mm gaps
-3. Stacking two courses (running bond)
+2. A straight course of blocks along a guide line with even 3–5 mm gaps
+3. Two stacked courses (running bond)
 4. A corner
+5. **Endgame: rebuild the tower itself** — 3 blocks per layer, alternating direction each layer
 
 A neat, evenly-spaced course of bricks IS bricklaying — in miniature. That gap-consistent running bond is the actual masonry skill.
+
+Then swap to 1:12–1:6 kiln-fired clay minis (real ceramic, real friction, real fragility) and observe the re-learning cost of the material change — a preview of every later stage transition.
 
 ## Stage 2 — Half-scale real fired bricks (+2–3 months, ~$50–150)
 

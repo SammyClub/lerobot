@@ -35,7 +35,7 @@
    - **A powered USB hub** — 4 devices will be plugged in (2 arms, 2 cameras).
    - **A clamp** to fix the follower's base to the desk.
    - **A wrist-camera mount** — 3D-print one from the [SO-ARM100 repo](https://github.com/TheRobotStudio/SO-ARM100), or improvise a rigid bracket.
-   - **First "bricks":** foam toy bricks or 3D-printed mini bricks, under 100 g. Later: 1:12-scale kiln-fired clay miniature bricks.
+   - **First "bricks" — already sorted:** the wooden stacking-tower (Jenga-style) blocks (Flying Tiger). They're brick-shaped, ~10–20 g (far inside payload), ~2.5 cm wide (fits the gripper), and rigid with real sliding friction — better than foam. Two notes: smooth wood is slippery, so grasp across the narrow face and squeeze decisively; and designate ONE block as "the brick" for the first dataset (identical spares are handy). Kiln-fired 1:12-scale clay minis remain the later upgrade.
 
 7. **Bookmark the official assembly guide.** It has a video for every joint: https://huggingface.co/docs/lerobot/so101. Tools needed: precision Phillips #0/#1 screwdrivers and a small flathead. Screws are M2×6 (motor mounts) and M3×6 (horns/structure). Budget 1–2 hours per arm.
 

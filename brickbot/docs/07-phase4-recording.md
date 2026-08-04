@@ -2,7 +2,7 @@
 
 [← Phase 3](06-phase3-teleop-cameras.md) · [README](../README.md) · [Next: Phase 5 →](08-phase5-training.md)
 
-**Goal:** a dataset of ~50 good episodes of one task, checked and uploaded. First task: **"Pick up the brick and place it on the target square."** Use a foam or mini brick under 100 g.
+**Goal:** a dataset of ~50 good episodes of one task, checked and uploaded. First task: **"Pick up the brick and place it on the target square."** The "brick" is one of the wooden stacking-tower blocks — the task sentence can still say "brick" (exact wording barely matters for ACT; consistency does).
 
 1. **Set the scene.** Brick at one fixed starting spot. Target zone marked.
 
