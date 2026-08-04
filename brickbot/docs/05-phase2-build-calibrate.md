@@ -80,3 +80,5 @@ Calibration teaches the software each joint's true range. Once per arm, two minu
 > If the arm ever jumps to a weird pose later: bad calibration or mistyped `id`. Re-run calibration — it's two minutes. Never live with a bad one.
 
 [← Phase 1](04-phase1-software.md) · [README](../README.md) · [Next: Phase 3 →](06-phase3-teleop-cameras.md)
+
+> **GUI alternative:** once motor IDs are programmed, calibration — and everything after it (teleop, recording, training, rollout) — can also be done in Hugging Face's official LeLab app. See [14 — LeLab option](14-lelab-option.md).

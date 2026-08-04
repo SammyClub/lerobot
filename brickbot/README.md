@@ -69,6 +69,7 @@ Next action: [Phase 0 — prepare the kit](docs/03-phase0-prepare.md).
 | [11 — Mortar research](docs/11-mortar-research.md) | What the industry uses instead of mortar |
 | [12 — Hardware ladder](docs/12-hardware-ladder.md) | Arm comparison: SO-101 → PiPER → Z1 → UR5e |
 | [13 — Troubleshooting](docs/13-troubleshooting.md) | Symptom → cause → fix table |
+| [14 — LeLab option](docs/14-lelab-option.md) | Optional official GUI for calibration/teleop/recording/training — hybrid workflow |
 
 ### Reference
 
