@@ -21,14 +21,18 @@ No robot, no cameras, no `feetech` extra needed on the PC. Everything syncs thro
 
 | Priority | Option | When | Time (50k steps) |
 |---|---|---|---|
-| **1 — recommended** | **Your RTX PC** (WSL2 + CUDA) | Always, once set up | ~1–3 h depending on the card |
+| **1 — recommended** | **PC "Shav": 2× RTX 3090** (WSL2 + CUDA) | Always | ~30–90 min |
 | 2 | Google Colab — [official ACT notebook](https://colab.research.google.com/github/huggingface/notebooks/blob/main/lerobot/training-act.ipynb) | PC unavailable | ~1–3 h (GPU runtime) |
 | 3 | HF Jobs — add `--job.target=a10g-small` to the train command | Zero-setup, pay-per-second | ~1–2 h |
 | 4 — last resort | Mac locally with `--policy.device=mps` | Nothing else available | overnight |
 
 ## One-time setup on the RTX PC
 
-> **Windows caveat:** LeRobot on native Windows has caveats. Use **WSL2 with Ubuntu** instead — then everything behaves like Linux. Install WSL2 from PowerShell with `wsl --install -d Ubuntu`, open the Ubuntu terminal, and continue there. Make sure a current NVIDIA driver is installed on Windows (WSL2 uses it automatically).
+> **Status (2026-08-04): partially done.** WSL2 + Ubuntu is installed and `nvidia-smi` confirms 2× RTX 3090 (24 GB each) with a current driver — the Windows/WSL2 caveat below is handled. Steps 1–7 below are **still pending**. Note: a `~/lerobot` folder already exists on the PC; leave it alone and do a clean install in its own conda env (avoids inheriting an unknown version).
+>
+> **Working from the Mac:** `ssh shav@<pc-ip>`, then run training inside `tmux` (`sudo apt install tmux`; detach Ctrl-B D, reattach `tmux attach`) so a dropped SSH session doesn't kill the run.
+
+> **Windows caveat (handled on our PC):** LeRobot on native Windows has caveats. Use **WSL2 with Ubuntu** instead — then everything behaves like Linux. Install WSL2 from PowerShell with `wsl --install -d Ubuntu`, open the Ubuntu terminal, and continue there. Make sure a current NVIDIA driver is installed on Windows (WSL2 uses it automatically).
 
 1. **Install Miniconda inside Ubuntu/WSL2** (download from https://conda-forge.org/download/, run the Linux installer, reopen the shell).
 2. **Create and activate the environment:**
@@ -92,8 +96,9 @@ lerobot-train \
 
 - `--dataset.repo_id` pulls the dataset straight from the Hub — nothing to copy from the Mac.
 - The two chunk settings are the "predict 50, execute 15" pattern from [Concepts](01-concepts.md) — they must be chosen now, at training time (they are baked into the policy config).
-- 50,000 steps suits a ~50-episode dataset. A consumer RTX card does this in roughly 1–3 hours at batch 8.
-- **Out of memory?** Lower `--batch_size` (4, then 2).
+- 50,000 steps suits a ~50-episode dataset at batch 8. On our 24 GB RTX 3090s, raise `--batch_size` to 32 and cut `--steps` roughly in proportion (~15,000) — same data coverage, much faster wall-clock (~30–90 min).
+- One 3090 is plenty; the second GPU is spare capacity, not needed for ACT.
+- **Out of memory?** Lower `--batch_size` (16, 8, 4).
 - Colab users: same command inside the notebook, GPU runtime enabled.
 - MPS fallback: same command with `--policy.device=mps`.
 

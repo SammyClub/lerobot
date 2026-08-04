@@ -26,7 +26,19 @@ Details: [docs/10-brick-curriculum.md](docs/10-brick-curriculum.md)
 
 ## Current status
 
-- **Stage 1, not started.** SO-101 leader + follower kit (Partabot, disassembled) on hand. Next action: [Phase 0 — prepare the kit](docs/03-phase0-prepare.md).
+**Stage 1.** Progress checklist (tick as completed):
+
+- [ ] Phase 0 — kit sorted, power supplies labeled, extras ordered
+- [ ] Phase 1 — Mac: LeRobot installed, HF account + `hf auth login`
+- [x] Training PC ready — WSL2 + Ubuntu, **2× RTX 3090 (24 GB each)**, driver verified via `nvidia-smi` (2026-08-04)
+- [ ] Training PC — `lerobot[training]` installed in a fresh conda env + `hf auth login`
+- [ ] Phase 2 — ports found, 12 motor IDs programmed, arms assembled, both arms calibrated
+- [ ] Phase 3 — teleop works, cameras mounted and framed, everything fixed in place
+- [ ] Phase 4 — 50-episode dataset recorded and replay-checked
+- [ ] Phase 5 — first ACT policy trained, loss flattened
+- [ ] Phase 6 — rollout succeeds at trained position 8+/10
+
+Next action: [Phase 0 — prepare the kit](docs/03-phase0-prepare.md).
 
 ## Hardware inventory
 
@@ -34,7 +46,8 @@ Details: [docs/10-brick-curriculum.md](docs/10-brick-curriculum.md)
 - 12× Feetech STS3215 servos (6 per arm; check voltage variants — see Phase 0)
 - 2× bus-servo control boards, USB-C cables, power supplies
 - Still to buy: 2× USB webcams, powered USB hub, table clamp, wrist camera mount, foam/mini bricks
-- Training machine: PC with a GeForce RTX GPU (use WSL2 — see Phase 5). Mac drives the arms; PC trains.
+- Training machine: PC "Shav" with **2× NVIDIA RTX 3090 (24 GB VRAM each)**, WSL2 + Ubuntu already set up, reachable from the Macs over SSH (`ssh shav@<pc-ip>`). Mac drives the arms; PC trains. See Phase 5.
+- Front camera: Logitech StreamCam (from home) — lock its autofocus via Logi Tune before recording. Wrist camera: use the kit's camera if it is a small board cam; otherwise buy a small wide-angle fixed-focus UVC board cam (~$30, e.g. InnoMaker 130°).
 
 ## Repo map
 
