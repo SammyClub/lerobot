@@ -30,6 +30,7 @@ Details: [docs/10-brick-curriculum.md](docs/10-brick-curriculum.md)
 
 - [ ] Phase 0 — kit sorted, power supplies labeled, extras ordered
 - [ ] Phase 1 — Mac: LeRobot installed, HF account + `hf auth login`
+- [ ] Phase 1 — LeLab installed; opens in the browser
 - [x] Training PC ready — WSL2 + Ubuntu, **2× RTX 3090 (24 GB each)**, driver verified via `nvidia-smi` (2026-08-04)
 - [ ] Training PC — `lerobot[training]` installed in a fresh conda env + `hf auth login`
 - [ ] Phase 2 — ports found, 12 motor IDs programmed, arms assembled, both arms calibrated
@@ -51,6 +52,8 @@ Next action: [Phase 0 — prepare the kit](docs/03-phase0-prepare.md).
 
 ## Repo map
 
+> **Workflow convention:** day-to-day driving of the robot (calibration, teleop, recording, rollout) happens in **LeLab**, Hugging Face's official app for this arm (installed in Phase 1). The Terminal is for one-time setup, PC training, and debugging — collapsed "Terminal equivalent" blocks in the phase docs hold the command fallbacks.
+
 ### The guide (follow in order)
 
 | Doc | Contents |
@@ -69,7 +72,6 @@ Next action: [Phase 0 — prepare the kit](docs/03-phase0-prepare.md).
 | [11 — Mortar research](docs/11-mortar-research.md) | What the industry uses instead of mortar |
 | [12 — Hardware ladder](docs/12-hardware-ladder.md) | Arm comparison: SO-101 → PiPER → Z1 → UR5e |
 | [13 — Troubleshooting](docs/13-troubleshooting.md) | Symptom → cause → fix table |
-| [14 — LeLab option](docs/14-lelab-option.md) | Optional official GUI for calibration/teleop/recording/training — hybrid workflow |
 
 ### Reference
 

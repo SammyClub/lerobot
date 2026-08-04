@@ -4,7 +4,9 @@
 
 **Goal:** you can drive the follower smoothly with the leader, both cameras stream, and the scene is framed and fixed in place.
 
-1. **Start teleoperation (no cameras yet):**
+1. **Start teleoperation in LeLab (no cameras yet).** In LeLab, start teleoperation with `brick_leader` driving `brick_follower`. You get a live 3D view of both arms. Pick up the leader and move it slowly — the follower copies.
+
+   <details><summary>Terminal equivalent</summary>
 
    ```bash
    lerobot-teleoperate \
@@ -16,23 +18,27 @@
        --teleop.id=brick_leader
    ```
 
-   Pick up the leader and move it slowly. The follower copies. Ctrl-C stops.
+   Ctrl-C stops.
+
+   </details>
 
 2. **Practice for 20 minutes.** Pick things up, put them down. Your smoothness here is the ceiling on your data quality, and data quality is the ceiling on the policy. Jerky puppeteering = jerky robot, forever.
 
-3. **Plug in both cameras and identify them:**
+3. **Plug in both cameras and identify them (Terminal step).** The tool saves a snapshot from each camera — the easiest way to tell them apart:
 
    ```bash
    lerobot-find-cameras opencv
    ```
 
-   Lists each camera with an index number and saves a snapshot from each. Open the snapshots to see which is which. Write down: wrist index = __, front index = __. The laptop's built-in camera also appears — ignore it.
+   Lists each camera with an index number. Open the saved snapshots to see which is which. Write down: wrist index = __, front index = __. The laptop's built-in camera also appears — ignore it.
 
 4. **Mount the cameras.**
    - **Wrist camera:** on the arm near the gripper, looking at what the gripper is about to grab. Screw it down hard — glue it if it wobbles.
-   - **Front camera:** on a small tripod, looking at the whole work area from the front, slightly above. It must see the brick, the target, and the follower.
+   - **Front camera** (the StreamCam): on a small tripod, looking at the whole work area from the front, slightly above. It must see the brick, the target, and the follower. Lock its autofocus in the Logi Tune app once framing is final.
 
-5. **Start teleoperation with cameras and a live view** (substitute your index numbers):
+5. **Attach the cameras in LeLab and open the live view.** In the follower's setup in LeLab, attach both cameras — name them exactly `front` and `wrist` (these names matter later), 640×480 at 30 fps — then start teleoperation again. You now see what the robot sees.
+
+   <details><summary>Terminal equivalent</summary>
 
    ```bash
    lerobot-teleoperate \
@@ -46,7 +52,7 @@
        --display_data=true
    ```
 
-   A viewer window opens with both feeds live.
+   </details>
 
 6. **Frame the scene using the live view.** The front camera should see *only* what matters:
    - Visible at all times: the brick, the target area, the follower arm.

@@ -10,7 +10,9 @@
 
 2. **Decide the task sentence and never change it.** Ours: `Pick up the brick and place it on the target square`. Exact wording matters little for ACT, but it must be identical at recording and at rollout.
 
-3. **Start recording:**
+3. **Start recording in LeLab.** In LeLab's recording screen, fill in the form: the task sentence, dataset name `so101_brick_place_v1`, **50 episodes**, 30-second episodes, 10-second reset time. Start. Episode 1 begins: up to 30 seconds to do the task, then a 10-second break to reset the scene, then the next episode starts automatically. Press the **spacebar** to advance the moment the brick is placed — don't wait out the clock.
+
+   <details><summary>Terminal equivalent (has per-episode redo keys)</summary>
 
    ```bash
    lerobot-record \
@@ -29,13 +31,15 @@
        --dataset.reset_time_s=10
    ```
 
-   What happens: episode 1 starts recording. Up to 30 seconds per episode, then a 10-second break to reset the scene, then the next episode starts automatically.
-
    | Key | What it does |
    |---|---|
-   | → (right arrow) | "Done" — ends the episode now and accepts it. Press the moment the brick is placed. |
-   | ← (left arrow) | "Redo" — throws away the current episode and restarts it. Use freely; a redo is cheap, a bad episode is expensive. |
+   | → (right arrow) | "Done" — ends the episode now and accepts it. |
+   | ← (left arrow) | "Redo" — throws away the current episode and restarts it. A redo is cheap, a bad episode is expensive. |
    | ESC | Stops the whole session cleanly, saves, uploads. |
+
+   If you fumble an episode in LeLab and can't redo it there, note its number and re-record via the terminal — or simply record a replacement episode; one bad episode in 50 hurts less than stopping your flow.
+
+   </details>
 
 4. **Record each episode by these rules:**
    - **Watch only the camera feeds on screen — never the physical robot.** The policy only ever sees the feeds.
@@ -44,7 +48,7 @@
    - **Reset precisely** during the break: brick back to its exact spot (use the out-of-view mark).
    - Bumped something? Bad grab? Press ← and redo.
 
-5. **Quality-check by replaying.** Replay makes the follower physically re-execute a recorded episode:
+5. **Quality-check by replaying (Terminal step).** Replay makes the follower physically re-execute a recorded episode:
 
    ```bash
    lerobot-replay \
@@ -59,7 +63,7 @@
 
 6. **Know the privacy setting.** The dataset — including videos of your desk — uploads to the Hugging Face Hub automatically. To keep it offline add `--dataset.push_to_hub=false` (but the RTX PC / cloud training path needs it on the Hub — see [Phase 5](08-phase5-training.md)). Alternative: after upload, dataset page on huggingface.co → Settings → visibility → **Private**. Private datasets still work for your own training on any machine logged into your account.
 
-7. **To add more episodes later, resume — don't restart:**
+7. **To add more episodes later, resume — don't restart (Terminal step):**
 
    ```bash
    lerobot-record \

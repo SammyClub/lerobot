@@ -8,7 +8,9 @@
 
 2. **Find the exact trained brick position.** Run the replay command from [Phase 4](07-phase4-recording.md) on episode 0 and watch where the gripper goes to pick. Place the brick exactly there. This reconstructs a scene the policy definitely knows.
 
-3. **Let the robot take over:**
+3. **Let the robot take over.** In LeLab, pick the trained model (`act_brick_v1`) and run it on the robot. Enter the **exact task sentence from recording**. The leader arm stays on the shelf — the policy is driving.
+
+   <details><summary>Terminal equivalent</summary>
 
    ```bash
    lerobot-rollout \
@@ -22,7 +24,9 @@
      --duration=60
    ```
 
-   Camera names (`front`, `wrist`) and the task sentence must match recording exactly. The leader arm stays on the shelf — the policy is driving.
+   Camera names (`front`, `wrist`) and the task sentence must match recording exactly.
+
+   </details>
 
 4. **Judge the result by this rule:**
    - **Works at the trained position:** success! Run it 10 times; 8+/10 is a solid first policy.

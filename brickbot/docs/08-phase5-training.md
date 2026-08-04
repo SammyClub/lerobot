@@ -23,7 +23,7 @@ No robot, no cameras, no `feetech` extra needed on the PC. Everything syncs thro
 |---|---|---|---|
 | **1 — recommended** | **PC "Shav": 2× RTX 3090** (WSL2 + CUDA) | Always | ~30–90 min |
 | 2 | Google Colab — [official ACT notebook](https://colab.research.google.com/github/huggingface/notebooks/blob/main/lerobot/training-act.ipynb) | PC unavailable | ~1–3 h (GPU runtime) |
-| 3 | HF Jobs — add `--job.target=a10g-small` to the train command | Zero-setup, pay-per-second | ~1–2 h |
+| 3 | HF Jobs — add `--job.target=a10g-small` to the train command, or start it from inside LeLab with live charts | Zero-setup, pay-per-second | ~1–2 h |
 | 4 — last resort | Mac locally with `--policy.device=mps` | Nothing else available | overnight |
 
 ## One-time setup on the RTX PC

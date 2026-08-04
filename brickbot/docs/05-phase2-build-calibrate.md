@@ -54,31 +54,29 @@ board ──── servo               board ── 1 ── 2 ── 3 ── 4
 
 Calibration teaches the software each joint's true range. Once per arm, two minutes each.
 
-1. **Power and connect the follower** (correct supply!).
-2. **Run the calibration command.** The `id` names this arm's calibration file. Pick it once and **never change it** — every later command must use the same one. This project uses `brick_follower` / `brick_leader`.
+1. **Power and connect both arms.** Correct power supply for each (check the tape labels!). USB connected.
+2. **Open LeLab and add the follower.** Type `lelab` in the Terminal. In the app, add a robot: arm type **follower**, select its port, name it `brick_follower`. The name labels this arm's calibration file — pick it once and **never change it**.
+3. **Follow the guided calibration.** LeLab walks you through it joint by joint: hold the arm in the "L shape" middle pose (upright from the base, forearm horizontal, gripper pointing down and closed), confirm, then gently sweep each joint all the way to both of its end stops — gripper, wrist roll, wrist flex, elbow, shoulder lift, shoulder pan.
+4. **Repeat for the leader.** Add a second robot: arm type **leader**, its port, name `brick_leader`. Same pose, same sweep. The leader's "gripper" is its trigger — squeeze fully open and closed during the sweep.
 
-   ```bash
-   lerobot-calibrate \
-       --robot.type=so101_follower \
-       --robot.port=FOLLOWER_PORT \
-       --robot.id=brick_follower
-   ```
+<details><summary>Terminal equivalent</summary>
 
-3. **Hold the arm in the middle pose** — an "L shape": upright from the base, forearm horizontal, gripper pointing down, gripper closed. Every joint roughly mid-travel. Press Enter.
-4. **Sweep every joint, one at a time,** gently to both of its end stops: gripper, wrist roll, wrist flex, elbow, shoulder lift, shoulder pan. Numbers change on screen as ranges are recorded. When every joint has visited both ends, press Enter.
-5. **Repeat for the leader:**
+```bash
+lerobot-calibrate \
+    --robot.type=so101_follower \
+    --robot.port=FOLLOWER_PORT \
+    --robot.id=brick_follower
 
-   ```bash
-   lerobot-calibrate \
-       --teleop.type=so101_leader \
-       --teleop.port=LEADER_PORT \
-       --teleop.id=brick_leader
-   ```
+lerobot-calibrate \
+    --teleop.type=so101_leader \
+    --teleop.port=LEADER_PORT \
+    --teleop.id=brick_leader
+```
 
-   Same procedure. The leader's "gripper" is its trigger — squeeze fully open and closed during the sweep.
+Middle pose → Enter → sweep every joint to both ends → Enter. The `id` values are the same names used in LeLab — app and CLI share calibration files.
 
-> If the arm ever jumps to a weird pose later: bad calibration or mistyped `id`. Re-run calibration — it's two minutes. Never live with a bad one.
+</details>
+
+> If the arm ever jumps to a weird pose later: bad calibration or mistyped name/`id`. Re-run calibration — it's two minutes. Never live with a bad one.
 
 [← Phase 1](04-phase1-software.md) · [README](../README.md) · [Next: Phase 3 →](06-phase3-teleop-cameras.md)
-
-> **GUI alternative:** once motor IDs are programmed, calibration — and everything after it (teleop, recording, training, rollout) — can also be done in Hugging Face's official LeLab app. See [14 — LeLab option](14-lelab-option.md).

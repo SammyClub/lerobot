@@ -5,6 +5,7 @@
 | Problem | Cause → fix |
 |---|---|
 | "command not found" for any `lerobot-…` command | The environment isn't active in this Terminal window → `conda activate lerobot` |
+| LeLab misbehaves or a flow gets stuck | Fall back to the "Terminal equivalent" block in the same step — app and CLI share the same calibration files and datasets, so nothing is lost switching between them |
 | `lerobot-find-port` finds nothing | Charge-only USB cable (swap it); board not powered; Waveshare board jumpers not on channel B |
 | Servo not found during motor setup | More than one servo connected — connect exactly ONE; check the 3-pin cable is seated |
 | Permission denied on the port (Linux/WSL2) | `sudo chmod 666 /dev/ttyACM*` now; `sudo usermod -aG dialout $USER` + log out/in, forever |
