@@ -1,0 +1,5 @@
+outputs/
+wandb/
+*.vtt
+.DS_Store
+__pycache__/

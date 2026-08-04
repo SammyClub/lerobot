@@ -1,0 +1,2507 @@
+[00:00:00] I'm going to walk you through how to
+[00:00:01] train one of these robots. We'll
+[00:00:03] generate some training data by doing
+[00:00:06] some examples of picking up this cube
+[00:00:07] and putting it into the bowl. And then
+[00:00:09] we'll see if the robot is able to pick
+[00:00:11] up the cube on command by itself. The
+[00:00:13] policy I'm going to train is called ACT.
+[00:00:16] And the robot I'm going to train is
+[00:00:18] called the SO101.
+[00:00:20] Now, this is the third video in a
+[00:00:23] four-part series. In the first part, I
+[00:00:25] explained the trade-offs between
+[00:00:26] building and buying your own robot and
+[00:00:28] the options there. In the second part, I
+[00:00:30] talked about some of the policies or
+[00:00:32] models like act groo and pi zero. But
+[00:00:35] today I'm going to train the first of
+[00:00:36] those models. It's the simplest one
+[00:00:38] called actctor or action chunking
+[00:00:40] transformer. Now I'm not going to show
+[00:00:43] many slides today. I do recommend
+[00:00:44] watching the previous two videos if you
+[00:00:46] haven't already because it's going to be
+[00:00:48] a live demo. First of all, setting up
+[00:00:50] the library called the robot from
+[00:00:52] hugging face. Then calibrating an SO101
+[00:00:55] robot, which is this one here. I'll show
+[00:00:57] you how to calibrate the robot, not
+[00:00:59] calibrate the motors, because that's in
+[00:01:00] part of the build step. Then I'll show
+[00:01:03] you how to record data sets and some
+[00:01:05] tips there. Then I'll show you how to
+[00:01:07] train the model on a GPU. And then I'll
+[00:01:10] show you how to evaluate whether the
+[00:01:12] model has been properly trained and
+[00:01:14] whether it's performing well.
+[00:01:16] The scripts for today are going to be
+[00:01:18] available to those who have subscribed
+[00:01:20] or purchased the advanced robotics repo.
+[00:01:23] You can find out more at trellis.com.
+[00:01:26] tlis.com/advanced-rootics.
+[00:01:29] And this repo will contain uh some
+[00:01:31] guidance on building versus buying uh
+[00:01:34] some data preparation scripts and guide.
+[00:01:36] And actually that's no longer in draft
+[00:01:38] form. It's uh up live and the ACT
+[00:01:41] training guide, the action chunk
+[00:01:43] chunking transformer training guide that
+[00:01:44] we're going to cover today. Now there
+[00:01:46] will be a follow- on piece in the series
+[00:01:48] where I'll cover some pre-trained models
+[00:01:50] like small GLA or Grouch or PI Zero. So
+[00:01:53] keep an eye out for that over the next
+[00:01:54] weeks.
+[00:01:56] So, we're going to get started and the
+[00:01:58] library that we're going to use is
+[00:01:59] called the Robo. It's from HuggingFace
+[00:02:02] and we're going to start off by getting
+[00:02:05] that library installed. So, I'm here in
+[00:02:06] the advanced robotics repo. I will, by
+[00:02:09] the way, give instructions so you can
+[00:02:11] follow along using the open source uh
+[00:02:13] library from Lorovo. And then if you do
+[00:02:16] have access to or decide to purchase
+[00:02:18] access to the tri scripts, uh you'll be
+[00:02:20] able to follow those as well. So, I'll
+[00:02:21] try to keep it uh somewhat broad. So,
+[00:02:25] here I am in advanced robotics and the
+[00:02:27] section I covered the last time was
+[00:02:28] building versus buying a robot. Today,
+[00:02:30] I'm going to cover training. So, we're
+[00:02:32] going to move straight into the training
+[00:02:33] folder here and check out the readme
+[00:02:36] that's in that folder.
+[00:02:38] Now, things we need to do before we can
+[00:02:41] do training is calibrate these uh robots
+[00:02:44] and run what's called teley operation,
+[00:02:46] which which means allowing this one here
+[00:02:48] to follow the movements of this first
+[00:02:50] one here. And when we're done with teley
+[00:02:52] operation, we'll move to creating data
+[00:02:54] and then we'll move to training. So the
+[00:02:56] very first script uh very first markdown
+[00:02:58] file we want to start up with is so 101
+[00:03:01] teleyop. So I'm going to go into that
+[00:03:04] file which is right here.
+[00:03:09] And it's actually just called uh
+[00:03:10] teleyop, not even so 101 because it will
+[00:03:14] work in principle if you have different
+[00:03:16] robots. So I'll just rename that there.
+[00:03:19] and I go into teleyop. So let's scroll
+[00:03:21] up to the very top of the teleyop file
+[00:03:24] and we're going to get started with
+[00:03:25] installing Laroo. Now Larrobo is best
+[00:03:29] operated in aonda environment. Will
+[00:03:32] manage your Python dependencies. It can
+[00:03:34] manage a bit beyond Python. So to run
+[00:03:36] Larobo it's recommended to have and
+[00:03:39] getting depends on what kind of
+[00:03:41] operating system you have. if it's Mac
+[00:03:43] OS with an ARM chip or with an Intel
+[00:03:46] chip or if it's Mac OS or sorry or if
+[00:03:49] it's with Linux or Windows and you can
+[00:03:51] look up with chatgbt what the best way
+[00:03:53] to install is.
+[00:03:55] So what I've already done I've done this
+[00:03:57] on my computer is I've downloaded the
+[00:03:59] latest release miniforge is a common way
+[00:04:01] to install on Mac.
+[00:04:04] It's uh actually a lightweight version
+[00:04:06] of that I think doesn't have licensing
+[00:04:08] dependencies on Anaconda. So I have run
+[00:04:10] through this and I've got installed on
+[00:04:13] my uh lap my laptop here which is a
+[00:04:16] MacBook M4.
+[00:04:19] Next we're going to set up uh Laroobo
+[00:04:21] which is where we're going to clone. So
+[00:04:23] I'm going to first move into the
+[00:04:24] training directory because this is where
+[00:04:26] we're going to do everything for
+[00:04:27] training. This is within Advanced
+[00:04:29] Robotics. If you're not in Advanced
+[00:04:31] Robotics, you can just clone it
+[00:04:32] somewhere on your computer. And now I'm
+[00:04:34] going to clone.
+[00:04:36] Now, if you have access to advanced
+[00:04:39] robotics, you can clone this specific uh
+[00:04:41] this specific version that I have
+[00:04:43] developed and made some tweaks or
+[00:04:45] improvements to. If you do not have
+[00:04:47] access to that, you can clone Larobo
+[00:04:48] from hugging trace or this specific
+[00:04:50] commit which I'll put in description of
+[00:04:52] the video below. So, I've cloned Laroo.
+[00:04:55] You can see it here actually just on um
+[00:04:58] on the right on the left hand side of
+[00:04:59] the screen. So, I've got uh the Lobo
+[00:05:01] library here and I'm going to now CD
+[00:05:03] into that directory. So I'm going to
+[00:05:05] change into that directory. So here I'll
+[00:05:07] just do cdurroo
+[00:05:10] and now I'm going to create an
+[00:05:12] environment aonda environment using
+[00:05:14] python 3 uh1 and then activate it. Now
+[00:05:18] I've already created the environment. So
+[00:05:20] I'll just activate the environment here
+[00:05:22] and you'll see using cond the name of it
+[00:05:24] will appear to the left hand side here.
+[00:05:27] Now we're going to move through the
+[00:05:28] installations. There are a few things to
+[00:05:30] install. First um want to make sure we
+[00:05:33] have ffmpeg cond forge and these
+[00:05:36] packages here. And then we want to
+[00:05:38] install all of the packages that are
+[00:05:40] inside Larovo here. And to do that we
+[00:05:43] will just run pip install- e and then
+[00:05:45] dot. Now if you want to speed it up a
+[00:05:47] bit you can first pip install uv and
+[00:05:48] then do uv pip install instead of just
+[00:05:51] pip install. I've already done that. So
+[00:05:53] everything should be installed
+[00:05:55] correctly.
+[00:05:57] Now there is one step where you might
+[00:05:58] have to press uh Y in order to accept
+[00:06:01] the installation but after that uh you
+[00:06:03] should be all set with Laroo installed
+[00:06:06] here. So with Laroo installed we're now
+[00:06:09] going to start to connect these robots
+[00:06:13] up to our laptop. And to do that we need
+[00:06:16] to figure out what the mapping is to the
+[00:06:19] USB ports. Now I have connected them in
+[00:06:24] through USBC which is the kind of
+[00:06:26] smaller USBC USB cable and often you may
+[00:06:29] not have have enough ports because I've
+[00:06:31] connected in two robots. So that's a
+[00:06:33] USBC each. I also have a camera here
+[00:06:36] which is pointing towards the setup.
+[00:06:38] This is my front camera and I have a
+[00:06:40] camera on the robot which is a wrist
+[00:06:42] camera. So I've actually got four USB uh
+[00:06:45] ports that I need to connect to. Plus
+[00:06:48] I'm also trying to record myself. So,
+[00:06:50] you may find that you need some kind of
+[00:06:52] an adapter. I don't know if you can see
+[00:06:53] it there, but I have this little um USB
+[00:06:55] extender that will allow you to plug
+[00:06:57] multiple USBs into one single uh USBC
+[00:07:00] port right here.
+[00:07:03] But anyway, what I said is we need to
+[00:07:04] figure out which uh one of these ports
+[00:07:06] is connected where. And to do that, we
+[00:07:08] run uh find port. So, if you just run
+[00:07:11] find port here, it's going to ask you to
+[00:07:13] remove the USB cable. So, you want to
+[00:07:15] trace uh where one of the USB cables is
+[00:07:18] coming from. So on this robot here, um,
+[00:07:22] I've got it coming into this cable here.
+[00:07:24] So what I do is just pull this out. And
+[00:07:28] once it's removed, I'll press enter. And
+[00:07:30] now I'm going to, uh, reconnect it.
+[00:07:33] And you can see here that it's printed
+[00:07:35] on my screen, the motor bus. So this is
+[00:07:39] the little little snippet that I need
+[00:07:42] um, because I need to give permissions.
+[00:07:43] So I'll need to do this. Grab this here.
+[00:07:46] Copy paste. paste it up here, which I
+[00:07:50] think basically done. And then do the
+[00:07:52] same for the other one. So I'll again
+[00:07:55] run the port. This time I'm going to
+[00:07:57] trace this robot. Pull out the port.
+[00:08:00] Pull out the USB. Stick it back in.
+[00:08:04] Press enter. Oh, I think I'm pressing on
+[00:08:07] my keyboard, so I'm messing it up. Let's
+[00:08:10] remove the USB. You can remove it from
+[00:08:11] the robot either. That might actually be
+[00:08:13] the best thing to do.
+[00:08:16] and then press enter and we've got the
+[00:08:19] code for that. Okay, so I would want to
+[00:08:22] copy this here,
+[00:08:24] paste it here
+[00:08:26] and now run uh p sudo. Oops,
+[00:08:30] this is going to provide permission for
+[00:08:32] using those ports and I would put in my
+[00:08:34] password. Um, I've already done that
+[00:08:37] earlier, so I think that's fine. But
+[00:08:39] yeah, you should put in your password
+[00:08:40] and then allow permission. Now these
+[00:08:43] identities here are what we're going to
+[00:08:45] use to identify the motors going
+[00:08:46] forward. Okay. So we've provided
+[00:08:48] permission here and next we're going to
+[00:08:50] move on to configuring the motors. Now
+[00:08:53] you don't need to configure the motors
+[00:08:55] if you have pre purchased the robots and
+[00:08:57] they've already been configured. So mine
+[00:08:59] were I don't need to run this. If you
+[00:09:01] are going to configure them you'll need
+[00:09:03] to pass in the robot type. This is
+[00:09:06] referring to a preset configuration for
+[00:09:08] the so 101 follower and the so 101
+[00:09:10] leader. and you need to pass in the
+[00:09:12] port. So, you'll want to run these
+[00:09:13] scripts. Um, if you run them, I can run
+[00:09:16] them here.
+[00:09:20] It's um it's going to take you through
+[00:09:22] each of the motors, so the gripper motor
+[00:09:24] and then the other five motors, and
+[00:09:26] allow you to configure them. I'm not
+[00:09:28] going to do it though because I've
+[00:09:29] already done it. So, if you assembled
+[00:09:31] your robot, you will want to go through
+[00:09:33] this.
+[00:09:35] So, once your motors are configured,
+[00:09:36] then you'll move down to calibrating the
+[00:09:39] arm. uh the arms roer which involves
+[00:09:41] putting them into a middle position and
+[00:09:43] then extending each of the motors to
+[00:09:45] their full range of position. So the top
+[00:09:48] and the bottom of their position. Now
+[00:09:50] you can run this script here to
+[00:09:52] calibrate them one by one. If you ever
+[00:09:54] need to recalibrate, you should run
+[00:09:55] this. And note that for the leader, you
+[00:09:58] need to pass the port and you also need
+[00:10:00] to pass an ID that you're going to reuse
+[00:10:02] then during training. And the same for
+[00:10:04] the follower, you're going to need to
+[00:10:06] pass the port and then an ID as well.
+[00:10:10] Now the first time you're doing this you
+[00:10:12] can actually just directly run teley
+[00:10:14] operation and if you do that it's going
+[00:10:16] to force you to calibrate. So just a
+[00:10:19] note on that we will run the
+[00:10:20] calibration. It won't require you to
+[00:10:22] rerun it on tele tell te tell te tell te
+[00:10:23] tell te tell te tell te tell te tell te
+[00:10:23] tell te tell teley operation if you've
+[00:10:24] done it once but you could just directly
+[00:10:26] run the teley operation
+[00:10:28] so first thing it will do is ask you for
+[00:10:30] the leader arm which is this one to put
+[00:10:32] it into uh the middle of its range and I
+[00:10:36] like to put it uh into this position
+[00:10:38] here you could probably set another one
+[00:10:41] but I've got the L shape with this
+[00:10:43] pointing down I'll press enter and now I
+[00:10:45] need to extend it through the full range
+[00:10:47] of motion and you should actually see
+[00:10:49] the numbers change uh the min and max
+[00:10:52] position. So here, this is the gripper.
+[00:10:54] You should see the gripper positions
+[00:10:55] change when I change that. The next one
+[00:10:58] then is the twist. This is the wrist
+[00:11:00] roll. So you should see the wrist roll
+[00:11:02] positions, the min and max move. Yep.
+[00:11:05] And then now the third joint. So you
+[00:11:07] should see the min and max getting set.
+[00:11:10] You should also see the min and max. Now
+[00:11:12] on the fourth joint which is the elbow
+[00:11:14] flex.
+[00:11:16] And now the shoulder lift
+[00:11:20] is changing. And now last of all uh we
+[00:11:23] should see the shoulder pan which is
+[00:11:25] this one here. And with that we should
+[00:11:28] be we should be done. So I think I have
+[00:11:32] I think I've covered all the range of
+[00:11:34] motion. Just make sure you have and with
+[00:11:36] that we can press enter. Now we do the
+[00:11:39] same for the follower. So we want to get
+[00:11:42] this into a middle position with the
+[00:11:44] gripper closed. Press enter. Now check
+[00:11:46] the gripper min max wrist roll.
+[00:11:54] So I'm just making sure I cover between
+[00:11:56] the two stops. Now I want to get the
+[00:11:59] wrist flex. I want to get the elbow
+[00:12:04] And I want to get the shoulder lift.
+[00:12:08] So that should all be moving. You should
+[00:12:10] see the numbers moving. And the last one
+[00:12:11] then of course is the shoulder pan.
+[00:12:15] So we should be setting the minimum and
+[00:12:18] maximum there. Great.
+[00:12:22] So this is now back in position. Doesn't
+[00:12:24] really matter if you don't bring it back
+[00:12:25] to the same position, but we will. And
+[00:12:28] the calibration is done. So we're ready
+[00:12:30] now to move uh to telly operation. And
+[00:12:33] you can operate either with uh the
+[00:12:35] cameras or without the cameras. Now we
+[00:12:38] want to operate with the cameras and we
+[00:12:40] want to select our cameras. So rather
+[00:12:42] than just running I mean we could run
+[00:12:44] teley operation like this. I'll actually
+[00:12:45] just do it. No cameras will be
+[00:12:48] displayed.
+[00:12:49] And um notice how the starting position
+[00:12:51] with the gripper down is actually the
+[00:12:53] camera on the side. And now my teley
+[00:12:55] operation should work. And I should be
+[00:12:57] able to do things like pick up the the
+[00:13:00] cube here. Say kind of hard to do from
+[00:13:03] this position but you get the picture. I
+[00:13:05] can pick up the cube and I can tell the
+[00:13:07] operation. But notice that there's
+[00:13:08] nothing showing on my screen with
+[00:13:10] respect to the cameras. Uh so we want to
+[00:13:13] now connect the cameras so we can view
+[00:13:14] through the camera. So I'll just do Ctrl
+[00:13:16] + Z to exit out. And now we're going to
+[00:13:20] find the cameras using OpenCV. So we'll
+[00:13:22] run Python. We'll run the find cameras
+[00:13:25] OpenCV module.
+[00:13:28] And I probably shouldn't have done that.
+[00:13:31] And the reason is um I'm trying to
+[00:13:34] record as well on the cameras
+[00:13:38] which might cause issues. I did run it
+[00:13:41] earlier so I could show you. And what
+[00:13:42] this command does is it lists out the
+[00:13:45] cameras here
+[00:13:47] and I have four cameras right now. And
+[00:13:49] it also will take a screen capture. If
+[00:13:51] you go to Laroo and then outputs and
+[00:13:54] captured images, it will show you each
+[00:13:56] of the cameras. So this camera here, you
+[00:14:00] can tell is this wrist camera. So I know
+[00:14:03] now that uh number index zero is the
+[00:14:05] wrist camera. Index one is this front
+[00:14:10] camera here.
+[00:14:11] So that's index one. We're just trying
+[00:14:13] to figure out the indexes. Index um two
+[00:14:17] is the camera that you're looking at me
+[00:14:19] through and index three is my laptop's
+[00:14:22] camera.
+[00:14:23] So when we know all of the camera
+[00:14:25] indices, we can now insert those into
+[00:14:28] the command for running teley operation.
+[00:14:31] Notably, we can insert them uh right
+[00:14:34] here at the bottom. I'll show you now.
+[00:14:36] So robot cameras, this was missing when
+[00:14:38] we previously at teleyoperated. We're
+[00:14:40] going to define a risk camera open CV
+[00:14:42] type at path zero. And we're going to
+[00:14:44] specify the resolution here. You can do
+[00:14:47] higher resolution. It may give better
+[00:14:49] results, but it will be slower to
+[00:14:50] inference and train.
+[00:14:52] and then the frames per second. And then
+[00:14:54] for the front, we'll run this here. So,
+[00:14:57] it's the very same command otherwise
+[00:14:58] except we're going to be able to see now
+[00:15:01] with the cameras through rerun. Now,
+[00:15:04] there's one more note here. You might
+[00:15:06] want to know, well, how do I know what
+[00:15:07] configurations I can use for my camera
+[00:15:09] in terms of the pixels? And for that,
+[00:15:13] uh, you can run an extra command.
+[00:15:16] So, let me see here. I've put together a
+[00:15:18] little script,
+[00:15:20] um, right here.
+[00:15:22] If you cd into the troll utils folder,
+[00:15:26] um, I need to go back one
+[00:15:30] into trous utils.
+[00:15:37] So I'm in training cd trellis utils and
+[00:15:41] then I'm just going to run python test
+[00:15:43] camera resolutions.
+[00:15:46] And hopefully this doesn't mess up my
+[00:15:47] video recording either. But what it's
+[00:15:50] doing is it's running through a
+[00:15:52] checklist to see which resolutions are
+[00:15:55] supported because only if it's supported
+[00:15:57] are you going to be able. So these are
+[00:15:59] the default resolutions of the cameras I
+[00:16:01] believe and then it's telling you which
+[00:16:03] ones here are support.
+[00:16:06] So you can adjust it um according to the
+[00:16:09] needs. Probably there's not a whole lot
+[00:16:11] of point going a lot higher. It depends
+[00:16:13] on what the model supports. The ACT
+[00:16:16] model does support higher resolution. So
+[00:16:18] you could upload go to a,000 roughly in
+[00:16:20] terms of pixel width. Um the small VLA
+[00:16:23] model I think cuts them down to about
+[00:16:25] 500. So there's not a whole lot of point
+[00:16:28] in using larger resolutions. I like
+[00:16:30] using smaller too cuz it's faster
+[00:16:32] especially the first time around. So we
+[00:16:35] have information here on our cameras. We
+[00:16:37] have input the correct specs. We got
+[00:16:41] information which are supported by
+[00:16:43] running a quick script.
+[00:16:45] And with that, we're pretty much
+[00:16:46] teleyoperating. Now, I'm going to run
+[00:16:49] this so you can see what it means. Um, I
+[00:16:52] need to CD into Nurovo.
+[00:16:58] And you're going to see here on the
+[00:16:59] screen now, my camera should appear.
+[00:17:02] This is a good time, by the way, to
+[00:17:03] adapt the position of this camera. So,
+[00:17:06] if you don't think that you're covering
+[00:17:07] the full screen, this is a good position
+[00:17:09] now to a good time to kind of adapt this
+[00:17:13] to um give a good view. Now, you can see
+[00:17:17] one thing that's bad is you never would
+[00:17:18] want to record with me here because I'm
+[00:17:20] currently in the view. So, I would need
+[00:17:22] to get out of the way. Also, my keyboard
+[00:17:24] would need to get out of the way. Also,
+[00:17:26] you know, you want these objects to be
+[00:17:28] in view.
+[00:17:30] So, this is kind of the setup you want.
+[00:17:33] Um you want it to be clean. Arguably,
+[00:17:36] you know, this is maybe not great. The
+[00:17:38] front camera, it would be better if I
+[00:17:40] perhaps had a top camera that was
+[00:17:42] looking down cuz then it would just be a
+[00:17:43] clean surface here. But, um, yeah, this
+[00:17:47] is the way I have it set up. So, you can
+[00:17:48] see some improvements would be possible
+[00:17:50] there. Now, you can also see the gripper
+[00:17:53] camera here. Typically, when we start,
+[00:17:55] actually, we're going to start with the
+[00:17:58] each of the tests like this, just so we
+[00:18:00] have this wrist camera in a more
+[00:18:02] reasonable position.
+[00:18:04] And there's one more thing I want to
+[00:18:05] show you which is um you may notice that
+[00:18:08] when you start operating this is quite
+[00:18:11] smooth here. Just listen to this. This
+[00:18:13] is the part that tends to be not smooth.
+[00:18:17] It's maybe a little jumpy.
+[00:18:20] And there are two reasons why this can
+[00:18:22] be jumpy. One is your PD controller and
+[00:18:25] the other is that your computer's not
+[00:18:26] able to keep up basically with the
+[00:18:28] information flow because you're sending
+[00:18:30] a lot of you're sending a lot of image
+[00:18:32] data.
+[00:18:34] This is maybe jumping a little bit, but
+[00:18:36] it's not terrible. It's not terrible.
+[00:18:39] But I want to show you how you can tweak
+[00:18:40] it using the P controller if you want.
+[00:18:44] Uh to do that,
+[00:18:46] you need to you need to edit the the P
+[00:18:49] coefficient and possibly the D
+[00:18:50] coefficient. So the P coefficient is
+[00:18:52] what scales how quickly this robot
+[00:18:55] follows. So you can see right now, yeah,
+[00:18:58] it's definitely a bit jumpy here. Um, if
+[00:19:00] I move across like this,
+[00:19:03] let me see.
+[00:19:07] It's jumping across, which I don't
+[00:19:09] particularly like. Um, but if I lower
+[00:19:12] it, what I can do is I can make it less
+[00:19:14] responsive. So, it will be slower to
+[00:19:16] follow my lead robot, but it will also
+[00:19:18] be less jumpy. So, we can we can try a
+[00:19:21] few things. The first thing I'll just
+[00:19:22] show you is let's just take away um the
+[00:19:25] robot cameras and see what that kind of
+[00:19:27] tell is like. So you can run um sorry
+[00:19:31] you can run by just instead of running
+[00:19:33] with display data equals true you can
+[00:19:36] just run uh with this
+[00:19:38] simpler command here. So copy that
+[00:19:42] and run telly operation.
+[00:19:47] So here we're not going to display data
+[00:19:48] which will lighten the road the load on
+[00:19:52] my computer a little bit.
+[00:19:54] Now let's see.
+[00:19:59] So this is already smooth. You see that?
+[00:20:02] So you can see how the effect of just
+[00:20:04] displaying the data is causing it to
+[00:20:07] jolt a little bit. Now there's one other
+[00:20:09] thing I want to show you which is
+[00:20:11] changing that P coefficient which makes
+[00:20:13] it less responsive. Lowering the D
+[00:20:15] coefficient as well will also um if you
+[00:20:19] lower it it will have an effect. Um
+[00:20:23] so let's go and check what those uh
+[00:20:26] values are. They are controlled
+[00:20:30] um in a script
+[00:20:32] and let me just see where that script
+[00:20:34] is.
+[00:20:36] The easy way to find the script is
+[00:20:38] actually just to search. So go to the
+[00:20:40] search here.
+[00:20:43] And
+[00:20:45] now we want to go through.
+[00:20:50] So here
+[00:20:53] um
+[00:20:55] you can see in so 101 follower what the
+[00:20:58] values of these coefficients are. So you
+[00:21:00] can see for yourself and as some
+[00:21:03] recommended values these are the
+[00:21:04] defaults but um you could decide to make
+[00:21:09] it more responsive or less responsive.
+[00:21:11] So let's see if we can make it um a lot
+[00:21:14] lower responsive. I'm not recommending
+[00:21:16] you do this, but let's just uh put it
+[00:21:20] like that.
+[00:21:23] And escape here.
+[00:21:26] So,
+[00:21:28] let's let's just change the key value
+[00:21:32] and rerun the script. And what I'm
+[00:21:34] expecting here is when I move it across,
+[00:21:36] it's going to be quite slow to follow.
+[00:21:41] So, I should be running here with no
+[00:21:43] cameras. Yeah, look at that. So, my
+[00:21:47] robot is way over here,
+[00:21:54] but it's way behind. So, I'll move over
+[00:21:56] here. And it's just delayed. And this is
+[00:21:59] not bad. It's actually fine if you very
+[00:22:01] slowly operate. It's just this is so
+[00:22:03] slow. It's going to be impossible for
+[00:22:05] me. Well, not impossible, but it's going
+[00:22:06] to be harder for me to grip that. It's
+[00:22:08] just going to be annoying. Like if I try
+[00:22:10] to grip this cube, it's going to be it's
+[00:22:15] going to be so slow to kind of move that
+[00:22:18] it's going to be hard to control. I'm
+[00:22:19] already struggling here. So, this is not
+[00:22:21] really pleasant for operating. So, I'm
+[00:22:24] going to go back and change that. And
+[00:22:27] let's put it to a really high value this
+[00:22:29] time. Let's put it up to 32.
+[00:22:32] And what we expect now is that it's
+[00:22:34] going to be super responsive, but it's
+[00:22:36] probably going to jump like this because
+[00:22:39] it's kind of been forced to adapt really
+[00:22:41] quickly.
+[00:22:44] And now we have the jitter again. You
+[00:22:46] see that?
+[00:22:48] So this is also annoying to operate. Not
+[00:22:51] because it's not responsive. It's
+[00:22:52] extremely responsive, but because
+[00:22:55] precise motion, it's going to cause it
+[00:22:57] to kind of jump around. So, let's just
+[00:23:00] go back to what we had,
+[00:23:03] save it at 8, and we'll tell the operate
+[00:23:06] like this. And yeah, I mean, this should
+[00:23:09] be the easiest way for us to uh to run
+[00:23:12] the robot.
+[00:23:14] Yeah. And so, you can see it's pretty
+[00:23:16] responsive. I've got reasonable control.
+[00:23:19] This is not like a great direction for
+[00:23:20] me to figuring out where to go.
+[00:23:23] uh we'll talk a bit about how you should
+[00:23:24] actually
+[00:23:26] uh save some training data but you can
+[00:23:28] see this is how you control the P
+[00:23:30] parameter if you wish uh in the trellis
+[00:23:33] implementation of the robbo you can just
+[00:23:35] pass a parameter uh to control so you
+[00:23:38] can just pass in this coefficient here
+[00:23:40] or you can pass in a different
+[00:23:41] coefficient in the command when you tell
+[00:23:43] the operation so just by putting in this
+[00:23:46] here you could swap it to some other
+[00:23:47] value like 10 or whatever uh you feel
+[00:23:49] the need is so this is it we're set up
+[00:23:52] And we're running with teley operation,
+[00:23:54] which is great. I'm going to put the
+[00:23:55] robot back in a start position. And also
+[00:23:57] realize that anytime I want to bring the
+[00:23:59] robot back, uh it's a good idea to bring
+[00:24:01] it back here. Last of all, uh you should
+[00:24:04] probably just do a check displaying the
+[00:24:06] data. We already did this, but just to
+[00:24:08] make sure, I'll run
+[00:24:11] here. And I'm going to make sure that
+[00:24:14] everything is within view of the robot,
+[00:24:16] so we're in a good position. Uh so rerun
+[00:24:19] should come up here. go across to rerun.
+[00:24:22] Just check everything is, you know, in a
+[00:24:24] good position. We're happy with the
+[00:24:25] bowl. Um, you know, also the front
+[00:24:28] camera here, you could argue it's going
+[00:24:30] to miss. Like I don't want to go way up
+[00:24:32] cuz if I go here, there's no feedback.
+[00:24:34] So that's kind of bad. Um, you could
+[00:24:37] also argue like this lead here, maybe
+[00:24:39] you don't want to see it. Maybe it's
+[00:24:41] best if you kind of put it there. Uh, so
+[00:24:45] few different things. Uh, but broadly
+[00:24:47] speaking, we're ready now. I'm going to
+[00:24:49] excuse me I'm going to close rerun and
+[00:24:51] we'll stop running the telly operation
+[00:24:53] and now we should be ready to train the
+[00:24:56] act uh model.
+[00:24:58] So for training uh we're already within
+[00:25:00] this uh training folder and we have loo
+[00:25:04] cloned and we're going to move to the
+[00:25:06] train act. If you wanted to train
+[00:25:07] another model like small GLA which uh is
+[00:25:10] probably the one I'll make an next video
+[00:25:11] on. I'm working on this script now. uh
+[00:25:14] but we're going to focus on train ACT
+[00:25:15] which is a very simple model and we're
+[00:25:18] going to train it from scratch and I'm
+[00:25:19] going to walk you through those steps.
+[00:25:20] Now before we start though something you
+[00:25:22] should know about the ACT model is that
+[00:25:24] it's not a pre-trained model. So you
+[00:25:26] literally are training it from scratch.
+[00:25:28] It also is not able to handle well
+[00:25:30] multiple styles or modes. I talked a lot
+[00:25:32] about this in the second video but
+[00:25:35] basically you need to first of all
+[00:25:37] create a piece of data or a roll out or
+[00:25:40] an episode for every single thing you
+[00:25:42] wanted to do. you need to have covered
+[00:25:44] all of the various positions of say the
+[00:25:47] bowl or the cube. Um because ACT works
+[00:25:50] essentially through overfitting. It will
+[00:25:52] just replicate what's in the training.
+[00:25:54] It will not generalize very well. By
+[00:25:56] contrast, some of the pre-trained model
+[00:25:57] they've seen models have seen a lot of
+[00:25:59] data and they will generalize more
+[00:26:01] easily if you just have a few uh rows of
+[00:26:04] data. Also, what I meant there when I
+[00:26:06] said ACT doesn't support multiple styles
+[00:26:09] or tasks, well, you might get away with
+[00:26:11] picking uh up the blue cube and putting
+[00:26:13] it here, but it could start to struggle
+[00:26:16] if you get it to maybe move the cube as
+[00:26:19] a different task. Um, and it may even
+[00:26:23] run into issues if you try to run with
+[00:26:24] different ball positions just because
+[00:26:26] it's really designed only for a single
+[00:26:28] task. And that's because of the
+[00:26:31] continuous motor positions that it
+[00:26:33] produces rather than a tokenized
+[00:26:35] representation or a diffuser diffusion
+[00:26:37] type representation which allows it to
+[00:26:39] capture multiple tasks in a in a better
+[00:26:42] way. So for more on that take a look at
+[00:26:43] the second video. But just a caveat that
+[00:26:45] act will basically average across the
+[00:26:48] data that you show it and it's going to
+[00:26:49] be limited in terms uh of generalization
+[00:26:52] but it is lightweight. It's a very small
+[00:26:53] model and it runs pretty fast. So here
+[00:26:56] we are with ACT. We're not going to be
+[00:26:58] able to evaluate the model without
+[00:27:00] training it because it's trained from
+[00:27:02] scratch. So there is no model when we
+[00:27:04] start off. So the first thing we need to
+[00:27:05] do is we need to train. But if we're
+[00:27:08] going to train, we need to have some
+[00:27:09] data. So, we're actually going to first
+[00:27:12] generate some data and then come back to
+[00:27:14] training. So, we'll move over to the
+[00:27:15] data preparation here and I'm going to
+[00:27:18] show show you how to record some data.
+[00:27:20] I've recorded more rows. I've recorded
+[00:27:21] like 16 and I'll show you how that
+[00:27:23] performs. You probably want to record 50
+[00:27:25] if you want better performance. Um, but
+[00:27:28] I'm going to show you live how to record
+[00:27:29] one or two rows and then I'll also show
+[00:27:31] you how to replay the recordings so that
+[00:27:34] you can check that they're of high
+[00:27:35] quality. So to start off uh you're in
+[00:27:38] the LRO the LRO folder you want to log
+[00:27:42] into Hugging Face with Hugging Face Tly
+[00:27:43] login. If you ever want to know um
+[00:27:47] whether you're logged in what you can do
+[00:27:49] is hugging face- and then who am I
+[00:27:53] and it tells me here I'm logged in with
+[00:27:56] I'm running McGovern and I've got access
+[00:27:58] to trellis. So, I've already logged in
+[00:28:00] and you could also uh set your user like
+[00:28:03] this, which is just setting a variable
+[00:28:06] that we're going to use later in the
+[00:28:07] scripts. Now, before I run the data
+[00:28:10] collection script, let me just explain
+[00:28:12] high level. We're going to collect this
+[00:28:14] time two samples. You'll want to collect
+[00:28:16] 50.
+[00:28:17] And I want to show you how you can
+[00:28:19] record those two samples, but also how
+[00:28:21] you can add more samples onto it. I'll
+[00:28:24] also explain how you can stop recording
+[00:28:26] midway. And I'll also explain how if you
+[00:28:28] mess up an episode, you can go back and
+[00:28:30] just record over it. So, we're going to
+[00:28:33] run this script here. LRO LRO.record.
+[00:28:38] We're going to pass in the follower
+[00:28:39] details. We're going to pass in the
+[00:28:41] leader details. We'll pass in the
+[00:28:43] cameras of which there are two, the
+[00:28:44] wrist camera and then the front camera.
+[00:28:48] Here
+[00:28:50] we will pass in then the display data
+[00:28:52] equals true. So, we can see the cameras.
+[00:28:54] That's going to be important actually.
+[00:28:57] and we'll pass in the name of the repo
+[00:28:59] that we want to push on hugging face. So
+[00:29:02] when this is done, it's going to push
+[00:29:03] the data set up to trellis forward/so101
+[00:29:06] act- test. This is the number of
+[00:29:09] episodes we want to record. This is the
+[00:29:12] string giving the command put the blue
+[00:29:14] cube in the orange bowl. Technically
+[00:29:16] probably doesn't matter what you use for
+[00:29:18] this string because you're only going to
+[00:29:19] train for one task, but it makes sense
+[00:29:22] just to keep it consistent with what the
+[00:29:24] task actually is. It really does matter,
+[00:29:26] by the way, what you put there. If
+[00:29:27] you're training more general pre-trained
+[00:29:29] robot, then we'll put in a data set
+[00:29:32] reset time. It just allows for a little
+[00:29:34] gap between each episode.
+[00:29:38] And last of all, there are these two
+[00:29:40] parameters here, which are actually
+[00:29:41] going to comment out because we are not
+[00:29:42] resuming a prior data set recording. We
+[00:29:46] are starting from scratch. And if we
+[00:29:48] were resuming, we would need to pass in
+[00:29:51] the address pointing to that data set.
+[00:29:54] But since we're not, we're not going to
+[00:29:55] pass that in. Okay. So, we're going to
+[00:29:58] run this. It'll kind of happen quickly.
+[00:30:00] So, just note that when I'm recording an
+[00:30:02] episode, if I'm done early, which is
+[00:30:05] before the default 30 second cutff, I'll
+[00:30:07] press on the right arrow to move to the
+[00:30:09] next episode. If I mess up the episode,
+[00:30:11] I'm going to press the left arrow, which
+[00:30:13] is going to reset. You'll see me do
+[00:30:14] that. And if I wanted to stop midway,
+[00:30:17] say I've recorded one episode and I'm
+[00:30:19] done, even though I've set it to two,
+[00:30:21] I'll press escape. And that will allow
+[00:30:24] me to neatly escape uh the loop, save
+[00:30:27] the episode instead of rather throwing
+[00:30:29] it away.
+[00:30:31] So I'm going to show you how to record.
+[00:30:32] We'll record two and then we're going to
+[00:30:34] try and uh add two more on top of that.
+[00:30:39] So let me just um include this remove
+[00:30:42] command because I have previously
+[00:30:44] recorded a data set with this name. So I
+[00:30:46] need to remove it. So we're starting
+[00:30:48] fresh
+[00:30:51] and
+[00:30:54] We should be up and recording soon.
+[00:30:58] Okay,
+[00:31:02] recording episode zero. Now, I should
+[00:31:04] get out of the way so I'm not in the
+[00:31:05] camera. Um, notice that I you see my arm
+[00:31:09] is still in the camera on the screen
+[00:31:10] here. I've moved this just to be
+[00:31:12] pointing the same way so it's a bit
+[00:31:14] easier for me to tell you operate. The
+[00:31:16] key thing here is you should not be
+[00:31:18] looking at this setup. You should only
+[00:31:20] be looking at the cameras because that's
+[00:31:22] all that the robot will have access to.
+[00:31:25] So, if you start uh looking at this,
+[00:31:27] it's kind of cheating. Now, I've clearly
+[00:31:28] messed up this episode, so I'm going to
+[00:31:30] press the left arrow.
+[00:31:32] Reset the environment.
+[00:31:34] Now, there's going to be some shadow
+[00:31:36] here just for this demo. So, I don't
+[00:31:38] recommend like you can see shadow in the
+[00:31:40] image, but I'm going to do it anyway.
+[00:31:42] So, now looking at the screen here,
+[00:31:47] I'm going to move across. I'm going to
+[00:31:49] try pick it up.
+[00:31:52] Close
+[00:31:54] and put it down here. And this is
+[00:31:56] actually not a terrible episode.
+[00:31:59] I'm fairly smooth and I'm bringing it
+[00:32:02] back to a position here.
+[00:32:05] Okay. So, now I'll press right arrow to
+[00:32:07] accept.
+[00:32:09] Reset the environment. So, I've got to
+[00:32:11] put the cube back in position. Ideally,
+[00:32:14] I really should be putting it in the
+[00:32:15] same position.
+[00:32:18] Now I should be consistent as to when I
+[00:32:21] open the gripper. I like to open it
+[00:32:23] right at the start. There is a little
+[00:32:26] delay here before the next episode
+[00:32:27] because it's loading. Recording episode
+[00:32:29] one. It's zero indexing. So one is
+[00:32:32] actually the second episode. What I like
+[00:32:34] in the actual data set I recorded is to
+[00:32:36] open the gripper at the start to make
+[00:32:38] that really consistent. It's bad that I
+[00:32:40] hit the that I hit off the bowl there
+[00:32:42] and so I should really re-record. My
+[00:32:44] gripper really wasn't wide enough as
+[00:32:46] well. So, this episode I don't like.
+[00:32:49] Okay. I just don't like this. Uh I don't
+[00:32:52] like this. I'm going to restart.
+[00:32:58] That wasn't he.
+[00:33:00] Okay. So, let's uh lift it up. Open the
+[00:33:04] gripper wide. That's maybe a bit wide
+[00:33:06] because I'm out of view of the wrist
+[00:33:08] camera. Move across here.
+[00:33:12] Move down.
+[00:33:15] grab.
+[00:33:17] So, not a terrible episode, not really
+[00:33:19] up to standard. I would say I would
+[00:33:21] probably re-record this, but for the
+[00:33:23] sake of demonstration, I'm just going to
+[00:33:26] leave it as is. Press the right arrow
+[00:33:29] and that should actually summarize.
+[00:33:33] That should
+[00:33:35] complete the recording. And we'll see
+[00:33:37] here on the screen
+[00:33:39] that the data is being saved and it
+[00:33:41] should be pushed up to hugging face.
+[00:33:43] Stop recording. I hear I'm hearing
+[00:33:46] commands here. There's commands being
+[00:33:48] told to me and you can see the the
+[00:33:49] episodes now are being pushed up to
+[00:33:50] hugging face episode 0 and one exiting.
+[00:33:53] So we're done. Now let's say I want to
+[00:33:56] record two uh one more episode. I'm
+[00:33:58] going to resume. And this time the
+[00:34:01] number of episodes refers to the number
+[00:34:04] I want to add. So if I want to append
+[00:34:06] one, sorry I'm in a bad position here.
+[00:34:10] If I want to append one episode,
+[00:34:15] I'm going to just copy this. Don't
+[00:34:17] delete. Don't delete the folder cuz
+[00:34:19] we're going to need those episodes. And
+[00:34:22] now we're going to run with resume true
+[00:34:25] and pointing to that uh folder.
+[00:34:28] So,
+[00:34:30] let me get ready to record.
+[00:34:34] Let me get ready to record.
+[00:34:39] Okay. So, that was a mistake already.
+[00:34:42] So, I didn't reset the environment.
+[00:34:45] Really, I should put a piece of tape
+[00:34:47] here and try and mark the same spot. Um,
+[00:34:52] now on the other hand, if you put a
+[00:34:53] piece of tape, that's going to be in the
+[00:34:55] image. So, you need to consider whether
+[00:34:57] that might confuse the training. Uh,
+[00:35:00] okay. Restart. Reset the environment.
+[00:35:02] It's not great. My keyboard is here. So
+[00:35:05] ideally the the keyboard should probably
+[00:35:08] not be there. So I'm going to go up. I'm
+[00:35:12] going to open. I'm going to go down
+[00:35:14] here.
+[00:35:17] Looking at both cameras on my screen.
+[00:35:20] Lifting it up.
+[00:35:23] Placing it in here. I kind of hit the
+[00:35:24] bull edge. Make sure you make the
+[00:35:26] gripper go really wide there so it
+[00:35:28] clearly lets go of it. And yeah, not a
+[00:35:32] very consistent finish there, but I have
+[00:35:34] my data now.
+[00:35:37] I press the right arrow
+[00:35:41] and the data set should be pushed up to
+[00:35:44] hub.
+[00:35:47] So, we will have a data set that's now
+[00:35:50] been pushed and um
+[00:35:53] the next thing to do is just replay some
+[00:35:55] of these episodes. So, you want to
+[00:35:57] manually inspect
+[00:35:59] um well, I don't know about manually,
+[00:36:00] but you want to check if each episode
+[00:36:03] you've recorded is a valid one, which
+[00:36:07] you can do by just copying this here.
+[00:36:10] Data set episode zero means it should
+[00:36:11] replay episode zero.
+[00:36:17] And looks like I had an issue there. And
+[00:36:20] the issue is because
+[00:36:23] I did not
+[00:36:26] give it I gave it the wrong name. You
+[00:36:28] need to point to the actual data set.
+[00:36:30] The other thing you can do here,
+[00:36:33] you can display data which is not a bad
+[00:36:35] idea actually because if you do that you
+[00:36:38] can inspect whether the cameras are
+[00:36:40] showing what you think they should be.
+[00:36:42] Um oh actually sorry that's wrong. You
+[00:36:45] cannot display data during uh the
+[00:36:48] replay.
+[00:36:50] So, I guess you would have to look at
+[00:36:51] the videos by opening them up maybe on
+[00:36:53] Hugging Face and inspecting.
+[00:36:56] All right, let's run this here.
+[00:36:59] So, this should be inspecting. It's
+[00:37:01] replaying episode zero.
+[00:37:04] And that did not look good.
+[00:37:09] Oh, okay.
+[00:37:11] But yeah, that's probably a bad thing.
+[00:37:14] the fact that the first episode, the
+[00:37:17] first part of that episode, it uh kind
+[00:37:19] of jittered,
+[00:37:21] that's an indication you might want to
+[00:37:23] delete that episode.
+[00:37:26] Let's just replay it again in case it
+[00:37:28] was unlucky. I don't think it was. I
+[00:37:30] think there probably was some noise at
+[00:37:31] the start.
+[00:37:37] It's not terrible. I don't like that
+[00:37:38] there's a big pause at the start of the
+[00:37:40] episode. Too much of a pause might train
+[00:37:42] the robot not to even move. Now, yeah,
+[00:37:44] this is obviously not it's not using the
+[00:37:46] sensors. It's just literally replaying
+[00:37:48] whatever I did as a motion, but it's
+[00:37:50] useful to check the quality is correct.
+[00:37:52] So, you want to go through and replay
+[00:37:54] every episode that you recorded uh to
+[00:37:56] make sure that the quality is good. When
+[00:37:58] I later evaluate, you're going to find
+[00:38:00] that replaying is also useful because
+[00:38:02] you can replay an episode to figure out
+[00:38:04] where the where the blue cube was and
+[00:38:08] then you can roll forward on the trained
+[00:38:10] policy and you should always be getting
+[00:38:12] your trained positions correct.
+[00:38:15] Anything that you train, if you
+[00:38:17] replicate it exactly with the cameras
+[00:38:19] and the cube position, it should
+[00:38:20] definitely roll forward. If it doesn't,
+[00:38:22] then you've got some kind of problem.
+[00:38:25] Ideally, you will generalize a bit. So
+[00:38:27] if your cube is a little bit off, it
+[00:38:28] should still pick it up when you train
+[00:38:30] the policy. That's going to be more
+[00:38:32] difficult to act if you haven't covered
+[00:38:34] that range of positions because it
+[00:38:35] doesn't really generalize well. But you
+[00:38:37] should always be able to at least have
+[00:38:39] the model succeed on exactly replicating
+[00:38:44] tasks from your training set. So this is
+[00:38:47] the training. I'm going to move forward
+[00:38:48] then to show you how to train the model
+[00:38:51] on a GPU. Actually, you can train on
+[00:38:52] your Mac. I might even run the training
+[00:38:54] quickly on the Mac uh just so you can
+[00:38:56] see, but it will take quite a bit of
+[00:38:58] time. And then we can take a look at
+[00:39:00] training on a GPU. And then we're going
+[00:39:02] to evaluate whether the model actually
+[00:39:03] performed well. So we're done with data
+[00:39:06] prep and we're going to move to
+[00:39:07] training.
+[00:39:10] And the way you want to find a script is
+[00:39:12] to go back into the training folder and
+[00:39:15] find the readme that's in there.
+[00:39:18] And basically we've done teleyop, we've
+[00:39:21] done the data collection, and now we're
+[00:39:23] going to move into the train-xx.mdc
+[00:39:27] script. That just means you should find
+[00:39:29] the markdown file that's relevant to the
+[00:39:32] type of model you want to train. And the
+[00:39:33] one we want to train is the ACT model.
+[00:39:36] There will be some other scripts or
+[00:39:39] other markdown files with explainers
+[00:39:40] that I'll include like small VLA, which
+[00:39:42] I'm working on right now. But this video
+[00:39:44] is about ACT. So we're going to go back
+[00:39:45] to the train act folder uh markdown file
+[00:39:47] router and we'll get started here on
+[00:39:50] training.
+[00:39:52] So we're going to train the model. I'll
+[00:39:55] train it just on Mac first which will be
+[00:39:59] uh just a quick demo but it is kind of
+[00:40:01] slow if you train on Mac. So it's better
+[00:40:03] to train on GPUs while then train on
+[00:40:04] GPU. And I'll show you the results that
+[00:40:07] I got from training on a bit of a larger
+[00:40:09] data set I recorded earlier with 16
+[00:40:11] rows, which is still on the lower side,
+[00:40:13] but it's going to be good enough to
+[00:40:15] actually get good evaluation results, at
+[00:40:18] least on those specific training
+[00:40:20] examples.
+[00:40:22] So, let's uh move on to train here.
+[00:40:26] I do want to mention a few things before
+[00:40:28] we start. I want to talk about a few of
+[00:40:30] the key parameters that we'll need to
+[00:40:31] set and also talk about using an
+[00:40:34] evaluation set. So, if you've watched
+[00:40:36] other videos on this channel around
+[00:40:38] training language models, you'll know
+[00:40:40] that I'm a big fan of not just having a
+[00:40:42] training set, but also a validation set.
+[00:40:44] And the validation set is not used to
+[00:40:46] update the weights of the model, but we
+[00:40:48] calculate the loss on the validation set
+[00:40:50] during training. So, we can see a
+[00:40:51] training loss that's hopefully falling,
+[00:40:53] but we can also see a validation loss
+[00:40:54] that's falling. And the reason the
+[00:40:56] validation loss is very useful is
+[00:40:58] because when we see it plateau or indeed
+[00:41:00] go up again, that means we've trained
+[00:41:02] for long enough. So it helps you know
+[00:41:04] how many steps you should be training
+[00:41:05] for. If you don't have a validation
+[00:41:07] loss, and for that you need to have
+[00:41:09] validation set. There's not an easy way
+[00:41:12] to know when you should stop training.
+[00:41:13] There's not an easy way to know how many
+[00:41:15] steps you should train for. So I've
+[00:41:17] updated the scripts in the Trellis
+[00:41:19] Laroobo implementation to include
+[00:41:22] splitting off a validation set. And this
+[00:41:26] is going to allow us then to track that
+[00:41:28] validation loss and tell whether we've
+[00:41:29] trained for enough steps or not. And
+[00:41:32] quite simply it takes 10% of the total
+[00:41:36] training data and it splits that off as
+[00:41:38] validation up to a maximum of 32 rows.
+[00:41:40] So if you have a huge training set of
+[00:41:42] say a thousand, it's still going to take
+[00:41:44] a validation split of 32. Why is that?
+[00:41:46] Because if you always took 10%, you can
+[00:41:49] result in having a really slow
+[00:41:50] evaluation. Every say 100 steps you're
+[00:41:53] doing validation. If you have a big
+[00:41:55] validation set, it's going to really
+[00:41:57] slow down the run. So I cap it to 32 to
+[00:41:59] be enough. But I make sure it's uh 10%
+[00:42:02] or 32, whichever one of those is uh the
+[00:42:06] largest or rather whichever one of those
+[00:42:08] is the smallest.
+[00:42:11] Now the way that Lorobo works is it will
+[00:42:14] predict future motor positions.
+[00:42:17] So if you have a given set of images and
+[00:42:20] motor positions, Laroo the ACT model
+[00:42:23] will predict forward the next uh default
+[00:42:26] 50 positions for the motors and we're at
+[00:42:29] a frame rate of 30 per second. 30 frames
+[00:42:32] per second. So if you predict forward
+[00:42:33] 50, that's 1.66 seconds worth of frames
+[00:42:37] that you're predicting forward.
+[00:42:39] So this is the chunk size and you can
+[00:42:42] find this parameter here within the act
+[00:42:45] configuration act f f f f f f f f f f f
+[00:42:46] f f f f f f f f f f f f f f f f f f f f
+[00:42:46] f f f f f f f f f file. So if we go down
+[00:42:49] and we just even search here for chunk
+[00:42:51] size,
+[00:42:53] you're going to see that uh it's set to
+[00:42:55] 50.
+[00:42:57] Now the observation steps, this is how
+[00:43:00] often we are going to make use of the
+[00:43:02] frames and it's defaulted to one.
+[00:43:04] Library doesn't actually support
+[00:43:06] changing this I think. So you got to
+[00:43:07] leave it that we're basically going to
+[00:43:09] act we're going to uh have every frame
+[00:43:11] that's going to be used at least for the
+[00:43:13] purpose of training here.
+[00:43:15] And then the last parameter here is the
+[00:43:17] number of action steps. This is actually
+[00:43:19] only relevant when we get to inference
+[00:43:21] or evaluation. It's not relevant during
+[00:43:24] training. During training we will always
+[00:43:25] predict 50 steps. During evaluation, we
+[00:43:28] will still predict 50 steps, but we can
+[00:43:30] decide to only use the first, say, 15
+[00:43:32] and then throw away the rest because we
+[00:43:35] will predict a new 50 steps. And the
+[00:43:37] reason you might do this is because you
+[00:43:39] just want to take the closest
+[00:43:40] predictions in time and then recalculate
+[00:43:42] the next 50 rather than using the full
+[00:43:44] 50 which might become unstable towards
+[00:43:46] the end. But it is beneficial during
+[00:43:49] training to have a decent kind of
+[00:43:51] frontier predicted so that you pull in
+[00:43:54] the knowledge from all those 50 steps.
+[00:43:56] You could maybe make it larger to say
+[00:43:58] 100. If you start making it even larger,
+[00:44:00] then that's going to mean it takes more
+[00:44:03] compute to do a forward pass. So there's
+[00:44:05] some kind of optimum where you want to
+[00:44:07] predict a reasonable number of steps so
+[00:44:09] that you're not forced to rerun
+[00:44:11] prediction too often, but you also don't
+[00:44:13] want it to be too long of a horizon.
+[00:44:16] So we're going to set this to 50 and 15.
+[00:44:19] I think the default in Laroobo is is
+[00:44:22] higher. Um but the recommendation based
+[00:44:25] on reading the paper is more in this
+[00:44:27] range of say the 50 and then 10 to 15
+[00:44:30] for action steps.
+[00:44:33] Okay. The other thing which is
+[00:44:36] challenging to understand is around the
+[00:44:39] KL weight. You really have to watch the
+[00:44:42] previous video to understand how the ACT
+[00:44:44] model works. But the ACT model while it
+[00:44:48] predicts
+[00:44:49] forward say 50 steps it also tries to
+[00:44:53] predict what the style is.
+[00:44:56] Style refers to different ways in which
+[00:44:59] you could make the same movement. Often
+[00:45:01] a clear example is if you're going
+[00:45:02] around an obstacle you can go around to
+[00:45:04] the right or you can go around to the
+[00:45:05] left. And this is a problem for the ACT
+[00:45:07] model because it will average those two
+[00:45:09] paths and that can result in you just
+[00:45:11] hitting the obstacles because the
+[00:45:13] average of left and right is just going
+[00:45:15] right through the obstacle. To avoid
+[00:45:17] that, there's a specific encoder in the
+[00:45:19] ACT model that comes before the main
+[00:45:22] model and it tries to build up a model
+[00:45:24] of which style you are using during
+[00:45:26] training based on actually seeing the
+[00:45:28] actions. So actually seeing the future
+[00:45:30] actions and so because it's able to
+[00:45:33] model the style when you come to
+[00:45:35] inference time you lock it in so that it
+[00:45:37] just uses one of those styles.
+[00:45:40] Now in practice it's actually very
+[00:45:42] difficult um to accurately model the
+[00:45:46] styles and you may not even have
+[00:45:48] multiple styles. In the examples I just
+[00:45:50] recorded I pretty much used the similar
+[00:45:52] style for each of the rollouts. Now you
+[00:45:54] could maybe debate that. So there may
+[00:45:57] not be any style differences to even
+[00:45:59] measure in which case this style encoder
+[00:46:02] is not really going to do much. But the
+[00:46:05] KL annealing and the KL waiting just to
+[00:46:07] come back to what this is. This affects
+[00:46:10] or it sets rather the waiting of how
+[00:46:12] much importance you want to give to this
+[00:46:13] style model that comes before the main
+[00:46:15] act model. So, if you decide to put the
+[00:46:18] KL weight uh very large, it's going to
+[00:46:22] penalize putting any information in the
+[00:46:23] style encoder, which means it's not
+[00:46:25] really going to be used. If you set it
+[00:46:27] to a lower value, it will encourage the
+[00:46:29] model to actually capture the style. But
+[00:46:31] if there's no style, it doesn't really
+[00:46:32] matter what value you set the KL weight
+[00:46:34] to. So, um that's actually what we're
+[00:46:38] going to find. Even with my 16 rows of
+[00:46:40] data, turns out there's not a whole lot
+[00:46:42] of style differences to capture. So you
+[00:46:44] could say I could have just run without
+[00:46:46] using the encoder at all. Now if you had
+[00:46:48] a much larger data set maybe 100 200 and
+[00:46:51] you do have different styles maybe
+[00:46:53] you'll start to see it pick up uh some
+[00:46:55] style and then it will be important to
+[00:46:56] set this KL weight properly because if
+[00:46:59] you set it too uh too high then it's not
+[00:47:02] going to allow any style information in
+[00:47:04] the encoder. So you're going to run into
+[00:47:06] this issue of collisions or just poor
+[00:47:08] performance. And if you set it too low,
+[00:47:10] well then the model's kind of going to
+[00:47:12] cheat by packing information into this
+[00:47:14] style encoder that really should be in
+[00:47:16] the main encoder. I know that's a lot to
+[00:47:19] absorb. It'll help if you watch the
+[00:47:21] second video. For now, my basic message
+[00:47:23] is possibly if you have a small data, it
+[00:47:26] won't matter what value you set the KL
+[00:47:28] weight to because you just don't have a
+[00:47:29] ton of style. If you do have different
+[00:47:32] styles, you may need to rerun the
+[00:47:33] training with different values of KL
+[00:47:35] weight. You may also want to run with
+[00:47:38] this fancier parameter that I have set
+[00:47:40] up called KL weight annealing. What does
+[00:47:42] KL weight analing do? It will basically
+[00:47:45] mean that at the start of training your
+[00:47:47] encoder is not being used the style
+[00:47:48] encoder and it will gradually be brought
+[00:47:50] online and you can set at what point it
+[00:47:53] comes online. So if we look at
+[00:47:55] configuration act and we search KL and
+[00:47:57] kneeling is turned off. If you turn it
+[00:47:59] on, you can basically turn on this style
+[00:48:01] encoder partway through training. It
+[00:48:03] allows the model to kind of train itself
+[00:48:05] a bit before the style encoder comes on.
+[00:48:07] Um, and you can decide when the ramp
+[00:48:10] starts and when the ramp ends. So, it's
+[00:48:12] just going to ramp this on and then it's
+[00:48:14] going to go. This is the KL weight here.
+[00:48:18] You could possibly set it in the paper.
+[00:48:20] I think it's recommended to set to 10,
+[00:48:23] but if you have relatively small amount
+[00:48:25] of data and you do have styles, which
+[00:48:27] you may not, then you probably want to
+[00:48:28] set it to something lower. uh because
+[00:48:31] it's going to be kind of subtle
+[00:48:32] capturing the styles and if you set the
+[00:48:34] KL weight this high, it's just going to
+[00:48:36] penalize putting any information in the
+[00:48:38] style encoder and there just won't be
+[00:48:39] any information there. So, I'm going to
+[00:48:41] leave it as is. Uh there's also a
+[00:48:44] dropout parameter. This might remind you
+[00:48:46] of the dropout within Laura. This just
+[00:48:48] means some weights are ignored on
+[00:48:49] backward passes and this allows you to
+[00:48:53] help regularize or help avoid
+[00:48:55] overfitting. So, this is default. I
+[00:48:57] wouldn't change it. I would just leave
+[00:48:58] it as is. these training pets around the
+[00:49:00] optimizer I also would leave uh to the
+[00:49:02] defaults that are recommended here.
+[00:49:06] Okay, so we're going to run uh training.
+[00:49:09] By the way, these configuration steps
+[00:49:11] here, the action steps, chunk size,
+[00:49:13] these are all specific to the model, the
+[00:49:14] policy that we're choosing which is act.
+[00:49:17] If you are using a different model like
+[00:49:19] small VLA, you will need a different set
+[00:49:21] of parameters and the parameters might
+[00:49:23] be different because the model might not
+[00:49:25] have any KL weight analing. in fact
+[00:49:27] small VLA pi0 um also the Groot N1 or
+[00:49:32] Groot M1.5 they just don't have this
+[00:49:34] type of architecture so they will have
+[00:49:36] different parameters that I will talk
+[00:49:37] about in different videos on the other
+[00:49:39] hand the training script does have
+[00:49:41] common parameters no matter what model
+[00:49:43] you're training we're going to take a
+[00:49:44] check here you can see we are able to
+[00:49:48] pick the batch size I would pick maybe
+[00:49:51] something like four if you have got more
+[00:49:53] data like say you have 200 rows then
+[00:49:55] maybe pick 32 or 16. The larger the
+[00:49:57] batch size, the larger the VRAM you
+[00:50:00] need. So, if you run out of memory, you
+[00:50:02] might need to lower it. This is the
+[00:50:04] total number of steps. We're just going
+[00:50:06] to run for 600 steps here because I want
+[00:50:09] to show you on Mac. It's going to be
+[00:50:11] slow, so I don't want to wait for too
+[00:50:13] long. And here's the valuation frequency
+[00:50:16] for that evaluation split of data that
+[00:50:18] I've broken up. This is the logging
+[00:50:21] frequency. Can maybe make it a bit more
+[00:50:22] frequent. And this is the saving
+[00:50:24] frequency, how often you want to save
+[00:50:26] the model. I'm only going to save it at
+[00:50:28] the end. So, I'm just going to put it at
+[00:50:30] 600. So, this will save a checkpoint.
+[00:50:33] It'll also save it at the end. So, this
+[00:50:35] is probably redundant. Um, I think maybe
+[00:50:38] I can set it to none. Let's see if I get
+[00:50:39] an error. But, if I set it to the end
+[00:50:42] step, it's going to save the model as a
+[00:50:43] checkpoint and it's going to save it at
+[00:50:44] the end of the run, which is kind of
+[00:50:46] redundant. Okay. Um, this is if you want
+[00:50:49] to resume a training, which we don't
+[00:50:50] because we're training from scratch.
+[00:50:53] And yeah, here's where I set that 10% of
+[00:50:56] the data is going to be used for
+[00:50:57] validation.
+[00:50:59] And here's the cap where you can set it
+[00:51:02] to a maxi 32. These are default values.
+[00:51:04] So if you don't pass these, it will be
+[00:51:06] set anyway.
+[00:51:08] All right. So we're going to run this
+[00:51:10] here. And we're going to give our run a
+[00:51:14] name. I'm just going to call it act test
+[00:51:17] actually. So, I need to make sure my
+[00:51:20] output directory, my job name is all
+[00:51:22] aligned here. Um,
+[00:51:26] I will need to remove the folder if I'm
+[00:51:29] trying to overwrite. This folder won't
+[00:51:30] exist. So, doing this won't do anything.
+[00:51:33] And here I do need to update this upload
+[00:51:36] command. So, what am I doing here? I'm
+[00:51:39] activating the environment. It's already
+[00:51:40] active actually. Setting my HF user.
+[00:51:44] I'm setting the repo I want to push my
+[00:51:46] trained model to at the end. Setting the
+[00:51:48] policy type, setting the output
+[00:51:50] directory, the job name. Uh we're not
+[00:51:53] going to run on CUDA. If you just run
+[00:51:54] this, it won't fail. It will just swap
+[00:51:57] it uh to whatever device is available.
+[00:51:59] We're going to run on Mac, so I'll run
+[00:52:01] with MPS. You could also run with CPU
+[00:52:03] here. Uh we're going to run with weights
+[00:52:06] and biases. So enabled.
+[00:52:10] By the way, if you're running this the
+[00:52:11] first time and you're not logged into
+[00:52:12] weights and biases, it will prompt you.
+[00:52:14] who you'd have to click um actually will
+[00:52:16] prompt you and you may not know what to
+[00:52:18] do with the prompt. It's actually
+[00:52:19] expecting a number. You should put in I
+[00:52:21] think the number one which will then
+[00:52:23] bring you to a link where you can get
+[00:52:25] your API key from Weights and Biases.
+[00:52:27] Weights and Biases has got a fairly high
+[00:52:30] usage threshold for free. It's quite
+[00:52:32] expensive once you hit that threshold,
+[00:52:34] but you can just delete stuff from your
+[00:52:35] account. By default, Weights and Biases
+[00:52:37] uploads the models which takes up insane
+[00:52:39] amounts of space. So if you just delete
+[00:52:41] older runs, it will create up space
+[00:52:43] pretty pretty easily. Now there's one
+[00:52:45] more parameter here which is called
+[00:52:48] image transforms. This will add jitter
+[00:52:50] to your images which in principle is a
+[00:52:52] good idea because it adds randomness and
+[00:52:55] this generalizes your model so that if
+[00:52:57] there's changes in light, it can still
+[00:52:58] work. But the problem is if you don't
+[00:53:00] have a lot of data like I do, I'm
+[00:53:02] running on 16 rows. Um actually I'm only
+[00:53:05] running on three rows here.
+[00:53:08] um just because we're doing a quick run,
+[00:53:11] then the jitter is going to make the
+[00:53:13] results even worse because it's there's
+[00:53:15] going to be so little data that it's not
+[00:53:18] going to see the ground truth data in
+[00:53:20] the training and that's going to make
+[00:53:21] your performance worse. So only set this
+[00:53:23] to true if you have a large amount of
+[00:53:25] data like at least 100 examples
+[00:53:28] once we've trained. I like putting this
+[00:53:31] command right after because it will
+[00:53:32] upload the model then to hugging face
+[00:53:35] and then we can uh we can start to uh
+[00:53:39] well once it's open hugging face we can
+[00:53:40] access it for running evaluation later.
+[00:53:44] Okay. Any other comments I have here
+[00:53:45] before we run
+[00:53:48] um 1,00 steps takes 5 to 10 minutes.
+[00:53:53] Um
+[00:53:55] I use three rows. Yeah. So, if you're
+[00:53:58] running 30,000 steps on a H100, takes
+[00:54:00] about 30 minutes. I'll show you how to
+[00:54:02] do that in a moment. This is the upload
+[00:54:04] command, which you've already got above.
+[00:54:07] Uh, if you have any install issues on
+[00:54:09] CUDA, this is relevant. We're not on
+[00:54:10] CUDA, so this is not relevant. So, with
+[00:54:12] that, I think we can I think we can
+[00:54:15] probably
+[00:54:17] uh get started here. I'm actually just
+[00:54:19] going to change this to be a bit less
+[00:54:22] long even though
+[00:54:25] we um so number this is data workers.
+[00:54:30] That should be fine. I've got this many
+[00:54:31] um CPU cores.
+[00:54:34] Uh so yeah, let's try this save
+[00:54:37] checkpoint. I guess actually this is
+[00:54:39] probably the way to turn off saving the
+[00:54:41] checkpoints cuz then no matter what I
+[00:54:44] have here, I think this doesn't really
+[00:54:46] matter. So, even if I set this to 600, I
+[00:54:48] don't think it matters if I've turned
+[00:54:50] off saving the checkpoints. All right.
+[00:54:52] So, let's copy this.
+[00:54:55] And let's paste.
+[00:54:59] And what's gone wrong? Yeah. And I think
+[00:55:02] we're probably just in the wrong folder
+[00:55:04] here. So you have to be careful because
+[00:55:09] within Laroobo there's a Larobo folder
+[00:55:13] which uh yeah
+[00:55:15] that can cause confusion cuz if you
+[00:55:17] accidentally CD one extra folder deep
+[00:55:19] you're going to run into trouble.
+[00:55:22] Uh so I do need to CD into the first LRO
+[00:55:26] and then I need to run.
+[00:55:31] Okay so this is running. You can see I'm
+[00:55:33] logged into a weights and biases. So,
+[00:55:34] it's going to start up that run straight
+[00:55:36] away and we should
+[00:55:41] Okay, so we did get an issue here
+[00:55:44] and I think that might be to do with me
+[00:55:47] setting the value of none
+[00:55:50] right here.
+[00:55:52] So, I don't know if it likes this.
+[00:55:56] So, let's just rerun.
+[00:56:04] All right.
+[00:56:06] So, we'll open that up.
+[00:56:10] And if we scroll down, you will see this
+[00:56:13] here. This is fine.
+[00:56:17] We should soon see some logs starting to
+[00:56:19] appear.
+[00:56:24] So, let's let's actually click on runs
+[00:56:27] so I can see a history of my different
+[00:56:29] runs.
+[00:56:31] And this is the one we want to view.
+[00:56:32] There's no data just yet, but we can
+[00:56:35] compare it to some training that I would
+[00:56:37] have run before. For example, uh
+[00:56:41] like some of these tests here.
+[00:56:47] And this is going to run on NPS.
+[00:56:50] You can see it's printing out
+[00:56:53] the number of frames in a data set. And
+[00:56:56] by the way, this is relevant. So you can
+[00:56:59] think of every frame as a data set as a
+[00:57:02] data set row. It is a data set row. And
+[00:57:06] we're going to cycle through all those
+[00:57:08] frames.
+[00:57:09] So basically, if you have 30 frames per
+[00:57:12] second, then you have 30 second
+[00:57:13] episodes. That's going to be 900 frames
+[00:57:15] per episode. So you can then calculate
+[00:57:17] how many total frames you have.
+[00:57:20] And the way the trainer works is it's
+[00:57:22] just going to sample through all of
+[00:57:24] these frames. Now, you want to run a
+[00:57:27] number of steps so that you have
+[00:57:29] multiple epochs. Multiple epochs means
+[00:57:32] you actually want to run training on
+[00:57:33] every frame of frame a few times, maybe
+[00:57:35] five to 10 times. So, whatever your
+[00:57:37] number of frames, you probably want to
+[00:57:39] have that times five number of epochs,
+[00:57:43] number of total steps, except your batch
+[00:57:46] size is four. So every step is actually
+[00:57:48] covering four frames. So it would be
+[00:57:51] something like 5 * 1500 is 7500
+[00:57:55] but then divided by four for batch size
+[00:57:57] which is uh very roughly back to about
+[00:58:00] 2,000 uh steps. Now this is only for a
+[00:58:05] very small number of frames cuz we've
+[00:58:07] only got uh three episodes. So that's
+[00:58:09] why 2,000 steps sounds like a low
+[00:58:11] number. Um, but if you have say 50 rows
+[00:58:14] of data, then you're going to want to
+[00:58:16] have uh, you know, something like 25,000
+[00:58:19] steps minimum. I think 100 is the
+[00:58:22] default, but that's the logic for how
+[00:58:24] you decide on how many steps you want to
+[00:58:25] have. Okay, let's see if we're making
+[00:58:27] any progress. Yeah. So, here you can see
+[00:58:30] our loss. The gradient norm is kind of
+[00:58:33] high. You usually want this to be
+[00:58:34] towards one, but yeah, it's very small
+[00:58:37] amount of data. We should start to see
+[00:58:39] the data appear now. Just going to hide
+[00:58:41] that. Refresh.
+[00:58:47] So yeah. Um, let's hide this.
+[00:58:51] Actually, there's no data showing yet on
+[00:58:53] weights and biases. It should appear
+[00:58:54] soon.
+[00:58:58] We've just got one row calculated. And
+[00:59:01] this is at step 50.
+[00:59:03] And I think we'll start to see data
+[00:59:05] appear around step 100. Okay. So now
+[00:59:08] we've step 100. And you can see the loss
+[00:59:11] has gone down a lot. So this is good.
+[00:59:14] Maybe we have some training data showing
+[00:59:16] at this point.
+[00:59:18] Sometimes there can be a lag. Okay. Uh
+[00:59:20] yeah. So this is good. Training data is
+[00:59:23] showing. We don't have the invalid data
+[00:59:24] yet, but we can see the training data is
+[00:59:27] showing up here. What we're looking for
+[00:59:28] is we're looking for to check that the
+[00:59:32] loss here is falling.
+[00:59:34] Um this is the total loss which includes
+[00:59:37] the L1 loss. This is the the
+[00:59:39] reconstruction um loss. This is really
+[00:59:43] what we care about. It's basically
+[00:59:44] saying the predicted actions are
+[00:59:46] matching the ground truth actions from
+[00:59:48] our training data set. So we want this
+[00:59:50] to be down towards zero. The loss here
+[00:59:53] is combining this loss with the KL
+[00:59:55] divergence loss which is the loss from
+[00:59:57] the style encoder. Now, if you do have
+[01:00:00] multiple styles, you then want to be
+[01:00:03] careful what your beta parameter is and
+[01:00:05] see if you've got the right beta
+[01:00:07] parameter. If there are multiple styles,
+[01:00:10] you should see some some KL loss uh even
+[01:00:14] as you move out towards high steps. What
+[01:00:16] we're going to see here, and I'll show
+[01:00:18] you on a larger data set, the KL loss is
+[01:00:20] just going to go to zero because
+[01:00:21] basically there are no styles to encode.
+[01:00:23] But if you truly have styles, you do not
+[01:00:25] want it to go to zero because you need
+[01:00:27] the encoder to be capturing some
+[01:00:29] information on the styles. And actually,
+[01:00:31] you want the style vector, which is Z.
+[01:00:35] This is kind of advanced what I'm saying
+[01:00:36] here, but you want the style vector,
+[01:00:38] which is called Z, to be nonzero. And
+[01:00:41] you want each of the dimensions actually
+[01:00:43] to be used. So you want a non-zero style
+[01:00:45] vector if there is a Z. And you can
+[01:00:47] actually check here the percentage of
+[01:00:49] the action active dimensions. So I've
+[01:00:51] added code to check how many dimensions
+[01:00:53] of the Z vector are being used. This is
+[01:00:56] going to go to zero because there is no
+[01:00:57] style. But if there was a style, you
+[01:00:59] would not want this to go to zero. And
+[01:01:01] if it was going to zero, you need to
+[01:01:02] lower your KL weight because lowering
+[01:01:05] the KL weight will allow more
+[01:01:06] information to be captured. So you can
+[01:01:08] see this is uh going to zero. The loss
+[01:01:10] here um is going down, which is good.
+[01:01:14] And pretty soon we should see the eval
+[01:01:16] loss as well. So I'm going to just give
+[01:01:19] this a second. I want to show you though
+[01:01:21] what happens if you run on a much larger
+[01:01:23] data set. And I'm going to show you data
+[01:01:26] from running here on 16 different uh
+[01:01:31] rows and running for quite a bit longer.
+[01:01:34] As I said, because there's no style,
+[01:01:37] basically there are no active dimensions
+[01:01:39] in the style vector. So the style vector
+[01:01:41] is just zeros.
+[01:01:43] Um yeah, there just is no style.
+[01:01:47] And what I want to show you, yeah, you
+[01:01:48] can see that's true both for the eval
+[01:01:51] and for the training. So the style
+[01:01:52] vector here as well for training is just
+[01:01:53] going down to zero. But the loss ve the
+[01:01:56] loss is lowering down here, which is
+[01:01:59] what we want. It's going all the way
+[01:02:00] down to.11.
+[01:02:02] And you can see here the L1 loss uh it's
+[01:02:05] going down to a pretty low value here.
+[01:02:08] So this is an example of training for
+[01:02:10] 10,000 steps on more data, 16 rows. And
+[01:02:14] you can check then the validation loss.
+[01:02:17] So here's the validation loss. You can
+[01:02:18] see it's going down not quite as
+[01:02:20] aggressively. So you can see the
+[01:02:22] validation loss is around.35
+[01:02:24] while the training loss is about 0.1. So
+[01:02:28] there's definitely a gap. And this just
+[01:02:30] tells you that your model is not
+[01:02:31] generalizing uh particularly. I mean
+[01:02:34] it's generalizing okay uh but it's not
+[01:02:37] generalizing very well to the validation
+[01:02:40] set. Uh, but this is nice because you
+[01:02:43] can see here that already by about 10k
+[01:02:45] steps, we're not getting a huge further
+[01:02:47] reduction. And so you can probably
+[01:02:49] decide to stop. In fact, based on the
+[01:02:51] validation loss here, you probably could
+[01:02:52] have stopped somewhere around 4,000 to
+[01:02:54] 6,000 steps. Um, because even though the
+[01:02:58] training loss goes down further, the
+[01:02:59] validation loss does not really improve
+[01:03:01] much more. So this is your heristic uh
+[01:03:04] for deciding when to stop or if you've
+[01:03:07] used enough training steps. Now, this
+[01:03:09] run here where I went for 10k steps and
+[01:03:12] I use 16 rows. This is the run I'm going
+[01:03:14] to use later in the video when I show
+[01:03:16] you evaluation when we try and evaluate
+[01:03:19] the performance of the model. It's going
+[01:03:21] to be the it's going to be the robot
+[01:03:23] model that I have trained on this data
+[01:03:26] here. All right. So, let's go back and
+[01:03:28] take a look at our quick map test.
+[01:03:31] We can see the loss is still going down,
+[01:03:33] but it's kind of hit an elbow. So, the
+[01:03:35] rate of improvement is is now falling.
+[01:03:37] Let's just quickly run here. See if I
+[01:03:41] think we'd only see a validation step
+[01:03:43] emerge once we get to uh the 200 step
+[01:03:46] point.
+[01:03:48] Uh you can see the active dimensions.
+[01:03:50] Okay, it's bounced up a little bit, but
+[01:03:52] I would not assign too much importance
+[01:03:54] to that just yet. Okay, I'm going to let
+[01:03:56] this run on the Mac. And in the
+[01:03:58] meantime, I'm going to show you how to
+[01:03:59] set up the training on a GPU.
+[01:04:03] Let's actually go back now and do the
+[01:04:07] very same thing, but we want to set it
+[01:04:08] up on a GPU. So, go back to train act.
+[01:04:12] And if you scroll up, you should see
+[01:04:13] there's a link for getting started here.
+[01:04:16] If you want to run on a GPU, you could
+[01:04:18] run on collab. Uh, so you could put
+[01:04:20] these scripts into Collab. You could run
+[01:04:22] on RunPod. That's what I'm going to do
+[01:04:24] using this um oneclick template here for
+[01:04:26] a H100. Well, it's actually just a
+[01:04:28] oneclick template. You can pick any GPU.
+[01:04:31] And this is an affiliate link, by the
+[01:04:32] way.
+[01:04:34] If you click in here,
+[01:04:37] you um Oh, I just want to sign in.
+[01:04:40] Let's see here.
+[01:04:47] So, I've got the oneclick template. I'm
+[01:04:49] going to pick a H100. You could pick
+[01:04:51] something smaller and cheaper. I'm going
+[01:04:53] to call it ACT. And if you check the
+[01:04:55] template, we're starting up a PyTorch
+[01:04:57] CUDA, PyTorch 2.2, into CUDA 12.1.
+[01:05:01] Um, and
+[01:05:05] what's important here is
+[01:05:08] we are going to um, yeah, we're just
+[01:05:11] going to accept this. We don't need a
+[01:05:12] huge volume of disk, but I've put plenty
+[01:05:14] of spare. Like this will be fine. Just
+[01:05:16] run with 25 in this case. Set overrides
+[01:05:19] and deploy on demand. And once this gets
+[01:05:23] up and running, we're going to SSH into
+[01:05:25] this and we're going to clone the repo
+[01:05:28] so that we can start to run those uh
+[01:05:31] scripts.
+[01:05:33] So, it's going to take a moment for that
+[01:05:35] to start. We'll be able to get the SSH
+[01:05:38] command. So, I'm going to copy that.
+[01:05:41] Head back over to cursor. Training still
+[01:05:44] going here. We've got 250 steps.
+[01:05:47] Connect to host. And we're going to want
+[01:05:50] to add in a new SSH host. So, I'll just
+[01:05:52] paste it in here. And I do need to put
+[01:05:55] in the right SSH key.
+[01:05:59] Um, the first time you do this, you'll
+[01:06:01] need to go into runpod settings and
+[01:06:02] you'll need to add in a public key. So,
+[01:06:04] you'll need to get chat GPT's help to
+[01:06:06] add in an SSH public key. You want to
+[01:06:09] create an SSH key in your SSH folder
+[01:06:12] that will have the private and public
+[01:06:13] key. You take the public key, you put it
+[01:06:14] into run pod.
+[01:06:16] I'm okay. open configuration.
+[01:06:20] Now, in the meantime, it looks like I
+[01:06:22] have hit a problem here on um
+[01:06:26] on getting the model to push up to hub.
+[01:06:30] And I know why that is.
+[01:06:33] It's because
+[01:06:37] it's because I actually tried to be
+[01:06:38] fancy and not save any final checkpoint.
+[01:06:44] So you see when I went into the training
+[01:06:47] settings I set that to false. I should
+[01:06:49] have set it to true probably just to
+[01:06:52] save that final checkpoint. So if I'd
+[01:06:54] have done this it would have saved it.
+[01:06:57] That's just because my upload command
+[01:06:59] right now when I run it here it's
+[01:07:02] looking to upload from this folder here.
+[01:07:05] But actually we didn't save checkpoints.
+[01:07:07] We only saved the final model. Or at
+[01:07:08] least I hope we saved the final model.
+[01:07:10] So when I look in the outputs here train
+[01:07:14] and uh we're looking at act test
+[01:07:19] there probably yeah there are no
+[01:07:21] checkpoints
+[01:07:22] so I think that was a mistake
+[01:07:27] I should have left this on to true to
+[01:07:29] make sure that we do at least save.
+[01:07:33] So
+[01:07:35] what I'm going to do is just
+[01:07:39] run this for a very small numberish
+[01:07:42] steps
+[01:07:53] because when we run that upload command
+[01:07:55] it's looking in the it's looking in the
+[01:07:57] folder for outputs train act tests
+[01:08:00] checkpoints. Um, but of course if we
+[01:08:02] didn't save any checkpoints, that's
+[01:08:04] going to be a problem. And it does say
+[01:08:06] it should save the last after the last
+[01:08:10] step, but it's not clear to me
+[01:08:14] it is doing that. And it's possibly
+[01:08:16] because I've turned off the saving. So,
+[01:08:17] let's just double check that. In the
+[01:08:19] meantime, let's try connecting to um
+[01:08:24] let's try connecting to the new host.
+[01:08:26] The runpod host we're connecting to is
+[01:08:29] 15766.
+[01:08:32] and.11.
+[01:08:35] So it's it's this one here. So we just
+[01:08:38] connect in and we continue.
+[01:08:42] Now when this loads, we should have the
+[01:08:44] option to clone a repo, which is what we
+[01:08:46] want. Okay. So we clone a repository
+[01:08:49] here. Going to clone from GitHub.
+[01:08:52] Trellis research advanced robotics. If
+[01:08:56] you're not using the trellis re research
+[01:08:58] implementation, you can instead decide
+[01:09:00] just to clone hovering face LRO. I like
+[01:09:03] to clone it within the workspace folder.
+[01:09:07] And this will give us an option now to
+[01:09:10] open the folder to open the cloned repo.
+[01:09:15] And once this happens, we should be up
+[01:09:16] and running.
+[01:09:18] You got to trust the authors of the
+[01:09:20] repo. Okay, so it looks like we're in
+[01:09:23] good shape. We'll open up a terminal
+[01:09:24] here. just make the screen a bit bigger.
+[01:09:27] And I need to CD into training.
+[01:09:30] And once I'm in training, I do need to
+[01:09:33] go through the installations. So I'm
+[01:09:34] going to do this with you now. I need to
+[01:09:36] go into
+[01:09:38] the uh not troubleshooting, but I need
+[01:09:42] to go into teleyop here. And now I need
+[01:09:45] to go down to the Linux section. So we
+[01:09:48] do need to run this installation here.
+[01:09:53] And then we're going to want to do the
+[01:09:55] cloning of the trellis Laroobo or the
+[01:09:58] standard Laroobo.
+[01:10:00] So
+[01:10:03] I need to uh close and reopen the shell.
+[01:10:06] So I'll just close that.
+[01:10:09] And now I need to run these installs.
+[01:10:13] So
+[01:10:18] and with that we should be able to go
+[01:10:20] into the train act. So we should be able
+[01:10:22] to run now with training.
+[01:10:27] And
+[01:10:31] what I can do is
+[01:10:34] I can go back to my local implementation
+[01:10:36] here.
+[01:10:38] Right away that training is done and the
+[01:10:40] model has been pushed up to hub. So
+[01:10:42] everything worked and I was I was right
+[01:10:45] to say that you should set this save
+[01:10:47] checkpoint to true.
+[01:10:49] Let's just check what that data looked
+[01:10:50] like. If you go to Laroobo then
+[01:10:55] uh the outputs folder which should be
+[01:11:00] here. You can see now under train we
+[01:11:02] have act test and we have checkpoints.
+[01:11:05] So yeah, you do actually need to set
+[01:11:08] this here to true. I'm not sure this is
+[01:11:10] correct. I'm going to just put in that
+[01:11:12] might be questionable.
+[01:11:19] Okay, now I've made a few little changes
+[01:11:22] here in in data prep. So I'm going to
+[01:11:24] push these up.
+[01:11:26] And this I can actually comment out.
+[01:11:32] So I'm going to just push these
+[01:11:38] up to hub. I've made a small change in
+[01:11:41] train. This is fine. I'll push this up
+[01:11:43] as well. So, anybody working on this
+[01:11:45] will have the same parameters
+[01:11:48] and I'll sync these. And what this just
+[01:11:51] means is now if I go across to um to the
+[01:11:55] remote instance on the GPU, I'm going to
+[01:11:58] I'm going to do git pull and just make
+[01:12:00] sure that we have the latest version
+[01:12:02] that's matching everything else.
+[01:12:07] So you can see now on the remote I've
+[01:12:09] cloned Lorobo from Trellis
+[01:12:12] and we're currently running the installs
+[01:12:14] that are necessary with the help of UV
+[01:12:16] which should be a little bit quicker.
+[01:12:19] If I really want I can
+[01:12:22] just open up a new terminal here and do
+[01:12:25] get pull
+[01:12:26] and it should pull down some updates.
+[01:12:30] Looks good.
+[01:12:33] And if we go back to the installs here,
+[01:12:36] it's updating torch and CUDA to the
+[01:12:38] required versions. And yeah, we can also
+[01:12:41] sync the changes here to the robot. All
+[01:12:45] right. So now we're going to run
+[01:12:47] training on CUDA. So yeah, you can
+[01:12:49] change this to CUDA and we can run the
+[01:12:52] exact same thing. Let's let's actually
+[01:12:55] go through this. It should tell me to
+[01:12:57] log into weights and biases. I think
+[01:12:59] actually this should also fail because I
+[01:13:02] need to log into hugging face.
+[01:13:04] Um it's not it's probably it's probably
+[01:13:07] not going to fail because oh
+[01:13:09] interesting. So we did hit a websockets
+[01:13:11] issue here.
+[01:13:14] That's not a problem. We can just do uvp
+[01:13:15] pip install websockets.
+[01:13:19] I have seen that issue before.
+[01:13:23] And now let's try and run. Really, we
+[01:13:26] should log into HoggingFace.
+[01:13:29] Um, which you can do at HuggingFace- Cly
+[01:13:33] and then login. So, I could get a a
+[01:13:36] token and log in there. My data set is
+[01:13:38] public though, so it should be fine.
+[01:13:41] But, it will hit an issue when I try to
+[01:13:43] upload. So, you do need to log into
+[01:13:45] Hingface if you want to do this part.
+[01:13:47] Now, let's just try the first part and
+[01:13:50] see if it gets us to log into weights
+[01:13:52] and biases.
+[01:13:56] Yeah. So, here it says weights and
+[01:13:57] biases. Enter your choice. This is not I
+[01:14:00] don't know how you're supposed to know,
+[01:14:01] but put in one and it should tell you to
+[01:14:03] put in an API key from your profile. And
+[01:14:06] actually, if you check here on weights
+[01:14:07] and biases, you can find a link that'll
+[01:14:10] bring you to authorizing
+[01:14:12] weights and biases like this. Now, I
+[01:14:15] need to
+[01:14:17] just enter again here.
+[01:14:19] I might be logged in, I might not be.
+[01:14:22] Okay.
+[01:14:24] I'm going to log into weights and biases
+[01:14:27] and copy this code here.
+[01:14:31] Paste it in. And we're logged into
+[01:14:33] weights and biases. And this is going to
+[01:14:34] run a really short training because
+[01:14:36] that's the parameters that I've set in
+[01:14:37] train. py. So if you go here,
+[01:14:41] um,
+[01:14:42] that should it's going to run a really
+[01:14:45] short number of Yeah, just like a few
+[01:14:48] steps. Now it looks like we have hit an
+[01:14:50] issue here on CUDA.
+[01:14:53] And
+[01:14:56] let me check why that would be the case.
+[01:14:59] So what I'm going to do is make use of
+[01:15:01] cursor to see if we can fix this.
+[01:15:03] Diagnose the issue with training on
+[01:15:07] CUDA.
+[01:15:10] I don't immediately see what the issue
+[01:15:13] would be here.
+[01:15:17] I can check if there's anything to do
+[01:15:19] with
+[01:15:23] I wonder if it's there's batch size
+[01:15:25] issues
+[01:15:29] just because
+[01:15:31] the total number of
+[01:15:33] steps
+[01:15:39] that
+[01:15:41] so I do need to remove this.
+[01:15:44] Let's just see if this solves it. I
+[01:15:46] don't actually think this is um
+[01:15:52] it's interesting that this is not an
+[01:15:53] issue on Mac, but it is an issue on
+[01:15:56] CUDA.
+[01:15:58] So,
+[01:16:00] let's see what cursor recommends.
+[01:16:12] Now, here we're actually not running.
+[01:16:14] Yeah, we are still running into that
+[01:16:16] issue with
+[01:16:31] printing out currently. It's checking
+[01:16:33] the version of Torch and CUDA that we're
+[01:16:35] using.
+[01:16:40] And I'm not sure we can try checking
+[01:16:42] what
+[01:16:48] Yeah, it seems to be an issue to do with
+[01:16:50] the validation session
+[01:16:56] as to why exactly
+[01:16:59] that would be the Yes.
+[01:17:18] So bath size of one
+[01:17:22] 50 steps.
+[01:17:40] Oh, really? No, that's not going to be
+[01:17:43] the issue.
+[01:17:52] But this here, I can close. I can maybe
+[01:17:55] start a new. I don't think that's the
+[01:17:56] issue.
+[01:18:25] Okay.
+[01:18:33] Yeah, I I need to um need to pass this
+[01:18:36] back in. I think I didn't pass the
+[01:18:38] details of the error.
+[01:18:46] Yeah, I suspect it's something to do
+[01:18:47] with validation set. It's interesting
+[01:18:49] that it's just coming up as an issue on
+[01:18:51] on CUDA
+[01:18:55] because I do have this um data set here.
+[01:18:58] I'm going to try this other data set
+[01:19:00] that I know I have
+[01:19:04] which is a larger data set and we can
+[01:19:06] see if that causes the issue.
+[01:19:15] Yeah. So, it's a data set issue.
+[01:19:21] Oh, it's not a data set issue. Something
+[01:19:24] else
+[01:20:08] So if we look here,
+[01:20:40] Uh, I'm not entirely sure where this
+[01:20:42] issue came from because I was previously
+[01:20:46] running fine.
+[01:21:12] It's making some updates here.
+[01:21:31] Not entirely sure.
+[01:21:43] So, I do need to delete the old file.
+[01:21:47] It's been changed.
+[01:22:05] Yeah. Okay. So, that worked and you can
+[01:22:08] see it's very fast when you're training
+[01:22:09] on CUDA. So, you're able to get data
+[01:22:12] very quickly. I'll just um I'll just run
+[01:22:15] this on a few more rows so you can see
+[01:22:16] what's happening. So instead of running
+[01:22:18] it um let's run this out for,500
+[01:22:23] rows.
+[01:22:25] So we'll run for 1500 eval every 100.
+[01:22:30] Well 200 let's say 100 log every
+[01:22:35] just run that once more.
+[01:22:40] This is training again as a reminder on
+[01:22:42] um we're training on 16 rows. So it's a
+[01:22:48] larger data set. You do have to remove
+[01:22:50] the folder if you're going to start a
+[01:22:51] new training. So that's why it keeps
+[01:22:52] giving that error.
+[01:22:57] Interesting.
+[01:23:02] So yeah.
+[01:23:08] Okay. I'm going to add
+[01:23:10] It seems like data sets were using a
+[01:23:14] different data sets version that
+[01:23:15] previously was causing issue. Let's add
+[01:23:17] a succinct note to train act
+[01:23:25] that fix.
+[01:23:28] So yeah, here we're up and running uh
+[01:23:30] with weights and biases again. And let's
+[01:23:33] just take a look at how that training is
+[01:23:35] going. It's
+[01:23:36] &gt;&gt; just training on a small number of rows.
+[01:23:39] 16k 16 rows, not 16k. Yeah, you see my
+[01:23:43] storage is getting is getting full up
+[01:23:45] because we're doing all these saves. And
+[01:23:48] actually, maybe I
+[01:23:50] maybe I'm getting it to save. Yeah. Oh,
+[01:23:52] that's fine. It's only going to save
+[01:23:53] once. So, if we go to runs and we look
+[01:23:57] at the act training,
+[01:24:00] you can see, yeah, already we're
+[01:24:03] basically not using the encoder.
+[01:24:06] And this is validation. And if we look
+[01:24:08] at the validation loss, it's come down,
+[01:24:10] but it's already well, it's probably
+[01:24:12] just not stable quite yet. We need to
+[01:24:14] see a few more rows. And if we look
+[01:24:16] here, yeah, you can see that we're just
+[01:24:18] really not using the soil encoder. And
+[01:24:21] if you look at the train loss, it's
+[01:24:23] going down and it's starting to flatten
+[01:24:25] here.
+[01:24:26] So yeah, this is the rat run I am doing
+[01:24:30] right now in green.
+[01:24:34] So, we should have um
+[01:24:38] sorry, it's this run here currently at
+[01:24:41] step 1,00.
+[01:24:46] That doesn't look right because if we're
+[01:24:48] at step 1,00.
+[01:24:56] Okay, it's done. Sorry, we were beyond
+[01:24:58] step 1,00. And let's just take a quick
+[01:25:01] look at the validation loss.
+[01:25:03] Yeah, I mean I wouldn't say it's
+[01:25:05] particularly stable here.
+[01:25:08] Um, when you include the KL divergence,
+[01:25:11] it is kind of going down here. That's
+[01:25:14] the KLD loss. Yeah, it's basically zero.
+[01:25:16] There's no style encoder being used. And
+[01:25:19] it's arguable whether we're really
+[01:25:23] getting any further reduction here in
+[01:25:24] the validation loss.
+[01:25:27] And if we look at the training, look at
+[01:25:29] the training losses here. training loss
+[01:25:32] is going down nicely which is good and
+[01:25:34] the L1 loss is going down as well. So
+[01:25:38] this here as I said it's a larger data
+[01:25:40] set. Um actually let's just check did I
+[01:25:45] run it on the larger data set. Let's
+[01:25:47] check what the command was. Yeah, I did.
+[01:25:50] I'm actually not entirely sure which
+[01:25:52] data set this is. I'd have to go back
+[01:25:53] and look carefully whether this is my
+[01:25:55] highquality 16 um data point data set.
+[01:25:59] But the the reason I wanted to show you
+[01:26:01] on CUDA anyway is just to get this um
+[01:26:03] whole process working. I'm glad I did it
+[01:26:04] because I hit that error. Um so that
+[01:26:06] should be fixed now if you're if you're
+[01:26:08] cloning from these repos. And um that
+[01:26:11] kind of sums up how to use CUDA. It's a
+[01:26:12] lot faster. Basically, if you're running
+[01:26:15] through 50 steps, you're probably going
+[01:26:17] to want to run um let's say they're 20
+[01:26:20] seconds on average. That means you've
+[01:26:21] got um 1,000 seconds worth of data. And
+[01:26:25] if you've got 30 frames per second,
+[01:26:27] that's 3,000 frames that you're training
+[01:26:29] on. And if you're training on 3,000
+[01:26:31] frames and you want to sample them 10
+[01:26:33] times, that would be 30,000 steps. Um,
+[01:26:36] or if you're doing batch four, it would
+[01:26:37] be then 7,500
+[01:26:40] uh steps. I've gone through my maths on
+[01:26:42] that, but basically, you need to figure
+[01:26:44] out how many frames you have, and then
+[01:26:46] make sure you have 5 to 10 epochs.
+[01:26:48] That's your starting point. And then
+[01:26:49] your finishing point is to always check
+[01:26:51] the validation loss. Make sure it's
+[01:26:53] going down. And if you see it flattening
+[01:26:54] or going up, that means you probably
+[01:26:55] didn't need to train uh for just quite
+[01:26:57] as long as that.
+[01:26:59] So that's uh pretty much it here on the
+[01:27:02] CUDA. I'll push these updates. Now, now
+[01:27:04] that we've trained the model, I want to
+[01:27:06] show you the results uh where we will
+[01:27:08] evaluate its performance. And I'm going
+[01:27:09] to show you some bad results and some
+[01:27:11] good results and explain to you where
+[01:27:13] this works and where it doesn't.
+[01:27:16] The short summary is that ACT works well
+[01:27:19] when you have training examples that
+[01:27:21] pretty much exactly match your
+[01:27:23] production roll out. If you want to
+[01:27:26] cover a large range of operation, you're
+[01:27:28] going to need to create a lot of data.
+[01:27:30] So, let me start by describing where I
+[01:27:31] think it's going to perform well and
+[01:27:33] then we'll do some rollouts and see
+[01:27:34] where it performs well. So because we
+[01:27:37] trained and I ran about in this data set
+[01:27:41] I didn't show the full data set being
+[01:27:43] prepared but I made about 16 points. So
+[01:27:46] I ran picking up the cube from here and
+[01:27:48] placing it over here. I did not include
+[01:27:51] data in the set for small variations. I
+[01:27:54] didn't include data for picking the cube
+[01:27:55] from here. I didn't include data for
+[01:27:57] picking the cube on the side. I didn't
+[01:27:59] include data for putting the cube
+[01:28:00] outside the view of this camera here.
+[01:28:02] So, what we're going to see is the the
+[01:28:04] robot should perform quite well if I put
+[01:28:07] it here or really close to here. It
+[01:28:10] should be able to pick it up and place
+[01:28:11] it over here. But once I start to try
+[01:28:13] with the cube starting here, it's going
+[01:28:15] to run into trouble. Now, the first
+[01:28:17] thing you should do after you've run
+[01:28:19] training is you should test the exact
+[01:28:23] same scenarios as your training. So, you
+[01:28:26] should try and replicate the cube
+[01:28:27] position of your training examples. pick
+[01:28:30] one or two of them and see if the robot
+[01:28:32] is able to do that. And the best way to
+[01:28:34] do that is rather than running evaluate
+[01:28:36] first of all, we're going to go back up
+[01:28:39] to replay. So, we're going to run a
+[01:28:40] script that's going to replay some of
+[01:28:42] the training examples. So, I'll find
+[01:28:45] here robot.re replay. And I'm just going
+[01:28:47] to replay uh episode zero, just the
+[01:28:50] first episode. And replay just does the
+[01:28:54] motor movement. So, it's not using the
+[01:28:56] camera, it's not using the model, it's
+[01:28:58] just replicating the motor movements of
+[01:29:00] my training. So, let me paste that in
+[01:29:02] and run.
+[01:29:04] And of course, it's just a
+[01:29:07] it's just the follower robot that's
+[01:29:09] going to move. So, we should see it open
+[01:29:11] because that's how I ran the episode.
+[01:29:13] And now, the robot is moving and it's
+[01:29:15] moving towards the brick, which I'm
+[01:29:17] picking up. And what I'm going to do
+[01:29:19] here is I'm going to kind of put the
+[01:29:21] grip the brick where it should be. And
+[01:29:25] I'm not going to let it pick it up. So
+[01:29:27] I'm just going to replicate really
+[01:29:28] exactly where that brick should be. So
+[01:29:31] the whole purpose here is I want to
+[01:29:35] figure out where the brick should be so
+[01:29:38] that I can now run it with the model and
+[01:29:40] it's basically replicating the exact
+[01:29:42] same training episode. So now I'm going
+[01:29:44] to go down and I'm going to evaluate the
+[01:29:46] model on that starting point. So here we
+[01:29:49] have training. Here we have evaluate
+[01:29:54] and I'm going to evaluate the model that
+[01:29:56] I've trained.
+[01:29:59] So this is the model rolling out. Paste
+[01:30:01] this in here
+[01:30:03] and we can check if we like to see the
+[01:30:06] rerun screen. So here, sorry for the
+[01:30:09] infinite mirror on the right, but we
+[01:30:11] should see here the camera pop up. Okay,
+[01:30:15] so it's working. It's moving straight
+[01:30:16] away, which is great. and it should be
+[01:30:18] replicating something very similar to
+[01:30:20] training. So, it's getting the cube,
+[01:30:23] picking it up. Now, I'm not saying it'll
+[01:30:25] be perfect. It may make a mistake, but
+[01:30:28] broadly speaking, this is looking good.
+[01:30:30] It's doing what it did in the train
+[01:30:32] example. This is using the model.
+[01:30:36] Now, is it going to let go of the brick?
+[01:30:39] You know, not quite as smooth as the
+[01:30:41] training example, but broadly speaking,
+[01:30:44] it's working.
+[01:30:46] And it's coming back here. So, this is
+[01:30:49] good. You know, not quite as smooth. And
+[01:30:51] I haven't got ensembling turned on. I'll
+[01:30:53] talk about that in a moment. Uh, but I'm
+[01:30:56] rolling this out in evaluation mode. And
+[01:30:58] it's more or less following the training
+[01:31:00] example. It's doing something funny here
+[01:31:03] where it's kind of jolting, but I think
+[01:31:05] it will settle down towards its final
+[01:31:07] position. Maybe it doesn't see the cube
+[01:31:10] in the exact same position that it was
+[01:31:12] in.
+[01:31:14] And the episode is just timed out there.
+[01:31:16] So, I would call that a success. Now,
+[01:31:19] let's try this again, but let's try it
+[01:31:22] this time with the cube starting in a
+[01:31:24] more difficult position. And let's see
+[01:31:27] what it does. So, I'm going to put it
+[01:31:28] here. This is definitely more towards
+[01:31:30] the middle than what it would have been
+[01:31:32] during training. And I expect it's going
+[01:31:35] to struggle. It may decide not even to
+[01:31:37] move from the start because the image
+[01:31:42] here and the image here is just perhaps
+[01:31:45] so far outside its training example. So
+[01:31:47] yeah, it's moving too far to the left.
+[01:31:49] It hasn't seen any training like this
+[01:31:53] here. It's now not really sure what to
+[01:31:55] do.
+[01:31:57] I don't know if it's going to try to
+[01:31:59] close because it it probably doesn't see
+[01:32:01] the cube between the pincers.
+[01:32:04] And something I want to highlight here
+[01:32:06] is that it's operating on a series of uh
+[01:32:09] 100 frames, which is it we're we're
+[01:32:12] commanding the robot at about 30 frames
+[01:32:13] per second. So 100 frames is uh it's
+[01:32:16] projecting sequences of about 3 seconds.
+[01:32:20] So if I do tap the cube now into a
+[01:32:24] position that it starts to recognize,
+[01:32:26] it's then going to roll out that kind of
+[01:32:28] series of 3 seconds. So within about 3
+[01:32:32] seconds it might start to recover
+[01:32:35] because it recognizes it now. It may
+[01:32:37] also just time out.
+[01:32:41] But here,
+[01:32:43] okay, we ran out of time. So let's let's
+[01:32:46] just keep going cuz I want to I want to
+[01:32:49] show you um
+[01:32:52] let's basically I just restarted the
+[01:32:54] script here. Give it more time. It's
+[01:32:56] fine that you don't start in the
+[01:32:57] starting position because it still
+[01:32:58] should recognize this frame. Maybe I'll
+[01:33:01] make it a little more similar. Oh, it
+[01:33:04] knocked it over. If it knocks it over,
+[01:33:06] there's no way it's going to recognize
+[01:33:07] that frame. Now, see how it's actually
+[01:33:10] going back again? That makes sense
+[01:33:12] because it sees a position that looks
+[01:33:15] familiar to it. Now, the cube is not
+[01:33:17] exactly where it thinks it should be.
+[01:33:20] So, it's still not recognizing.
+[01:33:23] Now, the cube is behind the pinser,
+[01:33:25] which is a position that it probably
+[01:33:26] never sees in the data set. So, that's
+[01:33:29] kind of bad.
+[01:33:30] But maybe if I take it away and put it
+[01:33:33] back again,
+[01:33:36] it might manage to recover. It's
+[01:33:38] probably going to time out.
+[01:33:44] Can we get it to recover?
+[01:33:47] Okay, so probably there I'm in the right
+[01:33:49] position and it misses it. It should go
+[01:33:52] back again. And it's not like it's smart
+[01:33:54] in figuring out, oh, I missed it. I
+[01:33:56] should go back. It's just that the video
+[01:33:58] that it's seeing is familiar with a
+[01:34:01] point that's earlier in the sequence.
+[01:34:04] So, I'm not being very successful here,
+[01:34:06] at least in picking it up. But I am
+[01:34:08] being successful in explaining to you
+[01:34:10] why it's not exactly picking it up.
+[01:34:12] Because basically, this image that it's
+[01:34:14] seeing right now, combined with the set
+[01:34:15] of motor positions, this is not
+[01:34:17] familiar.
+[01:34:21] And to some degree, you can get into
+[01:34:23] positions where it's never going to
+[01:34:24] recover because the pinsers are so far
+[01:34:26] forward right now.
+[01:34:29] I'm just randomly doing this, hoping it
+[01:34:31] moves the pinsers away.
+[01:34:33] And then trying to put the cube back in
+[01:34:35] a position where it might be useful.
+[01:34:38] And you can see there are various
+[01:34:40] degrees of cheating.
+[01:34:49] So yeah, I mean I can entirely cheat and
+[01:34:52] I can try to put the the cube between
+[01:34:54] the pincers here. It hasn't even
+[01:34:56] properly closed on the pinsers, but you
+[01:34:59] know, it's it's maybe somewhat
+[01:35:01] recognizing where the cube is. We've got
+[01:35:05] the cube in the jar. kind of loosely
+[01:35:09] realizing that now the task is complete,
+[01:35:12] but it's it's motor positions up here.
+[01:35:15] This is not a position that it ever sees
+[01:35:17] in the data set. So, it's it's running
+[01:35:20] into trouble. So, this illustrates to
+[01:35:22] you that if you want to train to be
+[01:35:24] general and pick this cube up from here,
+[01:35:26] from here, from here, from here, you
+[01:35:28] need to train it on data. You probably
+[01:35:29] need 10 points that vary around here.
+[01:35:32] You probably need to have 10 points that
+[01:35:34] vary around here, maybe points between.
+[01:35:36] In fact, you may want to just train some
+[01:35:38] data points that are staggered across
+[01:35:40] like this. If you want to further
+[01:35:42] generalize, uh, you might want to orient
+[01:35:45] the cube in a few different ways like
+[01:35:47] this. You may want to orient it this way
+[01:35:49] so it gets familiar with this. And you
+[01:35:53] can see there's even this little bit of
+[01:35:54] stickiness from a sticker here. And that
+[01:35:56] potentially could make a difference
+[01:35:57] depending on the orientation of this.
+[01:36:00] Now, if you have enough data, if I had,
+[01:36:02] for example, 10 data points here, maybe
+[01:36:05] 100 data points going all the way to
+[01:36:06] here, at that point during training, I
+[01:36:09] might be able to turn on color jitter.
+[01:36:13] So, you can search here within the
+[01:36:15] training loop
+[01:36:17] to look for jitter. And
+[01:36:20] let me just see if I can
+[01:36:23] uh color
+[01:36:25] because there's a parameter here that we
+[01:36:27] can set. Yeah, in fact, if you want to
+[01:36:29] turn on image augmentations, which will
+[01:36:32] add some jitter to the images here,
+[01:36:34] which should make you more robust to
+[01:36:36] lighting changes, which is probably an
+[01:36:37] issue, even if I've got a ring light
+[01:36:39] behind the camera you're looking at me
+[01:36:41] from. If I turned off that ring light,
+[01:36:43] it may even make things fail. So, if you
+[01:36:45] have large enough data, you can add
+[01:36:47] jitter and that will randomize the
+[01:36:49] images so that you become more
+[01:36:51] invariant. But I can warn you that if
+[01:36:53] you do that with just say 16 rows of
+[01:36:55] data like I did, you're probably just
+[01:36:57] going to fail because it's going to
+[01:36:58] overfitit to the jittered images and
+[01:37:00] it's not going to recognize any of the
+[01:37:02] real images and so it's not going to
+[01:37:03] know what to do and you might find that
+[01:37:05] your robot just stays stuck.
+[01:37:08] Now there's one other thing uh I'll talk
+[01:37:10] about here which is deciding the number
+[01:37:12] of steps of roll out.
+[01:37:14] When we trained we had to choose the the
+[01:37:17] window we want to train on. Basically
+[01:37:19] for every image, every frame and there's
+[01:37:21] 30 frames per second. For every frame,
+[01:37:24] we make we can make a prediction of
+[01:37:27] well, this is what happens during
+[01:37:28] training. We pick a frame and we make a
+[01:37:30] prediction over n number of future steps
+[01:37:33] for the motors. So you can set n is set
+[01:37:36] to 100 right now. So it's predicting 100
+[01:37:39] steps forward. Now the more steps
+[01:37:42] forward you predict, the more the mo the
+[01:37:44] motor and the robot knows about the
+[01:37:46] future. it knows about the future
+[01:37:48] trajectory and this is probably good
+[01:37:50] because it makes it robust. If you just
+[01:37:51] show it two steps in the future which is
+[01:37:54] milliseconds, tens of milliseconds,
+[01:37:56] that's going to be very jolty in terms
+[01:37:58] of movement. So you want K to be large
+[01:38:00] enough uh so that you're not just trying
+[01:38:03] to make the model good at predicting the
+[01:38:05] very next one or two motor steps, but
+[01:38:08] you don't want it to be too large either
+[01:38:11] because if you make it too large, that's
+[01:38:13] going to slow down your model. The more
+[01:38:15] steps you try and predict at once, the
+[01:38:17] slower the decoding is going to be and
+[01:38:20] that potentially is going to pose issues
+[01:38:23] when you're trying to do the inference.
+[01:38:25] So you want to have a value of K, the
+[01:38:27] number of future steps that's going to
+[01:38:29] be not too long, not too short. So if
+[01:38:32] you want to see where to set this, you
+[01:38:34] can go to the training portion of the
+[01:38:36] readme here or of the train.act.md
+[01:38:39] act.md and just scroll up to find
+[01:38:44] this section here on the act
+[01:38:45] configuration which sets uh the chunk
+[01:38:48] size and also allows you to set the
+[01:38:50] number of action steps. So we'll
+[01:38:51] actually just go into that and we can
+[01:38:53] see if we go down to the number of
+[01:38:59] uh the chunk size it's currently set to
+[01:39:01] 50. So that means the model is being
+[01:39:03] trained to predict 50 steps. It's 30
+[01:39:06] frames per second. So that's about a
+[01:39:07] minute one for sorry 1 and 2/3 seconds
+[01:39:10] in the future.
+[01:39:12] And we also have this parameter here
+[01:39:13] which is called action steps. And
+[01:39:15] actually for this last one I showed you
+[01:39:17] I changed this and started recording
+[01:39:19] again. This was actually set to 50. So
+[01:39:21] even though the model predicts 50 steps
+[01:39:23] ahead we only use 15 which is about half
+[01:39:26] a second and then we recomputee the next
+[01:39:29] 50. So if I move the cube within half a
+[01:39:31] second it's going to respond and it's
+[01:39:33] going to adapt to the next uh
+[01:39:35] projection. And the logic here is that
+[01:39:37] it's good to train the model on a longer
+[01:39:39] length so that it gets familiar with uh
+[01:39:41] the challenge of predicting far out. But
+[01:39:44] then actually we only use the nearer
+[01:39:46] steps because those are the most
+[01:39:47] accurate. And if we did roll out the
+[01:39:49] full 50, which you can try, it might
+[01:39:50] work. It's potentially going to start to
+[01:39:53] diverge from where the robot actually is
+[01:39:55] because the motor positions will always
+[01:39:57] be a little bit different than
+[01:39:58] predicted. So that's why you try to set
+[01:40:00] the chunk size large, but you actually
+[01:40:02] only use some of those predicted chunks
+[01:40:04] at every step and then you recomputee.
+[01:40:06] Now there's another mode here that you
+[01:40:08] can use called ensembling. It's where
+[01:40:11] you make a prediction much more
+[01:40:13] frequently and of course you could just
+[01:40:15] lower this value anyway. But it rather
+[01:40:17] than just predicting one step ahead
+[01:40:19] which would actually result in a very
+[01:40:21] bumpy trajectory
+[01:40:23] um rather sorry than repredicting every
+[01:40:25] second every time step which would be
+[01:40:27] difficult because you'd have to recmp
+[01:40:29] compute literally every time step and
+[01:40:30] that still is difficult. It would also
+[01:40:32] be potentially bumpy because you'd have
+[01:40:34] a whole new prediction every single time
+[01:40:36] step. What you can do is make the
+[01:40:38] prediction every time step but ensemble
+[01:40:40] across those waiting most mostly the
+[01:40:44] latest predictions and weighing less the
+[01:40:46] older predictions. So you can imagine
+[01:40:48] now every time step we have a new 50
+[01:40:50] predictions but the older ones are
+[01:40:53] expiring and we're weighing them less
+[01:40:55] and the newer ones were giving heavier
+[01:40:57] weight. And in fact the way that that
+[01:40:58] weight drops off we can set down here in
+[01:41:01] the ensembling coefficient. It was set
+[01:41:04] to none previously and I've just set it
+[01:41:05] now to 0.0. 01. So I'm going to try now
+[01:41:08] with ensembling and you can tell me
+[01:41:10] whether it's smoother than without using
+[01:41:12] ensembling.
+[01:41:14] This is the premise of ensembling. To
+[01:41:16] get the cube position correct, I'm going
+[01:41:18] to start by running um let me just
+[01:41:21] check. I've put that in as one. Yeah,
+[01:41:22] that looks good. I'm going to start by
+[01:41:25] going back. Got another keyboard here
+[01:41:27] and doing a replay. Oops.
+[01:41:32] Replay.
+[01:41:34] Here
+[01:41:35] we go. And I'll just replay the zero
+[01:41:38] episode.
+[01:41:40] So the robot will jump back because
+[01:41:43] it's going to
+[01:41:47] All right,
+[01:41:48] just replaying here. By the way, I am in
+[01:41:51] the camera's view, which is bad for a
+[01:41:52] training example, but it's fine now cuz
+[01:41:55] we're just rolling out the motor
+[01:41:56] position I used during training. And I'm
+[01:41:59] going to place the cube exactly where
+[01:42:03] the robot expects it from the training
+[01:42:06] example.
+[01:42:08] And when it's done with this, I will do
+[01:42:09] a roll out. So I'll evaluate the policy,
+[01:42:16] but I'll evaluate it with the cube in
+[01:42:17] that position, which should give it a
+[01:42:19] very good chance. All right. So it's
+[01:42:21] finished with replaying. Now we're
+[01:42:24] running the policy. I'm going to get out
+[01:42:25] of the way.
+[01:42:27] I'm going to Here's rerun. Make sure the
+[01:42:29] chair is out of the way from the camera.
+[01:42:34] Okay, that's good. And you can see here
+[01:42:39] it's moving down. You can decide whether
+[01:42:41] it's smoother.
+[01:42:43] Okay, it does grab it. Oh, it drops it.
+[01:42:48] So, potentially the ensembling is giving
+[01:42:51] it some kind of a an inaccuracy that
+[01:42:54] wasn't there before. And we can see if
+[01:42:56] it tries to recover.
+[01:43:02] I think it's going to have a difficulty
+[01:43:04] lifting it. Yeah, the ensembling in this
+[01:43:07] case is actually making it less robust.
+[01:43:09] Not not intuitive that it would, but I
+[01:43:12] guess the noise it's introducing there
+[01:43:13] by making frequent predictions is
+[01:43:16] causing it to to drop it maybe
+[01:43:22] in that position. No.
+[01:43:25] So that's an illustration of oddsling.
+[01:43:27] Potentially it can give benefit. You
+[01:43:29] kind of have to empirically test whether
+[01:43:30] it will work. But it seems like yeah
+[01:43:34] it's timed out. It seems like just
+[01:43:36] taking the standard approach of rolling
+[01:43:37] out for a portion of the total predicted
+[01:43:41] steps is the most robust approach here.
+[01:43:43] So you can see with the ACT robot the
+[01:43:45] whole approach involves overfitting the
+[01:43:47] training data set more or less. You
+[01:43:49] additionally have the issue of style
+[01:43:51] which I talked about in the second
+[01:43:53] video. This is not much of an issue here
+[01:43:56] because I trained it only using one
+[01:43:57] style. So if you look at the training
+[01:43:59] results as I talked about, there
+[01:44:01] basically is no multiple styles. So the
+[01:44:04] encoder you could probably just drop it
+[01:44:06] the style encoder in this case here. If
+[01:44:08] you did train it with different styles,
+[01:44:10] you should see that that encoder comes
+[01:44:11] into play, but it's not coming into play
+[01:44:13] here cuz my data set is pretty simple.
+[01:44:15] The next step will be to use a more
+[01:44:17] general model that's been pre-trained
+[01:44:19] and hopefully that will be able to
+[01:44:22] perform well with just a few simple uh
+[01:44:25] fine tunes like the data set we have
+[01:44:27] here and that will be that will be the
+[01:44:29] subject of a future video. And that is
+[01:44:31] it folks for this episode on training
+[01:44:34] the ACT policy for the SO101 robot. You
+[01:44:38] can also train this policy for another
+[01:44:39] robot if you have the Coke or the Mosv1
+[01:44:41] for example or some other branded robot
+[01:44:43] that's compatible with Lobo. In the next
+[01:44:46] episode, I'm going to go through
+[01:44:48] training a pre-trained model which
+[01:44:50] hopefully can generalize a bit better.
+[01:44:52] We will even try it in zeroot with no
+[01:44:54] training to see what happens. In the
+[01:44:56] meantime, if you want to follow the
+[01:44:58] earlier videos, you can find them in the
+[01:45:00] robotics playlist here on the Trellis
+[01:45:02] YouTube channel. And you can find the
+[01:45:04] materials, the detailed guide at
+[01:45:06] trellis.com/advanced-rootics.
+[01:45:09] That's tris1l.com/advanced-rootics.
+[01:45:14] As usual, let me know your questions in
+[01:45:16] the comments. Cheers.

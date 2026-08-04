@@ -1,0 +1,783 @@
+[00:00:00] This here is part two in the Trellis
+[00:00:01] robotics series, and I'll be talking
+[00:00:03] about the main models that we can train
+[00:00:05] to run robots like this. Now, this is a
+[00:00:09] four-part series. I recommend you check
+[00:00:11] out the first one where I talk about
+[00:00:12] whether you should build or buy robots
+[00:00:14] like this, and I go through the the
+[00:00:15] models at a high level. In parts three
+[00:00:18] and four, which will be after this, I'm
+[00:00:20] going to show you how to generate data
+[00:00:22] so you can train the ACT model, one of
+[00:00:24] the models we'll describe today. And in
+[00:00:26] the fourth part, I'll describe how you
+[00:00:27] can fine-tune Groot N1 from Nvidia. I'm
+[00:00:30] going to start off today by talking
+[00:00:32] about how robotics models work. It'll be
+[00:00:34] a little bit of a recap on the first
+[00:00:36] video, but I'll add more depth. Then I'm
+[00:00:38] going to show you a demo of some of what
+[00:00:40] I consider the three key challenges.
+[00:00:42] Modeling in real time, handling delays,
+[00:00:44] and then style or modality issues. That
+[00:00:46] third one is very key. Then I'll go
+[00:00:48] through each of the main model classes.
+[00:00:50] act action chunk and transformer the
+[00:00:52] group model pi zero and I'll talk about
+[00:00:55] some advanced notes then on each of
+[00:00:57] them. So how do models work for robots?
+[00:01:01] Well they take in a few inputs a text
+[00:01:04] command for example move a blue block
+[00:01:06] into this orange container a wrist
+[00:01:09] camera image. So here we do have a wrist
+[00:01:11] camera image. Then we have an overhead
+[00:01:13] or a front camera. And we also feed in
+[00:01:16] the current motor positions. That's the
+[00:01:18] positions of the four motors here uh
+[00:01:20] within the follower arm. These are all
+[00:01:23] encoded and fed to a neural net, a
+[00:01:25] transformer. And this predicts a chunk
+[00:01:28] of future motor positions. It's called a
+[00:01:31] chunk because it predicts not just the
+[00:01:33] next motor position, but probably a
+[00:01:35] series of maybe 10, maybe spaced out by
+[00:01:38] 20 milliseconds if the controller is
+[00:01:40] operating at 50 Hz. So here we have it
+[00:01:43] on the robot and I'll show you by um
+[00:01:46] first putting this into teley operation.
+[00:01:49] By the way, all of the scripts uh for
+[00:01:52] training, they will be available on
+[00:01:54] trellis.com/advanced-rootics.
+[00:01:58] You can purchase access uh to this repo
+[00:02:00] here. So I'm just going to start up uh
+[00:02:02] telly operation here.
+[00:02:05] I need to
+[00:02:08] make sure that um
+[00:02:11] my virtual environment is up and
+[00:02:14] running. And I'll be going into this in
+[00:02:17] much more detail once we get into video
+[00:02:20] three.
+[00:02:25] I just need to activate virtual
+[00:02:27] environment before I can start
+[00:02:29] teleyoperating.
+[00:02:31] and telly operating will now give me the
+[00:02:34] ability to move my leader arm and
+[00:02:37] control the follower. So here I was just
+[00:02:40] about to show you there are six motors.
+[00:02:43] These positions are all fed into the
+[00:02:45] model and that's true for all the three
+[00:02:46] models we'll cover today. There's the
+[00:02:48] wrist camera here and then there's the
+[00:02:50] front camera here. So those pieces of
+[00:02:53] information are all being fed in. And
+[00:02:55] what we're going to get out is for each
+[00:02:57] of the motors, we're going to get out a
+[00:02:58] series of probably roughly 10
+[00:03:01] timestamps. And then the robot will move
+[00:03:04] according to those 10 time stamps if
+[00:03:06] we're in test time mode, not in data
+[00:03:08] creation mode like I am now. And after
+[00:03:11] it's moved those chunks, we will by then
+[00:03:13] hopefully have recomputed the next 10
+[00:03:15] chunks. And so we will keep following
+[00:03:16] those chunks as we go.
+[00:03:20] So that's how this model works. And
+[00:03:22] there are three um well let me just give
+[00:03:25] a quick example numerically. For
+[00:03:27] example, if we had a one motor robot of
+[00:03:30] course here it's six but perhaps the
+[00:03:32] current motor position might be 30° and
+[00:03:35] the next prediction would be 31° and 20
+[00:03:38] milliseconds then 32 then 35 and you'd
+[00:03:40] have 10 of these chunks. The robot will
+[00:03:43] then execute those. So it will uh the P
+[00:03:45] controller will try to achieve those
+[00:03:47] motor positions and by the time 200 sec
+[00:03:51] milliseconds have elapsed which would be
+[00:03:52] the time for 10 20 sec 10 20 millisecond
+[00:03:56] chunks we would have hopefully computed
+[00:03:58] the next chunk and so the robot can
+[00:04:00] continue to roll out and there's a key
+[00:04:02] question around how many uh time steps
+[00:04:04] you should take because if you take very
+[00:04:06] many then the path might diverge from
+[00:04:09] reality owing to dirt or noise but if
+[00:04:12] you take too few just predict predicting
+[00:04:14] one or two ahead means you may not have
+[00:04:16] a lot of nice continuity between those
+[00:04:18] steps and perhaps it would be a little
+[00:04:20] bit more jumpy.
+[00:04:23] So what I want to discuss before I go
+[00:04:25] into describing each of the three models
+[00:04:27] is a general uh appre I want to give you
+[00:04:29] a general appreciation of some of the
+[00:04:31] challenges here in using robots uh with
+[00:04:34] AI as opposed to say language models.
+[00:04:36] The first challenge is one of operating
+[00:04:38] real time because you need to be able to
+[00:04:41] create future motor positions. You need
+[00:04:43] to predict those not just for one motor
+[00:04:46] but for all of the motors and you need
+[00:04:48] to do it very fast because often the
+[00:04:49] controllers operate at say 50 Hz. So you
+[00:04:52] need to be generating at least every 20
+[00:04:54] milliseconds the predicted motor
+[00:04:56] position. And this is why as I said
+[00:04:58] already in this video instead of just
+[00:05:00] decoding out one position we typically
+[00:05:02] decode out multiple. And that's why it's
+[00:05:04] called chunk. The models also are small
+[00:05:08] because we need to keep up with real
+[00:05:09] time. So the largest models we'll be
+[00:05:11] looking at are about two to three
+[00:05:12] billion parameters compared to maybe
+[00:05:14] hundreds uh of billions of parameters
+[00:05:16] for large language models. And the
+[00:05:18] smallest model, the ACT model we look at
+[00:05:20] today has only got um maybe a few
+[00:05:22] hundred million parameters. It's about
+[00:05:24] 200 megabytes in size. And that's so
+[00:05:26] that you can do inferred fast and so you
+[00:05:29] can keep up with real time.
+[00:05:32] The second thing to appreciate here is
+[00:05:34] that when we are making predictions, we
+[00:05:36] are doing it solely conditioned on the
+[00:05:39] input images and on the input motor
+[00:05:42] positions. We are not feeding in a
+[00:05:44] history of motor positions. So that's
+[00:05:46] unlike text language models where we
+[00:05:48] feed in a sentence and continue it. We
+[00:05:50] are just looking at one time stamp. And
+[00:05:52] because we're looking at one time stamp,
+[00:05:53] it means we can't just capture a delay.
+[00:05:56] If we have the robot delay here for six
+[00:05:59] seconds, it can only see the current
+[00:06:01] camera positions and motor positions. So
+[00:06:03] there's no concept of time delay. Now if
+[00:06:05] something is happening in the frame, if
+[00:06:07] it can see, for example, this is falling
+[00:06:09] over, it can wait till it falls over
+[00:06:11] because it sees it has fallen over and
+[00:06:13] then maybe it picks it up. But it can't
+[00:06:15] just arbitrarily wait like this unless
+[00:06:17] you change the architecture or the
+[00:06:18] tokens so that you tell it, oh, we have
+[00:06:21] some indication that you should wait for
+[00:06:23] a certain number of seconds. Now the
+[00:06:25] last thing I want to describe is this
+[00:06:27] concept of multimodality.
+[00:06:29] And this is not what I thought it was
+[00:06:31] which is multimodal. Oh, image plus
+[00:06:33] text. No, this is a question of styles.
+[00:06:37] And I'll show you exactly what I mean by
+[00:06:39] styles and modes. And this is
+[00:06:40] mathematical modes as in different kind
+[00:06:42] of solutions to the same problem. So one
+[00:06:46] good example here is navigating around
+[00:06:48] an obstacle. If I have this ball here
+[00:06:51] and the robot comes up to it, it can
+[00:06:54] reasonably navigate around here and get
+[00:06:56] outside it or from the same starting
+[00:07:00] position like this. It can reasonably
+[00:07:02] navigate around this side. Now, in both
+[00:07:04] cases, the starting position and the
+[00:07:06] ending position are the same. What's
+[00:07:08] different is just my choice of going
+[00:07:10] left or right. But the problem with
+[00:07:13] simple models or relatively simple like
+[00:07:15] the active chunking transformer is it
+[00:07:18] will make a prediction of a motor
+[00:07:20] position which is a scaler like minus
+[00:07:22] 180 at plus 180 and it is going to just
+[00:07:25] average across what it sees. So if it
+[00:07:28] sees me go right once and it sees me go
+[00:07:30] left once, there's this risk where on
+[00:07:32] average it's just going to bump into
+[00:07:34] that bull.
+[00:07:36] When you just predict a single scaler,
+[00:07:38] you're not able to capture a
+[00:07:40] distribution. And this runs into that
+[00:07:42] collapse issue which is remedied in
+[00:07:45] different ways by the act uh approach
+[00:07:47] and by the diffusion transformer
+[00:07:50] approach that's taken in group and is
+[00:07:51] taken in pi 0. So I've got a slide here.
+[00:07:54] I'll just show you quickly on that.
+[00:07:57] You have a starting point. You can take
+[00:08:00] path one which is maybe 30° angle with
+[00:08:02] the motor as a target. Path two might be
+[00:08:05] 10. But because we're the model just
+[00:08:07] ends up averaging you end up crashing
+[00:08:09] into the obstacle here.
+[00:08:12] Now the solution to that is instead of
+[00:08:14] having a conditional autoenccoder and
+[00:08:16] it's conditional because it's
+[00:08:17] conditioned on the current images and
+[00:08:19] motor positions, you introduce a
+[00:08:21] conditional variational autoenccoder.
+[00:08:23] And the idea is you need some way to be
+[00:08:26] able to tell the model when it hits this
+[00:08:28] position. Oh, you're going to do the
+[00:08:30] left styles or oh, you're going to do
+[00:08:32] the right style.
+[00:08:34] And the way we train it to know which
+[00:08:36] style is by feeding in, this sounds like
+[00:08:39] cheating, but feeding in the actual
+[00:08:41] decoder positions. So by feeding it in
+[00:08:44] the actual trajectory, it's able to
+[00:08:46] learn which trajectory is a left style.
+[00:08:49] I mean, it's all in abstract space, but
+[00:08:51] it's able to distinguish between the
+[00:08:53] styles. And so now we have kind of a map
+[00:08:57] where we have one encoder that will just
+[00:08:59] encode the style and it will feed that
+[00:09:01] in to the second encoder which will
+[00:09:03] encode both the style but also the
+[00:09:05] images and the motor positions. And this
+[00:09:07] can kind of whisper to the main model
+[00:09:10] the main encoder decoder to go right or
+[00:09:12] to go left.
+[00:09:14] And at test time we will represent this
+[00:09:16] well we represent it at train time 2
+[00:09:18] using this variable Z. I've uh put it as
+[00:09:21] variable V but it's actually variable Z.
+[00:09:24] It should be in this code here. Let me
+[00:09:26] just fix that.
+[00:09:31] At test time when we're rolling out,
+[00:09:33] we're just going to set that to zero.
+[00:09:35] And that means it's going to just take a
+[00:09:37] fixed style. We don't know if it'll be
+[00:09:39] left or right. If you looked at the
+[00:09:40] data, if you rolled out all the left
+[00:09:42] ones and measured Z and average that,
+[00:09:44] you could input that Z and it would give
+[00:09:46] you a left style. We don't know really a
+[00:09:48] priority whether Z equals Z is left or
+[00:09:50] right. But the important thing is it
+[00:09:52] will be one distinct style and so long
+[00:09:54] as it's one distinct style then the
+[00:09:56] model won't just collapse and give an
+[00:09:58] average that results in bumping into
+[00:10:00] things. And you can see this also in a
+[00:10:02] more elaborate example where I could
+[00:10:04] have this style here of picking up the
+[00:10:07] block like this. But I could also have
+[00:10:10] this style of picking up the block like
+[00:10:12] this where I'm at a 90° angle. And um
+[00:10:15] I'm being clumsy here now. But if you
+[00:10:18] did train it on being able to pick up in
+[00:10:20] both of those ways, it's just going to
+[00:10:22] average them and it's going to result in
+[00:10:23] you trying to pick it up or the model
+[00:10:25] trying to pick it up at a 45 degree
+[00:10:27] angle, which is definitely a bad angle
+[00:10:29] to pick it up at.
+[00:10:31] So that's the idea of the conditional
+[00:10:33] var uh conditional variational
+[00:10:36] autoenccoder. And we can see it pretty
+[00:10:38] clearly if we look up uh the model here,
+[00:10:41] which is the ACT model. Let's just zoom
+[00:10:44] in a little bit. Here we have the CAE,
+[00:10:48] no variation. If you just look at the
+[00:10:51] images coming in, they're encoded. You
+[00:10:53] have the joint positions. If you ignored
+[00:10:55] Z, this would be encoding the input
+[00:10:58] information, positions, and images.
+[00:11:00] Passing that then to a decoder which
+[00:11:03] takes in senosidal embeddings. There are
+[00:11:06] going to be 10 of these which are just
+[00:11:08] initialized to a senoid and they then do
+[00:11:11] cross attention. So they will be the key
+[00:11:13] the queries. These will be the keys and
+[00:11:15] values and they will be transformed into
+[00:11:18] predictions of the next motor positions.
+[00:11:21] So if you 10 inputs, they'll be
+[00:11:23] projected into 10 outputs.
+[00:11:26] This without the Z would just be a
+[00:11:28] conditional autoenccoder. But we want
+[00:11:31] some whisperer to say, oh, go to the
+[00:11:33] left or go to the right. And that's the
+[00:11:35] Z variable here, which is used and is
+[00:11:37] nonzero during training. In fact, it
+[00:11:39] comes from looking at the action
+[00:11:41] sequence. So we train a separate encoder
+[00:11:44] that gets used to providing a Z to
+[00:11:46] indicate what style is and whispering in
+[00:11:48] here to the bigger encoder so that we
+[00:11:52] can then know what style uh and not just
+[00:11:55] blend styles during the forward pass.
+[00:11:58] Now as I mentioned that inference time
+[00:12:00] we just set this to zero which is um
+[00:12:03] going to choose either left or right. We
+[00:12:05] don't know which but importantly it will
+[00:12:07] just choose one so it won't result in
+[00:12:09] collapse. Now when we train this end to
+[00:12:12] end we are also going to train this
+[00:12:14] encoder here to get Z and we are going
+[00:12:17] to weight the loss here. Now the more we
+[00:12:20] weight the loss here in the transformer
+[00:12:22] encoder the less the entire network will
+[00:12:25] want to stash information in here. So we
+[00:12:27] want to weight it uh sufficiently so
+[00:12:30] that it doesn't stash any other
+[00:12:31] information about the movement. So we
+[00:12:33] don't want it to stash general picking
+[00:12:35] up information in this encoder and Z,
+[00:12:38] but we do want it to stash style
+[00:12:40] information. So that's where tuning of
+[00:12:41] beta comes into play. If we have beta
+[00:12:43] too high, it won't stash any
+[00:12:45] information. So it won't be able to
+[00:12:47] whisper the style effectively. But if we
+[00:12:50] make it too small, then it's going to
+[00:12:52] stash information that really should
+[00:12:54] have been stashed in the encoder and
+[00:12:55] decoder and is necessary for replicating
+[00:12:57] the experiment.
+[00:12:59] So that's the act uh transformer and
+[00:13:02] there are variations of this. The first
+[00:13:05] one is by act which basically finds that
+[00:13:08] if you predict not just motor positions
+[00:13:10] but torqus and angles then you get the
+[00:13:13] benefit of improved dexterity. And it
+[00:13:15] kind of makes sense because this here
+[00:13:17] for example is squeezy but the way I
+[00:13:19] know that it's squealely is because I am
+[00:13:22] able to feel the torque here. If I'm
+[00:13:25] just predicting motor positions, there's
+[00:13:27] no real way to convey how tightly to
+[00:13:29] squeeze this. It's kind of conveyed via
+[00:13:33] the position here of the leader arm, but
+[00:13:35] not as delicately as if we had torque as
+[00:13:37] well. So, this is uh one nice takeaway.
+[00:13:41] I think it's an improvement potentially
+[00:13:43] could be brought to Groot and Pi Zero as
+[00:13:45] well later on. Then there's multiact
+[00:13:47] which allows us to train an ACT model
+[00:13:50] which is quite simple but on multiple
+[00:13:51] tasks. Unfortunately, if you try to
+[00:13:54] train ACT on different tasks, it will
+[00:13:56] just average across them. If you try to
+[00:13:59] put in a specific token at the start for
+[00:14:02] each task, it still ends up averaging
+[00:14:04] across them, which maybe wasn't obvious
+[00:14:06] to me, but that's a problem. So, to get
+[00:14:09] around that, if you look at the
+[00:14:10] multi-act paper, the authors go to quite
+[00:14:13] a bit of effort in order to build a
+[00:14:16] classifier. And what they do is they
+[00:14:18] will detect which task it is. For
+[00:14:20] example, maybe there's a task of pushing
+[00:14:23] to the left or pushing to the right. And
+[00:14:26] what it will do is it will see, oh,
+[00:14:28] we're kind of to the left of this cube.
+[00:14:29] So maybe it's a push to the right task.
+[00:14:32] And further it will activate certain
+[00:14:34] weights for that task. So this is kind
+[00:14:37] of involved. And the reason it's
+[00:14:38] involved is because of this problem that
+[00:14:40] with continuous variable predictions, we
+[00:14:43] don't have a way to map the shape of all
+[00:14:45] of the modes or all of the styles that
+[00:14:47] are possible.
+[00:14:50] Now before I go on to Groot just a few
+[00:14:52] final notes on act why not use tokens
+[00:14:56] well if you use tokens then instead of
+[00:14:58] having a continuous motor prediction
+[00:15:00] which would be averaged maybe to the
+[00:15:02] wrong value you would have a
+[00:15:04] distribution and it can be biodal. So
+[00:15:05] you might have a distribution of two
+[00:15:08] angles that represent two different
+[00:15:10] styles or maybe four angles if there
+[00:15:12] were four ways to uh to pick up that
+[00:15:15] cube.
+[00:15:16] But now you need to have tokens. You
+[00:15:19] need to quantize your motors. It's nice
+[00:15:21] already to have this continu continuity.
+[00:15:23] If you create bins, you need many bins
+[00:15:25] to make it smooth. You then need a soft
+[00:15:27] max to be able to calculate the
+[00:15:30] probabilities across for each motor. So
+[00:15:32] you add compute as well.
+[00:15:35] Why not use auto regression? We are
+[00:15:37] instead of decoding one time step at a
+[00:15:39] time, we're doing all of them. This is
+[00:15:41] primarily for a matter of speed. it ends
+[00:15:44] up being a bit too slow if you only
+[00:15:46] decode one at a time. It's a bit like
+[00:15:48] audio models. The information is quite
+[00:15:51] rich. There's a lot to decode and so
+[00:15:53] it's more efficient to just decode out
+[00:15:55] more. Otherwise, it's hard to keep up
+[00:15:57] with real time. Why not use action
+[00:15:59] histories? I mentioned how you can feed
+[00:16:01] in or you do feed in the images and the
+[00:16:04] motor positions, but not the histories.
+[00:16:06] Turns out if you do pass in a little bit
+[00:16:08] of the history, it helps stabilize quite
+[00:16:10] a lot. It's not covered in the Groot or
+[00:16:12] the Pi Zero paper, but that's the
+[00:16:14] improvement that probably could be
+[00:16:15] brought. Last of all, and this is quite
+[00:16:18] subtle, but the transformer that decodes
+[00:16:21] out actions or motor positions in act,
+[00:16:24] it will use key or queries to look in
+[00:16:28] cross attention at the information
+[00:16:30] coming from the encoders. We can take a
+[00:16:32] quick look again here how we are going
+[00:16:36] to uh have cross attention. So the the
+[00:16:39] queries are these position embeddings.
+[00:16:41] The keys and values are going to be the
+[00:16:43] information from the encoder.
+[00:16:45] But actually these embeddings do not
+[00:16:47] look at each other. So the first value
+[00:16:49] of motor position that's not providing
+[00:16:52] any direct influence to the second
+[00:16:53] value. So you can have less dis you can
+[00:16:56] have more discontinuity between those 10
+[00:16:58] predictions. And if you had allowed for
+[00:17:01] birectional attention there self
+[00:17:02] attention you may get a smoother
+[00:17:04] profile. It's an idea that's used in pi
+[00:17:06] zero.
+[00:17:09] Next, we're going to chat about group
+[00:17:10] N1. And there are two issues I want to
+[00:17:13] cover. First is that it's a diffusion
+[00:17:15] model. So is PI0. This gets around the
+[00:17:17] style or multimodal issue that we talked
+[00:17:19] about earlier. And it allows it to cover
+[00:17:21] many tasks in the same model. Second of
+[00:17:24] all, Grood is trained on unlabelled
+[00:17:26] data, videos of robots without knowing
+[00:17:28] the motor angles. Now when we gather
+[00:17:31] data sets which we might do say like
+[00:17:33] this using a leader to basically record
+[00:17:36] data sets we definitely know the motor
+[00:17:38] positions here. We've got the images but
+[00:17:41] we've also got the motor positions. What
+[00:17:42] I'm saying is Groot is trained just on
+[00:17:45] images. So how do you link that to motor
+[00:17:47] positions? That's what I want to
+[00:17:49] describe. But first just a little bit on
+[00:17:51] diffusion models and how they avoid this
+[00:17:53] multimodal issue. You see, a diffusion
+[00:17:56] model starts with noise. And the idea is
+[00:18:00] to start off with noise and remove the
+[00:18:03] noise to clean it into a vector. That's
+[00:18:08] a vector that represents a direction in
+[00:18:11] which to move. Well, you want to find a
+[00:18:13] direction that removes the noise in such
+[00:18:16] a way that you end up with motor
+[00:18:17] positions because ultimately we're
+[00:18:19] trying to predict motor positions. But
+[00:18:21] the key thing is we are trying to find
+[00:18:24] the direction in this highdimensional
+[00:18:26] space to remove noise. And because we're
+[00:18:29] finding a direction rather than just
+[00:18:31] finding this scalar value that ends up
+[00:18:34] avoiding the averaging that was
+[00:18:37] happening in the act case and here's
+[00:18:39] kind of loosely how I think about it. If
+[00:18:41] we have a starting point, we have a path
+[00:18:44] now that we're trying to find
+[00:18:47] and we have a path here. Both of these
+[00:18:50] paths will avoid the obstacle.
+[00:18:52] But when we sample and we sample that
+[00:18:55] noise initially, basically we will end
+[00:18:57] up on kind of one side of this hill or
+[00:18:59] the other. So you can think of it as a
+[00:19:01] three-dimensional surface. Maybe here in
+[00:19:03] the middle there's an obstacle, but the
+[00:19:05] local minimum here is on the left. The
+[00:19:08] local minimum here is on the right. And
+[00:19:10] if we start off slightly to the left, we
+[00:19:12] will move down there. If we start off
+[00:19:14] slightly to the right, we will move down
+[00:19:16] here.
+[00:19:18] But we are mapping the full surface with
+[00:19:21] diffusion. And because we're mapping the
+[00:19:22] full surface, we're able to represent
+[00:19:24] all of these different directions. And
+[00:19:26] we're able to represent essentially the
+[00:19:28] different modes that are present, not
+[00:19:30] just kind of the average. And this is a
+[00:19:32] key advantage of the diffusion model
+[00:19:34] over just predicting a single continuous
+[00:19:36] variable.
+[00:19:38] So here the first starting point, we go
+[00:19:40] that way. Second one, we go this way.
+[00:19:42] And the diffusion model essentially
+[00:19:44] allows us to map a surface. So we can
+[00:19:46] record multiple styles.
+[00:19:50] This brings us to the second question
+[00:19:52] which is well if we have this video data
+[00:19:55] how is it that we're able to use it to
+[00:19:57] train the model because we ultimately
+[00:19:58] kind of need to have motor positions.
+[00:20:01] And the answer is by using these
+[00:20:03] abstract latent which you can think of
+[00:20:06] as representing movements to new motor
+[00:20:09] positions, but not in the context of a
+[00:20:12] specific robot like this, but in a more
+[00:20:14] abstract sense that could be applicable
+[00:20:16] to many robots. And here's how that's
+[00:20:18] done. Think first of all of a video.
+[00:20:21] Maybe you could record a video of this
+[00:20:22] arm or this one here. And you've got a
+[00:20:24] time equals zero position on your video
+[00:20:27] and you have a time equals 1 position.
+[00:20:29] And the idea to get these abstract
+[00:20:31] representations of that movement is to
+[00:20:35] take those two time stamps, this one
+[00:20:37] time equal 0 and one, and pass them to
+[00:20:39] an encoder whose job is to create that
+[00:20:43] latent, which is a vector representing
+[00:20:45] the movement. And the way we check that
+[00:20:47] it's the right movement description is
+[00:20:50] we ask it we ask a decoder a different
+[00:20:52] neural net to take that latent combine
+[00:20:55] it with the t= 1 position and reproduce
+[00:20:59] the t sorry combine it with the t
+[00:21:01] equals0 position and reproduce the t
+[00:21:03] equals 1 position and if that's possible
+[00:21:06] and accurate
+[00:21:08] it means we now have a description in
+[00:21:10] latent space in abstract space of this
+[00:21:12] movement from position zero to position
+[00:21:15] on. And if we have that the latent
+[00:21:18] description and we have the videos as
+[00:21:20] inputs, what we can do is we can train
+[00:21:23] our Groot model on these videos and we
+[00:21:27] can back propagate using this action
+[00:21:30] latent as a label and that's exactly
+[00:21:32] what Groot does. So Groot involves
+[00:21:35] taking image text like the instruction,
+[00:21:37] the command and the motor positions,
+[00:21:39] passing them to a diffusion transformer
+[00:21:42] and trying to get the diffusion
+[00:21:43] transformer to diffuse out an action
+[00:21:45] latent for which we do have labels. Now
+[00:21:48] there's one more step you need to put
+[00:21:50] this into practice which is that action
+[00:21:52] latent would need to be made applicable
+[00:21:55] to this set of motors but that can be
+[00:21:57] done quite easily through just a small
+[00:21:59] set of weights and some quick
+[00:22:00] fine-tuning. maybe a multi-layer
+[00:22:02] perceptron, maybe a linear layer and
+[00:22:04] that will bring you out to some motor
+[00:22:05] positions. So essentially what Groot is
+[00:22:07] saying is well we can't train for these
+[00:22:09] final motor positions because we don't
+[00:22:12] have those. But what we can do is we can
+[00:22:15] use this encoder decoder setup to create
+[00:22:18] some action latent and use them use them
+[00:22:21] to back propagate uh through the
+[00:22:23] diffusion transformer here. So this is
+[00:22:26] the concept of Groot. I'm going to
+[00:22:28] quickly describe uh PI 0 because then
+[00:22:29] I'll show you the papers. There are
+[00:22:31] quite a few similarities. Pi 0 though is
+[00:22:34] trained on label data as I understand
+[00:22:36] not action latence.
+[00:22:38] PI0 uses birectional attention when
+[00:22:41] decoding. This is more of an advanced
+[00:22:44] comment. But when we're decoding say 10
+[00:22:46] time steps, it allows queries to be made
+[00:22:49] between those 10 time steps for improved
+[00:22:51] continuity which I understand is not
+[00:22:53] present in group.
+[00:22:55] PI0 uses layerwise attention. This is
+[00:22:58] quite analogous to the progression of
+[00:22:59] vision language models like Edifix.
+[00:23:01] Originally the idea would be to take
+[00:23:04] vision information encoded vision
+[00:23:06] information and do what's called cross
+[00:23:08] attention with something you want to
+[00:23:10] decode. So you want to decode out
+[00:23:12] positions. You start with some senosidal
+[00:23:13] embeddings and then you do cross
+[00:23:15] attention with these syosoidal
+[00:23:17] embeddings as the queries and these as
+[00:23:19] the keys and values. And these keys and
+[00:23:21] values might come in at every single
+[00:23:23] layer across ways. and then you decode
+[00:23:25] out but there's some kind of duplication
+[00:23:28] because you're passing these in the same
+[00:23:30] information you're passing in at
+[00:23:31] multiple layers whereas the approach of
+[00:23:33] pi zero is much like the later edifix
+[00:23:36] models you move to passing everything in
+[00:23:38] at the start and you do attention on a
+[00:23:40] layer-wise basis so information goes in
+[00:23:43] at the bottom regardless of the modality
+[00:23:45] vision or text or motors and you cross
+[00:23:48] attend here at every uh you you self
+[00:23:51] attend at every layer here rather than
+[00:23:54] repeat the same attention, the same
+[00:23:56] cross attention at every layer, which
+[00:23:57] just introduces the same information
+[00:23:59] multiple times. So yeah, it turns out
+[00:24:01] this way here of doing it of feeding
+[00:24:03] upwards uh ends up being a bit more
+[00:24:06] efficient or gives better performance.
+[00:24:08] And so probably not surprising that this
+[00:24:10] is maybe the direction Pi 0 took. Now
+[00:24:13] PI0 also uses a diffusion type approach.
+[00:24:15] So they diffuse out um an action latent.
+[00:24:19] So in that sense it's quite similar to
+[00:24:20] what's being done in the Nvidia Groot
+[00:24:23] example.
+[00:24:25] Now before I describe which model to use
+[00:24:27] I want to just cover each of those
+[00:24:29] papers very quickly. Let's take a look
+[00:24:31] at Groot. There's a nice diagram down
+[00:24:34] here. Actually let's just find it.
+[00:24:41] Actually this one here is good. So what
+[00:24:43] we can see is the images are coming in.
+[00:24:46] They're going through an encoder.
+[00:24:49] The embeddings then are correctly sized
+[00:24:51] to feed into Eagle 2, which is a vision
+[00:24:53] language model. The text is tokenized
+[00:24:55] and fed in as well. And then this
+[00:24:57] information is fed in multiple times.
+[00:24:58] You can see it's literally repeated that
+[00:25:00] because it's cross attention and it's
+[00:25:02] mixed in with information from the stage
+[00:25:05] encoder, which is the motor positions,
+[00:25:07] the current motor positions, but also
+[00:25:09] the predicted noisy the noisy predicted
+[00:25:12] motor positions. So the idea is you pass
+[00:25:14] you start off with noisy predicted motor
+[00:25:17] positions for the future maybe 10 steps.
+[00:25:19] You do cell potention between them and
+[00:25:21] the current motor states. You do cross
+[00:25:23] attention with the vision and text
+[00:25:25] information and you hopefully remove
+[00:25:27] some noise. Then you loop back around
+[00:25:30] more noise and you do this four times in
+[00:25:32] this model here before you hopefully end
+[00:25:34] up then with your motor predictions. So
+[00:25:38] this is uh Nvidia Groot right here. And
+[00:25:41] you can see well it's not exactly
+[00:25:42] obvious from this diagram but when
+[00:25:45] you're going to train on the latence you
+[00:25:47] will have this multi-layer perceptron
+[00:25:49] afterwards effectively that will need to
+[00:25:50] be fine-tuned but you will be training
+[00:25:52] on the latence that are coming out of
+[00:25:54] this uh of this cross attention and
+[00:25:56] action decoder setup here.
+[00:25:59] Lastly let me just show you quickly the
+[00:26:01] PI0.
+[00:26:04] So here again we have these vision
+[00:26:07] transformers to encode to the right
+[00:26:08] dimensions. This is polygeemma. It's
+[00:26:11] using siglip for encoding the images and
+[00:26:14] then combining uh that with gemma a 2.6b
+[00:26:18] model. So about three billion parameters
+[00:26:19] in total. And then we're taking in the
+[00:26:22] text info. Then we're taking in the
+[00:26:24] motor positions. And then we're taking
+[00:26:25] in the noise. And that's again going to
+[00:26:27] loop through multiple times and have
+[00:26:28] noise removed at each step.
+[00:26:31] Notice here, well, you can't actually
+[00:26:32] see it, but this is set up to be causal
+[00:26:35] between blocks. So this forward pass
+[00:26:38] here does not see any information from
+[00:26:40] the noise, but the noise does see and
+[00:26:42] attend to information from all of the
+[00:26:44] past stages. This the motor actions do
+[00:26:47] not see the noise, but they see
+[00:26:50] everything before it. So it's it's
+[00:26:51] causal on a blockby-block basis.
+[00:26:54] Importantly here what's called the
+[00:26:56] action expert is a different set of
+[00:26:57] weights. So the transformer weights
+[00:26:59] here, the gemma weights, they are
+[00:27:00] different to the weights that are used
+[00:27:02] here in doing the diffusion transformer.
+[00:27:05] So a different set of weights and there
+[00:27:07] is cross attention between uh or self
+[00:27:09] attention in fact is the right term
+[00:27:11] between the noise and the motor
+[00:27:13] positions and the information over here
+[00:27:16] but the weights are going to be
+[00:27:17] different. Um so these are not being
+[00:27:19] initiated from the VLM. They're being
+[00:27:22] trained from scratch in this case here.
+[00:27:25] So this is uh pi 0 and yeah as I
+[00:27:29] mentioned the key difference is I
+[00:27:30] believe a lot of the pre-training here
+[00:27:32] it's using label data and a fairly large
+[00:27:35] uh corpus of label data.
+[00:27:38] So with that you've got the question of
+[00:27:39] what model to use because I'm going to
+[00:27:41] cover training act and then cover
+[00:27:43] fine-tuning group in the next videos.
+[00:27:45] ACT is a small model it's fast. It works
+[00:27:47] well on edge devices, but it's quite
+[00:27:49] limited to only a single task, mostly
+[00:27:52] because of these issues around style and
+[00:27:53] modality. Groot or Pi Zero are larger,
+[00:27:56] they're slower, but they're more
+[00:27:58] general. They may work without any fine
+[00:28:00] tuning, or if not, you might do a small
+[00:28:02] amount of fine-tuning and they'll work
+[00:28:04] well.
+[00:28:06] Just a few advanced notes then to finish
+[00:28:08] off on Grouch or Pi Zero. Something we
+[00:28:12] talked about earlier is adding torque
+[00:28:14] predictions. Currently, these models are
+[00:28:16] just doing position predictions, but
+[00:28:18] adding torque, that ability to squeeze,
+[00:28:20] particularly for objects that you know
+[00:28:22] are a little bit squeezable here, that
+[00:28:24] could improve the dexterity. Adding a
+[00:28:27] short motor position history. I
+[00:28:29] mentioned how these models all take the
+[00:28:31] current snapshots of time, sorry, of
+[00:28:33] images and motor positions. Adding in a
+[00:28:35] little history, even one motor position
+[00:28:38] can improve stability quite a lot. I
+[00:28:41] didn't talk about ensembling but when we
+[00:28:43] predict chunks in the future you don't
+[00:28:45] have to wait um you don't have to have
+[00:28:47] them with zero overlap you could
+[00:28:49] actually start creating chunks such that
+[00:28:51] they overlap and you can kind of
+[00:28:52] exponentially average across those
+[00:28:54] overlapping chunks that can improve that
+[00:28:56] can improve stability and does for act
+[00:28:58] in some cases but the pi zero paper
+[00:29:00] reports that it's worse so that's kind
+[00:29:03] of interesting probably it depends on
+[00:29:04] the hyperparameters
+[00:29:06] and last of all yeah speed speed is
+[00:29:08] critical if you want to run re real time
+[00:29:09] that's the reason for going towards
+[00:29:11] smaller models. Then you do have these
+[00:29:13] trade-offs around handling multiple
+[00:29:14] modalities or multiple use cases which
+[00:29:17] probably is important in a lot of cases
+[00:29:19] if you want to be quite robust.
+[00:29:22] So that's it for the three main models.
+[00:29:24] I will go through them a bit more when
+[00:29:26] we train them. I'll be training next up
+[00:29:28] the ACT model and then group N1 and the
+[00:29:31] scripts for that uh will be in the
+[00:29:34] trellis advanced robotics repo. You can
+[00:29:36] go to trellis.com
+[00:29:37] tr1l.com/advanced-rootics
+[00:29:42] and I may add some extra videos
+[00:29:45] afterwards. That is a paid repo, but
+[00:29:47] throughout these videos I'll try and
+[00:29:48] describe in detail so you can try to
+[00:29:50] find the information yourself and maybe
+[00:29:52] develop it uh with the help of chat GBT.
+[00:29:55] In the meantime, let me know if you have
+[00:29:56] any questions and put them down below in
+[00:29:58] the comments. Cheers, folks.
