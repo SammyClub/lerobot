@@ -31,7 +31,7 @@ Details: [docs/10-brick-curriculum.md](docs/10-brick-curriculum.md)
 - [ ] Phase 0 — kit sorted, power supplies labeled, extras ordered
 - [x] Phase 1 — Mac: LeRobot 0.6.1 installed in conda env `lerobot` (Python 3.12, torch 2.11 + MPS, all `lerobot-*` commands verified, 2026-08-04)
 - [x] Phase 1 — LeLab installed (`lelab` command available)
-- [ ] Phase 1 — HF account + `hf auth login` on the Mac (user step — needs your token)
+- [x] Phase 1 — HF account + `hf auth login` on the Mac (logged in as `vik101`, 2026-08-04) — **Phase 1 complete ✓**
 - [x] Training PC ready — WSL2 + Ubuntu, **2× RTX 3090 (24 GB each)**, driver verified via `nvidia-smi` (2026-08-04)
 - [ ] Training PC — `lerobot[training]` installed in a fresh conda env + `hf auth login`
 - [ ] Phase 2 — ports found, 12 motor IDs programmed, arms assembled, both arms calibrated
@@ -87,8 +87,9 @@ Next action: [Phase 0 — prepare the kit](docs/03-phase0-prepare.md).
 
 - Robot ids: `brick_follower` / `brick_leader` (chosen at calibration; must never change)
 - Camera names: `front` / `wrist` at 640×480 @ 30 fps
-- First dataset: `<HF_USER>/so101_brick_place_v1`, task string `"Pick up the brick and place it on the target square"`
-- First policy: `<HF_USER>/act_brick_v1`
+- HF username: `vik101` (so `HF_USER=vik101` wherever docs say `<HF_USER>`)
+- First dataset: `vik101/so101_brick_place_v1`, task string `"Pick up the brick and place it on the target square"`
+- First policy: `vik101/act_brick_v1`
 - Placeholders `FOLLOWER_PORT` / `LEADER_PORT` are your USB port paths from Phase 2
 
 *Compiled 2026-08-04 against LeRobot v0.6.1. If a command errors, check [version drift](docs/02-version-drift.md) first.*
