@@ -514,10 +514,15 @@ echo $HF_USER   <span class="c"># should print vik101</span></code></pre></li>
 
 <p>Goal of this phase: both arms built, every servo programmed, both arms calibrated. This is the longest phase — take a full afternoon per arm.</p>
 
+<div class="note">
+<strong class="title">Which computer? Always the Mac</strong>
+The robot only ever connects to your <strong>Mac</strong> — every hardware step in Phases 2–4 and 6 happens there. The RTX PC never touches the robot; its only job is Phase 5 training, receiving the dataset and returning the policy via the Hugging Face Hub.
+</div>
+
 <h3>2a. Find your USB ports</h3>
 
 <ol class="steps">
-  <li><span class="st">Connect the follower's control board.</span><p>Plug its USB-C cable into the computer and its power supply (the FOLLOWER-labeled one!) into the wall. No servos need to be connected yet.</p></li>
+  <li><span class="st">Connect the follower's control board to the Mac.</span><p>Plug its USB-C cable into the Mac and its power supply (the FOLLOWER-labeled one!) into the wall. No servos need to be connected yet.</p></li>
   <li><span class="st">Run the port finder.</span>
   <pre><code>lerobot-find-port</code></pre>
   <p>It asks you to unplug the USB cable. Unplug it. It then prints the port name — something like <code>/dev/tty.usbmodem58760431551</code>. Plug the cable back in.</p></li>
