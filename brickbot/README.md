@@ -33,7 +33,8 @@ Details: [docs/10-brick-curriculum.md](docs/10-brick-curriculum.md)
 - [x] Phase 1 — LeLab installed (`lelab` command available)
 - [x] Phase 1 — HF account + `hf auth login` on the Mac (logged in as `vik101`, 2026-08-04) — **Phase 1 complete ✓**
 - [x] Training PC ready — WSL2 + Ubuntu, **2× RTX 3090 (24 GB each)**, driver verified via `nvidia-smi` (2026-08-04)
-- [ ] Training PC — `lerobot[training]` installed in a fresh conda env + `hf auth login`
+- [ ] Training PC — `lerobot[training]` installed in a fresh conda env + `hf auth login` + `wandb login`
+- [x] wandb account created (2026-08-04); `wandb login` pending on Mac + PC
 - [ ] Phase 2 — ports found, 12 motor IDs programmed, arms assembled, both arms calibrated
 - [ ] Phase 3 — teleop works, cameras mounted and framed, everything fixed in place
 - [ ] Phase 4 — 50-episode dataset recorded and replay-checked
