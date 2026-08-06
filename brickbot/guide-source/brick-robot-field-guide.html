@@ -587,8 +587,17 @@ The robot only ever connects to your <strong>Mac</strong> — every hardware ste
     --robot.type=so101_follower \
     --robot.port=<span class="hl">FOLLOWER_PORT</span></code></pre></li>
   <li><span class="st">Follow the prompts.</span><p>It says: "Connect the controller board to the gripper motor only and press Enter." That means: the servo currently plugged in becomes the <strong>gripper</strong> (ID 6). Press Enter. Then it asks for the next motor — unplug the current servo, plug in the next one, press Enter. It works down from gripper (6) to shoulder pan (1). Put a sticky label with the number on each servo as it's programmed.</p></li>
-  <li><span class="st">Repeat for the leader.</span>
-  <p><strong>Remember the gear codes from Phase 0, step 4</strong> — the servo you program as, say, "shoulder lift" must be a C001. Choose which physical servo to plug in accordingly.</p>
+  <li><span class="st">Repeat for the leader — with the right servo at each prompt.</span>
+  <p>The leader's servos differ per joint (gear codes from Phase 0, step 4 — printed on each servo's sticker). Sort them into three piles first (1× C001, 2× C044, 3× C046 — if a label is unreadable, the C046s twist most freely by hand, the C001 resists most), then plug in the right one as the tool asks:</p>
+  <div class="tablebox"><table>
+    <tr><th>Tool asks for</th><th>ID</th><th>Plug in a…</th></tr>
+    <tr><td>Gripper (trigger)</td><td class="num">6</td><td>C046</td></tr>
+    <tr><td>Wrist roll</td><td class="num">5</td><td>C046</td></tr>
+    <tr><td>Wrist flex</td><td class="num">4</td><td>C046</td></tr>
+    <tr><td>Elbow</td><td class="num">3</td><td>C044</td></tr>
+    <tr><td>Shoulder lift</td><td class="num">2</td><td><strong>C001</strong></td></tr>
+    <tr><td>Shoulder pan</td><td class="num">1</td><td>C044</td></tr>
+  </table></div>
   <pre><code>lerobot-setup-motors \
     --teleop.type=so101_leader \
     --teleop.port=<span class="hl">LEADER_PORT</span></code></pre></li>
