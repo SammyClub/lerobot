@@ -7,7 +7,7 @@ Live record of every machine-specific value for this build. Single source of tru
 | Arm | Port | Recorded | Notes |
 |---|---|---|---|
 | Follower | `/dev/tty.usbmodem5AE60824171` | 2026-08-09 | keep in the same physical USB socket |
-| Leader | _pending_ | — | keep in the same physical USB socket |
+| Leader | `/dev/tty.usbmodem5B3E0891281` | 2026-08-09 | keep in the same physical USB socket |
 
 ## Arm identities (Phase 2c)
 
