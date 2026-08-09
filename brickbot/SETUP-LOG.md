@@ -19,7 +19,7 @@ Live record of every machine-specific value for this build. Single source of tru
 ## Servos (Phase 2b)
 
 - Power supplies: _pending — record which supply (5V/12V or identical) goes to which arm_
-- Follower motor IDs 1–6 programmed: _pending_
+- Follower motor IDs 1–6 programmed: **done 2026-08-09**
 - Leader motor IDs 1–6 programmed (gear codes: 1=C044, 2=C001, 3=C044, 4=C046, 5=C046, 6=C046): _pending_
 
 ## Cameras (Phase 3)
