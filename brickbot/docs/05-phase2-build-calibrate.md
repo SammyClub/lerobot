@@ -45,14 +45,62 @@ board ──── servo               board ── 1 ── 2 ── 3 ── 4
    lerobot-setup-motors \
        --teleop.type=so101_leader \
        --teleop.port=LEADER_PORT
+   ```
 
-The leader's servos differ per joint (gear codes printed on each servo's sticker). Sort them into three piles first (1x C001, 2x C044, 3x C046 — if a label is unreadable, the C046s twist most freely by hand, the C001 resists most), then plug in the right one as the tool asks:
+   The leader's servos differ per joint (gear codes printed on each servo's sticker). Sort them into three piles first (1x C001, 2x C044, 3x C046 — if a label is unreadable, the C046s twist most freely by hand, the C001 resists most), then plug in the right one as the tool asks:
 
-| Tool asks for | ID | Plug in a… |
-|---|---|---|
-| Gripper (trigger) | 6 | C046 |
-| Wrist roll | 5 | C046 |
-| Wrist flex | 4 | C046 |
-| Elbow | 3 | C044 |
-| Shoulder lift | 2 | **C001** |
-| Shoulder pan | 1 | C044 |
+   | Tool asks for | ID | Plug in a… |
+   |---|---|---|
+   | Gripper (trigger) | 6 | C046 |
+   | Wrist roll | 5 | C046 |
+   | Wrist flex | 4 | C046 |
+   | Elbow | 3 | C044 |
+   | Shoulder lift | 2 | **C001** |
+   | Shoulder pan | 1 | C044 |
+
+5. **Now assemble both arms.** Follow the [official guide](https://huggingface.co/docs/lerobot/so101) joint by joint. Each numbered servo goes into its joint (1 = shoulder pan at the base … 6 = gripper at the tip). Daisy-chain the 3-pin cables servo-to-servo, and servo 1 to the control board. Ignore any instruction anywhere about removing gears (that's the old SO-100).
+6. **Clamp the follower's base to the desk.**
+
+## 2c. Calibrate both arms
+
+Calibration teaches the software each joint's true range. Once per arm, two minutes each. Two equivalent routes — they produce identical files (in `~/.cache/huggingface/lerobot/calibration/`) and share the same arm names, so you can use either. **If LeLab's calibration flow misbehaves or gets stuck, use Route B — the terminal is the reliable fallback.**
+
+The procedure both routes share:
+
+- **Starting pose ("L shape"):** upright from the base, forearm horizontal, gripper pointing down and closed — every joint near the middle of its range.
+- **Sweep:** one joint at a time, gently all the way to both end stops: gripper, wrist roll, wrist flex, elbow, shoulder lift, shoulder pan. (The leader's "gripper" is its trigger — squeeze fully open and closed.)
+- **Names are forever:** exactly `brick_follower` and `brick_leader`.
+
+### Route A — LeLab (guided)
+
+1. Power and connect both arms (correct supply per the tape labels; USB into data ports).
+2. `lelab` → add a robot: arm type **follower**, its port, name `brick_follower`.
+3. Follow the guided flow: L-pose → confirm → sweep every joint to both stops.
+4. Repeat: arm type **leader**, its port, name `brick_leader`.
+
+### Route B — Terminal (reliable fallback)
+
+1. Power and connect the follower; `conda activate lerobot`.
+2. Start the follower's calibration (ports for each machine are in [SETUP-LOG.md](../SETUP-LOG.md)):
+
+   ```bash
+   lerobot-calibrate \
+       --robot.type=so101_follower \
+       --robot.port=FOLLOWER_PORT \
+       --robot.id=brick_follower
+   ```
+
+3. Hold the L-pose, press Enter.
+4. Sweep every joint to both ends (numbers on screen record each range), then press Enter to save.
+5. Repeat for the leader:
+
+   ```bash
+   lerobot-calibrate \
+       --teleop.type=so101_leader \
+       --teleop.port=LEADER_PORT \
+       --teleop.id=brick_leader
+   ```
+
+> If the arm later jumps to a weird pose: bad calibration or mistyped name → recalibrate. Two minutes — never live with a bad one.
+
+[← Phase 1](04-phase1-software.md) · [README](../README.md) · [Next: Phase 3 →](06-phase3-teleop-cameras.md)

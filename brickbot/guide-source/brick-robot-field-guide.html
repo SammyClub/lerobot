@@ -653,24 +653,34 @@ The robot only ever connects to your <strong>Mac</strong> — every hardware ste
 <figcaption>Calibration: hold the L-shape middle pose, confirm, then move each joint through its whole range so the software records the end stops.</figcaption>
 </figure>
 
+<p>Two equivalent routes — they produce identical calibration files and share the same arm names, so you can use either (or start in one and finish in the other). <strong>If LeLab's calibration flow misbehaves or gets stuck, use Route B — the terminal route is the reliable fallback.</strong></p>
+
+<h4 style="font-family: var(--sans); margin: 24px 0 4px;">Route A — LeLab (guided, clickable)</h4>
 <ol class="steps">
-  <li><span class="st">Power and connect both arms.</span><p>Correct power supply for each (check the tape labels!). USB connected.</p></li>
+  <li><span class="st">Power and connect both arms.</span><p>Correct power supply for each (check the tape labels!). USB into data ports.</p></li>
   <li><span class="st">Open LeLab and add the follower.</span>
   <p>Type <code>lelab</code> in the Terminal. In the app, add a robot: arm type <strong>follower</strong>, select its port, and name it <code>brick_follower</code>. The name labels this arm's calibration file — pick it once and <strong>never change it</strong>.</p></li>
-  <li><span class="st">Follow the guided calibration.</span><p>LeLab walks you through it joint by joint, and it's exactly the diagram above: hold the arm in the "L shape" middle pose (upright from the base, forearm horizontal, gripper down and closed), confirm, then gently sweep each joint all the way to both of its stops — gripper, wrist roll, wrist flex, elbow, shoulder lift, shoulder pan.</p></li>
-  <li><span class="st">Repeat for the leader.</span><p>Add a second robot: arm type <strong>leader</strong>, its port, name <code>brick_leader</code>. Same pose, same sweep. (The leader's "gripper" is its trigger — squeeze it fully open and closed during the sweep.)</p>
-  <details class="term"><summary>Terminal equivalent</summary>
+  <li><span class="st">Follow the guided calibration.</span><p>It's exactly the diagram above: hold the arm in the "L shape" middle pose (upright from the base, forearm horizontal, gripper down and closed), confirm, then gently sweep each joint all the way to both of its stops — gripper, wrist roll, wrist flex, elbow, shoulder lift, shoulder pan.</p></li>
+  <li><span class="st">Repeat for the leader.</span><p>Add a second robot: arm type <strong>leader</strong>, its port, name <code>brick_leader</code>. Same pose, same sweep. (The leader's "gripper" is its trigger — squeeze it fully open and closed.)</p></li>
+</ol>
+
+<h4 style="font-family: var(--sans); margin: 24px 0 4px;">Route B — Terminal (reliable fallback)</h4>
+<ol class="steps">
+  <li><span class="st">Power and connect the follower.</span><p>Correct power supply, USB into a data port. In a Terminal: <code>conda activate lerobot</code>.</p></li>
+  <li><span class="st">Start the follower's calibration.</span>
+  <p>(Your port values are in the repo's <code>SETUP-LOG.md</code> — each machine has its own.)</p>
   <pre><code>lerobot-calibrate \
     --robot.type=so101_follower \
     --robot.port=<span class="hl">FOLLOWER_PORT</span> \
-    --robot.id=brick_follower
-
-lerobot-calibrate \
+    --robot.id=brick_follower</code></pre></li>
+  <li><span class="st">Hold the L-pose, press Enter.</span><p>Upright from the base, forearm horizontal, gripper down and closed — every joint near mid-range (diagram above). Then press Enter.</p></li>
+  <li><span class="st">Sweep every joint to both ends, then press Enter.</span><p>One joint at a time, gently to both stops: gripper, wrist roll, wrist flex, elbow, shoulder lift, shoulder pan. The numbers on screen record each range. When all six have visited both ends, press Enter to save.</p></li>
+  <li><span class="st">Repeat for the leader.</span>
+  <pre><code>lerobot-calibrate \
     --teleop.type=so101_leader \
     --teleop.port=<span class="hl">LEADER_PORT</span> \
     --teleop.id=brick_leader</code></pre>
-  <p>Middle pose → Enter → sweep every joint to both ends → Enter. The <code>id</code> values are the same names used in LeLab — app and terminal share calibration files.</p>
-  </details></li>
+  <p>Same pose, same sweep; the trigger is its gripper. The <code>id</code> names match LeLab's — app and terminal share calibration files, stored in <code>~/.cache/huggingface/lerobot/calibration/</code>.</p></li>
 </ol>
 
 <div class="note">
