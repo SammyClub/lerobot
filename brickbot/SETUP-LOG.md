@@ -13,8 +13,10 @@ Live record of every machine-specific value for this build. Single source of tru
 
 | Arm | Calibration name | Calibrated on |
 |---|---|---|
-| Follower | `brick_follower` | _pending_ |
-| Leader | `brick_leader` | _pending_ |
+| Follower | `brick_follower` | 2026-08-10 (by teammate, terminal route; imported to Vikram's Mac same day) |
+| Leader | `brick_leader` | 2026-08-10 (same) |
+
+Calibration files are versioned in [`hardware/calibration/`](hardware/calibration/) — to calibrate any new machine, copy that folder to `~/.cache/huggingface/lerobot/calibration/`. Recalibrate only if the arms are mechanically altered; then re-export to the repo.
 
 ## Servos (Phase 2b)
 
