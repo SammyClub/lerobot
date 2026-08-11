@@ -14,7 +14,7 @@ Live record of every machine-specific value for this build. Single source of tru
 | Arm | Calibration name | Calibrated on |
 |---|---|---|
 | Follower | `brick_follower` | 2026-08-10 (by teammate, terminal route; imported to Vikram's Mac same day) |
-| Leader | `brick_leader` | 2026-08-10 (same) |
+| Leader | `brick_leader` | 2026-08-11 — recalibrated (terminal route) after fixing a loose trigger horn screw; trigger range 2024–3458 |
 
 Calibration files are versioned in [`hardware/calibration/`](hardware/calibration/) — to calibrate any new machine, copy that folder to `~/.cache/huggingface/lerobot/calibration/`. Recalibrate only if the arms are mechanically altered; then re-export to the repo.
 
@@ -44,3 +44,4 @@ Calibration files are versioned in [`hardware/calibration/`](hardware/calibratio
 
 - Mac (robot machine): conda env `lerobot`, LeRobot 0.6.1, HF `vik101`, wandb `vikramt-sammy` — ready 2026-08-04
 - PC "Shav" (training): 2× RTX 3090, WSL2 Ubuntu — env setup pending
+- ⚠️ Lesson (2026-08-11): follower gripper not tracking the trigger → the leader trigger horn screw was loose (lever moved, servo shaft did not). Diagnosed by live-reading Present_Position — frozen value = mechanical decoupling. After re-seating any horn, recalibrate that arm and re-export to hardware/calibration/.
