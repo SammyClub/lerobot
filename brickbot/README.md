@@ -32,8 +32,8 @@ Details: [docs/10-brick-curriculum.md](docs/10-brick-curriculum.md)
 - [x] Phase 1 — Mac: LeRobot 0.6.1 installed in conda env `lerobot` (Python 3.12, torch 2.11 + MPS, all `lerobot-*` commands verified, 2026-08-04)
 - [x] Phase 1 — LeLab installed (`lelab` command available)
 - [x] Phase 1 — HF account + `hf auth login` on the Mac (logged in as `vik101`, 2026-08-04) — **Phase 1 complete ✓**
-- [x] Training compute — **HF credit loaded; training runs on a cloud A100 via HF Jobs** (plan changed 2026-08-11; RTX-PC plan retired)
-- [x] wandb account created + logged in on the Mac as `vikramt-sammy` (2026-08-04); login still pending on the PC
+- [x] Training compute — **sammy-labs org credit; training runs on a cloud A100 via HF Jobs under `HF_NAMESPACE=sammy-labs`** (plan changed 2026-08-11; RTX-PC plan retired)
+- [x] wandb account created + logged in on the Mac as `vikramt-sammy` (2026-08-04)
 - [x] Phase 2 — ports found, 12 motor IDs programmed, arms assembled, both arms calibrated (2026-08-10; calibration versioned in `hardware/calibration/`) — **Phase 2 complete ✓**
 - [ ] Phase 3 — teleop works, cameras mounted and framed, everything fixed in place
 - [ ] Phase 4 — 50-episode dataset recorded and replay-checked
@@ -54,7 +54,7 @@ Next action: [Phase 0 — prepare the kit](docs/03-phase0-prepare.md).
 
 ## Repo map
 
-> **Workflow convention:** day-to-day driving of the robot (calibration, teleop, recording, rollout) happens in **LeLab**, Hugging Face's official app for this arm (installed in Phase 1). The Terminal is for one-time setup, PC training, and debugging — collapsed "Terminal equivalent" blocks in the phase docs hold the command fallbacks.
+> **Workflow convention:** day-to-day driving of the robot (calibration, teleop, recording, rollout) happens in **LeLab**, Hugging Face's official app for this arm (installed in Phase 1). The Terminal is for one-time setup, launching cloud training, and debugging — collapsed "Terminal equivalent" blocks in the phase docs hold the command fallbacks.
 
 ### The guide (follow in order)
 
@@ -87,9 +87,9 @@ Next action: [Phase 0 — prepare the kit](docs/03-phase0-prepare.md).
 
 - Robot ids: `brick_follower` / `brick_leader` (chosen at calibration; must never change)
 - Camera names: `front` / `wrist` at 640×480 @ 30 fps
-- HF username: `vik101` (so `HF_USER=vik101` wherever docs say `<HF_USER>`)
-- First dataset: `vik101/so101_brick_place_v1`, task string `"Pick up the brick and place it on the target square"`
-- First policy: `vik101/act_brick_v1`
+- HF username: `vik101` (login identity). Team org: `sammy-labs` — datasets, policies, and the HF Jobs training credit all live there (`HF_NAMESPACE=sammy-labs` on train commands)
+- First dataset: `sammy-labs/so101_brick_place_v1`, task string `"Pick up the brick and place it on the target square"`
+- First policy: `sammy-labs/act_brick_v1`
 - Placeholders `FOLLOWER_PORT` / `LEADER_PORT` are your USB port paths from Phase 2
 
 *Compiled 2026-08-04 against LeRobot v0.6.1. If a command errors, check [version drift](docs/02-version-drift.md) first.*

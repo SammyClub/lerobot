@@ -24,7 +24,7 @@
        --teleop.port=LEADER_PORT \
        --teleop.id=brick_leader \
        --display_data=true \
-       --dataset.repo_id=${HF_USER}/so101_brick_place_v1 \
+       --dataset.repo_id=sammy-labs/so101_brick_place_v1 \
        --dataset.num_episodes=50 \
        --dataset.single_task="Pick up the brick and place it on the target square" \
        --dataset.episode_time_s=30 \
@@ -55,7 +55,7 @@
        --robot.type=so101_follower \
        --robot.port=FOLLOWER_PORT \
        --robot.id=brick_follower \
-       --dataset.repo_id=${HF_USER}/so101_brick_place_v1 \
+       --dataset.repo_id=sammy-labs/so101_brick_place_v1 \
        --dataset.episode=0
    ```
 
@@ -69,7 +69,7 @@
    lerobot-record \
        ... same command as before ... \
        --resume=true \
-       --dataset.root=~/.cache/huggingface/lerobot/${HF_USER}/so101_brick_place_v1 \
+       --dataset.root=~/.cache/huggingface/lerobot/sammy-labs/so101_brick_place_v1 \
        --dataset.num_episodes=25   # number of ADDITIONAL episodes
    ```
 

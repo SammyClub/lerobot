@@ -15,7 +15,7 @@
    ```bash
    lerobot-rollout \
      --strategy.type=episodic \
-     --policy.path=${HF_USER}/act_brick_v1 \
+     --policy.path=sammy-labs/act_brick_v1 \
      --robot.type=so101_follower \
      --robot.port=FOLLOWER_PORT \
      --robot.id=brick_follower \

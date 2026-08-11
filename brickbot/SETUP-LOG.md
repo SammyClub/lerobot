@@ -37,11 +37,11 @@ Calibration files are versioned in [`hardware/calibration/`](hardware/calibratio
 
 | Item | Name | Created |
 |---|---|---|
-| First dataset | `vik101/so101_brick_place_v1` | _pending_ |
-| First policy | `vik101/act_brick_v1` | _pending_ |
+| First dataset | `sammy-labs/so101_brick_place_v1` | _pending_ |
+| First policy | `sammy-labs/act_brick_v1` | _pending_ |
 
 ## Machines
 
 - Mac (robot machine): conda env `lerobot`, LeRobot 0.6.1, HF `vik101`, wandb `vikramt-sammy` — ready 2026-08-04
-- Training: **HF Jobs cloud A100** (`--job.target=a100-large`), paid from loaded HF credit — plan of record since 2026-08-11. Verify flavor names/prices with `hf jobs hardware`. (PC "Shav", 2× RTX 3090 + WSL2, retired from the plan; its env setup was never completed.)
+- Training: **HF Jobs cloud A100** (`--job.target=a100-large`), paid from the sammy-labs org credit (jobs launched with `HF_NAMESPACE=sammy-labs`) — plan of record since 2026-08-11. Verify flavor names/prices with `hf jobs hardware`. (PC "Shav", 2× RTX 3090 + WSL2, retired from the plan; its env setup was never completed.)
 - ⚠️ Lesson (2026-08-11): follower gripper not tracking the trigger → the leader trigger horn screw was loose (lever moved, servo shaft did not). Diagnosed by live-reading Present_Position — frozen value = mechanical decoupling. After re-seating any horn, recalibrate that arm and re-export to hardware/calibration/.

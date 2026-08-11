@@ -232,7 +232,7 @@
   <li>Every numbered step is one small action. Do the step. Then read the next one.</li>
   <li>Anything that looks like <code>this</code> is typed into the Terminal app (macOS: press ⌘-Space, type "Terminal", press Enter). Copy the whole block, paste it, press Enter.</li>
   <li>Day-to-day driving of the robot happens in <strong>LeLab</strong>, Hugging Face's official app for this exact arm (you install it in Phase 1). The Terminal is for one-time setup, launching cloud training, and debugging. Wherever a step happens in LeLab, a collapsed <em>"Terminal equivalent"</em> box underneath holds the command version — open it only if the app misbehaves or you want to see what's underneath.</li>
-  <li>Three values are yours alone and appear in many commands. Replace them every time you see them: your two USB port names (found in Phase 2) and your Hugging Face username (<code>vik101</code>). Port placeholders are shown in <span style="color:var(--brick); font-family:var(--mono); font-size:0.9em;">orange</span> in the command blocks.</li>
+  <li>Values that appear in many commands: your two USB port names (found in Phase 2, shown in <span style="color:var(--brick); font-family:var(--mono); font-size:0.9em;">orange</span> placeholders — replace them), your Hugging Face username (<code>vik101</code>, used to log in), and the team org (<code>sammy-labs</code> — where datasets, policies, and the training credit live).</li>
   <li>Yellow boxes are warnings — read them before doing the steps next to them. Blue boxes are helpful context — read them once.</li>
 </ul>
 
@@ -247,7 +247,7 @@
   <label><input type="checkbox" data-k="p1a" data-default="1"> Mac: LeRobot 0.6.1 installed, <code>lerobot-info</code> verified ✓ done 2026-08-04 (Phase 1)</label>
   <label><input type="checkbox" data-k="p1c" data-default="1"> LeLab installed (<code>lelab</code> command works) ✓ done (Phase 1)</label>
   <label><input type="checkbox" data-k="p1b" data-default="1"> Hugging Face login on the Mac as <code>vik101</code> ✓ done (Phase 1)</label>
-  <label><input type="checkbox" data-k="pc1" data-default="1"> Training compute: Hugging Face credit loaded — training runs on a cloud A100 via HF Jobs ✓ done</label>
+  <label><input type="checkbox" data-k="pc1" data-default="1"> Training compute: sammy-labs org credit loaded — training runs on a cloud A100 via HF Jobs ✓ done</label>
   <label><input type="checkbox" data-k="p2a"> Both USB ports found and written down (Phase 2a)</label>
   <label><input type="checkbox" data-k="p2b"> All 12 motor IDs programmed (Phase 2b)</label>
   <label><input type="checkbox" data-k="p2c"> Both arms assembled and clamped (Phase 2b)</label>
@@ -833,7 +833,7 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
     --teleop.port=<span class="hl">LEADER_PORT</span> \
     --teleop.id=brick_leader \
     --display_data=true \
-    --dataset.repo_id=${HF_USER}/so101_brick_place_v1 \
+    --dataset.repo_id=sammy-labs/so101_brick_place_v1 \
     --dataset.num_episodes=50 \
     --dataset.single_task="Pick up the brick and place it on the target square" \
     --dataset.episode_time_s=30 \
@@ -862,9 +862,9 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
     --robot.type=so101_follower \
     --robot.port=<span class="hl">FOLLOWER_PORT</span> \
     --robot.id=brick_follower \
-    --dataset.repo_id=${HF_USER}/so101_brick_place_v1 \
+    --dataset.repo_id=sammy-labs/so101_brick_place_v1 \
     --dataset.episode=0</code></pre>
-  <p>Replay a handful of episodes (change the number). Smooth motion = good data. You can also watch all episodes as videos at the <a href="https://huggingface.co/spaces/lerobot/visualize_dataset">dataset visualizer</a> — enter your dataset name (<code>vik101/so101_brick_place_v1</code>).</p></li>
+  <p>Replay a handful of episodes (change the number). Smooth motion = good data. You can also watch all episodes as videos at the <a href="https://huggingface.co/spaces/lerobot/visualize_dataset">dataset visualizer</a> — enter your dataset name (<code>sammy-labs/so101_brick_place_v1</code>).</p></li>
 
   <li><span class="st">Know your privacy setting.</span><p>The dataset — including the videos of your desk — uploads to the Hugging Face Hub automatically. To keep it offline, add <code>--dataset.push_to_hub=false</code> to the record command (but cloud training then needs it on the Hub). Or after upload, open the dataset page on huggingface.co → Settings → change visibility to Private.</p></li>
 
@@ -872,7 +872,7 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
   <pre><code>lerobot-record \
     ... same command as before ... \
     --resume=true \
-    --dataset.root=~/.cache/huggingface/lerobot/${HF_USER}/so101_brick_place_v1 \
+    --dataset.root=~/.cache/huggingface/lerobot/sammy-labs/so101_brick_place_v1 \
     --dataset.num_episodes=25   <span class="c"># number of ADDITIONAL episodes</span></code></pre></li>
 </ol>
 
@@ -891,10 +891,10 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
     <tr><td><strong>Mac (Apple Silicon)</strong> — <code>--policy.device=mps</code></td><td>Last resort / overnight sanity runs</td><td class="num">overnight</td></tr>
   </table></div></li>
 
-  <li><span class="st">One-time check: your Jobs access and the exact hardware names.</span>
-  <p>Your Mac is already logged in to the Hub (<code>vik101</code>) and wandb — that's all Jobs needs. Confirm access and list the available GPU flavors with current prices:</p>
+  <li><span class="st">One-time check: Jobs access, org billing, and the exact hardware names.</span>
+  <p>The credits live in the <strong><a href="https://huggingface.co/sammy-labs">sammy-labs</a> org</strong>, so jobs must run under that namespace — billing follows the namespace. Confirm access and list GPU flavors with current prices:</p>
   <pre><code>hf jobs hardware</code></pre>
-  <p>Find the A100 entry and note its exact flavor name — this guide assumes <code>a100-large</code>; if the listing shows a different name, use that in the train command. Useful companions: <code>hf jobs logs &lt;job-id&gt;</code> to stream a run's output, <code>hf jobs cancel &lt;job-id&gt;</code> to stop one (billing stops with it), and <code>--job.timeout=4h</code> as a runaway guard.</p></li>
+  <p>Find the A100 entry and note its exact flavor name — this guide assumes <code>a100-large</code>; if the listing shows a different name, use that. The training command below sets <code>HF_NAMESPACE=sammy-labs</code> so the job runs (and bills) under the org — <strong>after your first run, check it appears on the org's Jobs page</strong>, which is the proof billing landed on the org credit, not your personal account. Two prerequisites: your org membership must have <strong>write</strong> permission, and if your access token is the fine-grained kind, it must include sammy-labs org access (a 403 on push = recreate the token with org scope). Useful companions: <code>hf jobs logs &lt;job-id&gt;</code>, <code>hf jobs cancel &lt;job-id&gt;</code> (billing stops with it), <code>--job.timeout=4h</code> as a runaway guard.</p></li>
 
   <li><span class="st">Create a free Weights &amp; Biases account (recommended).</span>
   <p>It gives you live charts of training progress. Sign up at <a href="https://wandb.ai">wandb.ai</a>, then in the Terminal:</p>
@@ -902,9 +902,9 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
   <p>Don't want it? Use <code>--wandb.enable=false</code> in the next step.</p></li>
 
   <li><span class="st">Run the training command — from the Mac's Terminal.</span>
-  <p>The <code>--job.target</code> flag is what sends the run to the cloud A100 instead of your own machine. The dataset name is enough — the cloud job pulls it from the Hub (a local-only dataset would be auto-pushed to a private repo first). Alternative: start the same job by clicking inside LeLab, which shows live charts.</p>
-  <pre><code>lerobot-train \
-  --dataset.repo_id=${HF_USER}/so101_brick_place_v1 \
+  <p>The <code>--job.target</code> flag sends the run to the cloud A100; the <code>HF_NAMESPACE</code> prefix bills it to the org. Dataset and policy live under <code>sammy-labs</code> so the whole team can use them. Alternative: start the same job by clicking inside LeLab, which shows live charts.</p>
+  <pre><code>HF_NAMESPACE=sammy-labs lerobot-train \
+  --dataset.repo_id=sammy-labs/so101_brick_place_v1 \
   --policy.type=act \
   --policy.chunk_size=50 \
   --policy.n_action_steps=15 \
@@ -915,14 +915,14 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
   --batch_size=32 \
   --steps=15000 \
   --wandb.enable=true \
-  --policy.repo_id=${HF_USER}/act_brick_v1 \
+  --policy.repo_id=sammy-labs/act_brick_v1 \
   --save_checkpoint_to_hub=true</code></pre>
   <p>The two chunk settings are the "predict 50, execute 15" pattern from the theory section — they must be chosen now, at training time. Batch 32 / 15,000 steps suits a ~50-episode dataset on an A100 (same data coverage as batch 8 / 50k, much faster wall-clock); the loss usually stops improving well before the end, and stopping early is fine. <code>--save_checkpoint_to_hub=true</code> pushes mid-run checkpoints, so a cancelled or crashed cloud job loses nothing. Note what you <em>don't</em> pass: <code>--policy.device</code> — the cloud job picks its own GPU.</p></li>
 
   <li><span class="st">Watch the loss go down.</span><p>On the wandb page, watch the "loss" chart. Good: falls steeply, then flattens near zero. When it's been flat for a long while, further training buys nothing — better data beats more steps, always.</p></li>
 
-  <li><span class="st">Confirm the policy is on the Hub.</span><p>Because of <code>--policy.repo_id</code>, the trained policy uploads automatically. Check that <code>huggingface.co/vik101/act_brick_v1</code> exists. If it doesn't, upload the result by hand:</p>
-  <pre><code>hf upload ${HF_USER}/act_brick_v1 outputs/train/act_brick_v1/checkpoints/last/pretrained_model</code></pre></li>
+  <li><span class="st">Confirm the policy is on the Hub.</span><p>Because of <code>--policy.repo_id</code>, the trained policy uploads automatically. Check that <code>huggingface.co/sammy-labs/act_brick_v1</code> exists. If it doesn't, upload the result by hand:</p>
+  <pre><code>hf upload sammy-labs/act_brick_v1 outputs/train/act_brick_v1/checkpoints/last/pretrained_model</code></pre></li>
 </ol>
 
 <!-- ================================================================ -->
@@ -940,7 +940,7 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
   <details class="term"><summary>Terminal equivalent</summary>
   <pre><code>lerobot-rollout \
   --strategy.type=episodic \
-  --policy.path=${HF_USER}/act_brick_v1 \
+  --policy.path=sammy-labs/act_brick_v1 \
   --robot.type=so101_follower \
   --robot.port=<span class="hl">FOLLOWER_PORT</span> \
   --robot.id=brick_follower \

@@ -4,7 +4,7 @@
 
 **Goal:** a trained ACT policy, stored on the Hugging Face Hub.
 
-**Plan of record (2026-08-11):** training runs on a **rented cloud A100 via Hugging Face Jobs**, paid per second from the team's loaded HF credit. Everything launches from the Mac; no other machine is involved. (The earlier RTX-PC plan is retired.)
+**Plan of record (2026-08-11):** training runs on a **rented cloud A100 via Hugging Face Jobs**, paid per second from the sammy-labs org credit. Everything launches from the Mac; no other machine is involved. (The earlier RTX-PC plan is retired.)
 
 ## The workflow
 
@@ -28,7 +28,7 @@ Nothing to install, maintain, or SSH into. Billing runs only while a job runs; `
 
 ## One-time check (on the Mac)
 
-Already logged in to the Hub (`vik101`) and wandb — that's all Jobs needs. Confirm access and the exact hardware flavor names + prices:
+Credits live in the [sammy-labs org](https://huggingface.co/sammy-labs); jobs must run under that namespace (the `HF_NAMESPACE` prefix in the command below) so billing lands on the org, not your personal account — after the first run, confirm the job appears on the org's Jobs page. Your org membership needs write permission, and a fine-grained token must include sammy-labs access (403 on push = recreate token with org scope). Confirm access and hardware flavors + prices:
 
 ```bash
 hf jobs hardware
@@ -43,9 +43,8 @@ Account exists (`vikramt-sammy`), Mac is logged in — the API key is forwarded 
 ## The training command (run on the Mac)
 
 ```bash
-HF_USER=vik101
-lerobot-train \
-  --dataset.repo_id=${HF_USER}/so101_brick_place_v1 \
+HF_NAMESPACE=sammy-labs lerobot-train \
+  --dataset.repo_id=sammy-labs/so101_brick_place_v1 \
   --policy.type=act \
   --policy.chunk_size=50 \
   --policy.n_action_steps=15 \
@@ -56,7 +55,7 @@ lerobot-train \
   --batch_size=32 \
   --steps=15000 \
   --wandb.enable=true \
-  --policy.repo_id=${HF_USER}/act_brick_v1 \
+  --policy.repo_id=sammy-labs/act_brick_v1 \
   --save_checkpoint_to_hub=true
 ```
 
@@ -73,6 +72,6 @@ Watch the loss chart on wandb.ai: falls steeply, then flattens near zero. Flat f
 
 ## Confirm the policy is on the Hub
 
-`--policy.repo_id` uploads the trained policy automatically. Check `huggingface.co/vik101/act_brick_v1` exists. Then go to [Phase 6](09-phase6-rollout.md) — rollout happens on the Mac.
+`--policy.repo_id` uploads the trained policy automatically. Check `huggingface.co/sammy-labs/act_brick_v1` exists. Then go to [Phase 6](09-phase6-rollout.md) — rollout happens on the Mac.
 
 [← Phase 4](07-phase4-recording.md) · [README](../README.md) · [Next: Phase 6 →](09-phase6-rollout.md)
