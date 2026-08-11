@@ -4,82 +4,46 @@
 
 **Goal:** a trained ACT policy, stored on the Hugging Face Hub.
 
-## The cross-machine workflow (recommended)
+**Plan of record (2026-08-11):** training runs on a **rented cloud A100 via Hugging Face Jobs**, paid per second from the team's loaded HF credit. Everything launches from the Mac; no other machine is involved. (The earlier RTX-PC plan is retired.)
 
-You have a PC with a GeForce RTX GPU — that is the training machine. The Mac stays the robot machine. The Hugging Face Hub is the courier between them:
+## The workflow
 
 ```
-Mac (arms + cameras)          Hugging Face Hub              RTX PC (GPU)
-────────────────────          ────────────────              ────────────
-record dataset  ──────────▶   dataset repo   ──────────▶   lerobot-train pulls it
-rollout policy  ◀──────────   policy repo    ◀──────────   trained policy pushes back
+Mac (arms + cameras)          Hugging Face Hub              HF Jobs (cloud A100)
+────────────────────          ────────────────              ────────────────────
+record dataset  ──────────▶   dataset repo   ──────────▶   job pulls it, trains
+rollout policy  ◀──────────   policy repo    ◀──────────   policy + checkpoints push back
 ```
 
-No robot, no cameras, no `feetech` extra needed on the PC. Everything syncs through the Hub automatically.
+Nothing to install, maintain, or SSH into. Billing runs only while a job runs; `hf jobs cancel` stops both.
 
 ## Where to train — priority order
 
-| Priority | Option | When | Time (50k steps) |
+| Priority | Option | When | Time (50k-step-equivalent) |
 |---|---|---|---|
-| **1 — recommended** | **PC "Shav": 2× RTX 3090** (WSL2 + CUDA) | Always | ~30–90 min |
-| 2 | Google Colab — [official ACT notebook](https://colab.research.google.com/github/huggingface/notebooks/blob/main/lerobot/training-act.ipynb) | PC unavailable | ~1–3 h (GPU runtime) |
-| 3 | HF Jobs — add `--job.target=a10g-small` to the train command, or start it from inside LeLab with live charts | Zero-setup, pay-per-second | ~1–2 h |
-| 4 — last resort | Mac locally with `--policy.device=mps` | Nothing else available | overnight |
+| **1 — recommended** | **HF Jobs, A100** — `--job.target=a100-large` (or click-launch inside LeLab with live charts) | Default | ~30–60 min |
+| 2 | HF Jobs, A10G — `--job.target=a10g-small` | Cheaper first test runs | ~1–2 h |
+| 3 | Google Colab — [official ACT notebook](https://colab.research.google.com/github/huggingface/notebooks/blob/main/lerobot/training-act.ipynb) | Jobs unavailable | ~1–3 h |
+| 4 — last resort | Mac locally, `--policy.device=mps` | Nothing else available | overnight |
 
-## One-time setup on the RTX PC
+## One-time check (on the Mac)
 
-> **Status (2026-08-04): partially done.** WSL2 + Ubuntu is installed and `nvidia-smi` confirms 2× RTX 3090 (24 GB each) with a current driver — the Windows/WSL2 caveat below is handled. Steps 1–7 below are **still pending**. Note: a `~/lerobot` folder already exists on the PC; leave it alone and do a clean install in its own conda env (avoids inheriting an unknown version).
->
-> **Working from the Mac:** `ssh shav@<pc-ip>`, then run training inside `tmux` (`sudo apt install tmux`; detach Ctrl-B D, reattach `tmux attach`) so a dropped SSH session doesn't kill the run.
-
-> **Windows caveat (handled on our PC):** LeRobot on native Windows has caveats. Use **WSL2 with Ubuntu** instead — then everything behaves like Linux. Install WSL2 from PowerShell with `wsl --install -d Ubuntu`, open the Ubuntu terminal, and continue there. Make sure a current NVIDIA driver is installed on Windows (WSL2 uses it automatically).
-
-1. **Install Miniconda inside Ubuntu/WSL2** (download from https://conda-forge.org/download/, run the Linux installer, reopen the shell).
-2. **Create and activate the environment:**
-
-   ```bash
-   conda create -y -n lerobot python=3.12
-   conda activate lerobot
-   ```
-
-3. **Install ffmpeg:**
-
-   ```bash
-   conda install -y -c conda-forge ffmpeg
-   ```
-
-4. **Install LeRobot — training extra only** (no robot attached to this machine):
-
-   ```bash
-   pip install 'lerobot[training]'
-   ```
-
-5. **CUDA check:** `python -c "import torch; print(torch.cuda.is_available())"` should print `True`. If it prints `False` (default wheel mismatches your driver), install the matching build first:
-
-   ```bash
-   pip install --index-url https://download.pytorch.org/whl/cu128 torch torchvision
-   ```
-
-6. **Log in to the Hub on the PC** (same account as the Mac):
-
-   ```bash
-   hf auth login
-   HF_USER=$(NO_COLOR=1 hf auth whoami | awk -F': *' 'NR==1 {print $2}')
-   ```
-
-## Weights & Biases (recommended)
-
-Live charts of training progress. Sign up at https://wandb.ai, then on the training machine:
+Already logged in to the Hub (`vik101`) and wandb — that's all Jobs needs. Confirm access and the exact hardware flavor names + prices:
 
 ```bash
-wandb login   # paste the API key from wandb.ai/authorize
+hf jobs hardware
 ```
 
-Don't want it? Use `--wandb.enable=false` below.
+Find the A100 entry. These docs assume the flavor is named `a100-large` — if the listing differs, use the listed name. Companions: `hf jobs logs <job-id>` (stream output), `hf jobs cancel <job-id>` (stop + stop billing), `--job.timeout=4h` (runaway guard).
 
-## The training command (run on the RTX PC)
+## Weights & Biases
+
+Account exists (`vikramt-sammy`), Mac is logged in — the API key is forwarded to the cloud job automatically. Live charts appear on wandb.ai while the job runs.
+
+## The training command (run on the Mac)
 
 ```bash
+HF_USER=vik101
 lerobot-train \
   --dataset.repo_id=${HF_USER}/so101_brick_place_v1 \
   --policy.type=act \
@@ -87,33 +51,28 @@ lerobot-train \
   --policy.n_action_steps=15 \
   --output_dir=outputs/train/act_brick_v1 \
   --job_name=act_brick_v1 \
-  --policy.device=cuda \
-  --batch_size=8 \
-  --steps=50000 \
+  --job.target=a100-large \
+  --job.timeout=4h \
+  --batch_size=32 \
+  --steps=15000 \
   --wandb.enable=true \
-  --policy.repo_id=${HF_USER}/act_brick_v1
+  --policy.repo_id=${HF_USER}/act_brick_v1 \
+  --save_checkpoint_to_hub=true
 ```
 
-- `--dataset.repo_id` pulls the dataset straight from the Hub — nothing to copy from the Mac.
-- The two chunk settings are the "predict 50, execute 15" pattern from [Concepts](01-concepts.md) — they must be chosen now, at training time (they are baked into the policy config).
-- 50,000 steps suits a ~50-episode dataset at batch 8. On our 24 GB RTX 3090s, raise `--batch_size` to 32 and cut `--steps` roughly in proportion (~15,000) — same data coverage, much faster wall-clock (~30–90 min).
-- One 3090 is plenty; the second GPU is spare capacity, not needed for ACT.
-- **Out of memory?** Lower `--batch_size` (16, 8, 4).
-- Colab users: same command inside the notebook, GPU runtime enabled.
-- MPS fallback: same command with `--policy.device=mps`.
+- `--job.target` is what sends the run to the cloud instead of this machine. Note there is **no** `--policy.device` — the job picks its own GPU.
+- The dataset comes from the Hub; a local-only dataset is auto-pushed to a private repo first.
+- Chunk settings = the "predict 50, execute 15" pattern from [Concepts](01-concepts.md); they bake into the policy config at train time.
+- Batch 32 / 15,000 steps suits a ~50-episode dataset on an A100 (same coverage as batch 8 / 50k, faster wall-clock). Loss usually flattens well before the end; stopping early is fine.
+- `--save_checkpoint_to_hub=true` pushes mid-run checkpoints — a cancelled/crashed job loses nothing.
+- Same job can be click-launched from LeLab instead, with live charts in-app.
 
 ## Read the loss, then stop
 
-On the wandb page, watch the "loss" chart. Good: falls steeply, then flattens near zero. When it has been flat for a long while, further training buys nothing — **better data beats more steps, always.**
+Watch the loss chart on wandb.ai: falls steeply, then flattens near zero. Flat for a long while = further steps buy nothing — **better data beats more steps, always.** Cancel a job you're done with: `hf jobs cancel <job-id>`.
 
 ## Confirm the policy is on the Hub
 
-Because of `--policy.repo_id`, the trained policy uploads automatically. Check that `huggingface.co/<user>/act_brick_v1` exists. If not, upload by hand from the PC:
-
-```bash
-hf upload ${HF_USER}/act_brick_v1 outputs/train/act_brick_v1/checkpoints/last/pretrained_model
-```
-
-Then walk back to the Mac for [Phase 6](09-phase6-rollout.md) — rollout happens on the robot machine.
+`--policy.repo_id` uploads the trained policy automatically. Check `huggingface.co/vik101/act_brick_v1` exists. Then go to [Phase 6](09-phase6-rollout.md) — rollout happens on the Mac.
 
 [← Phase 4](07-phase4-recording.md) · [README](../README.md) · [Next: Phase 6 →](09-phase6-rollout.md)

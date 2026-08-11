@@ -43,5 +43,5 @@ Calibration files are versioned in [`hardware/calibration/`](hardware/calibratio
 ## Machines
 
 - Mac (robot machine): conda env `lerobot`, LeRobot 0.6.1, HF `vik101`, wandb `vikramt-sammy` — ready 2026-08-04
-- PC "Shav" (training): 2× RTX 3090, WSL2 Ubuntu — env setup pending
+- Training: **HF Jobs cloud A100** (`--job.target=a100-large`), paid from loaded HF credit — plan of record since 2026-08-11. Verify flavor names/prices with `hf jobs hardware`. (PC "Shav", 2× RTX 3090 + WSL2, retired from the plan; its env setup was never completed.)
 - ⚠️ Lesson (2026-08-11): follower gripper not tracking the trigger → the leader trigger horn screw was loose (lever moved, servo shaft did not). Diagnosed by live-reading Present_Position — frozen value = mechanical decoupling. After re-seating any horn, recalibrate that arm and re-export to hardware/calibration/.

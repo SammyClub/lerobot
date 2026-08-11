@@ -231,7 +231,7 @@
   <li>Work through the phases in order, top to bottom. Each phase ends where the next begins.</li>
   <li>Every numbered step is one small action. Do the step. Then read the next one.</li>
   <li>Anything that looks like <code>this</code> is typed into the Terminal app (macOS: press ⌘-Space, type "Terminal", press Enter). Copy the whole block, paste it, press Enter.</li>
-  <li>Day-to-day driving of the robot happens in <strong>LeLab</strong>, Hugging Face's official app for this exact arm (you install it in Phase 1). The Terminal is for one-time setup, training on the PC, and debugging. Wherever a step happens in LeLab, a collapsed <em>"Terminal equivalent"</em> box underneath holds the command version — open it only if the app misbehaves or you want to see what's underneath.</li>
+  <li>Day-to-day driving of the robot happens in <strong>LeLab</strong>, Hugging Face's official app for this exact arm (you install it in Phase 1). The Terminal is for one-time setup, launching cloud training, and debugging. Wherever a step happens in LeLab, a collapsed <em>"Terminal equivalent"</em> box underneath holds the command version — open it only if the app misbehaves or you want to see what's underneath.</li>
   <li>Three values are yours alone and appear in many commands. Replace them every time you see them: your two USB port names (found in Phase 2) and your Hugging Face username (<code>vik101</code>). Port placeholders are shown in <span style="color:var(--brick); font-family:var(--mono); font-size:0.9em;">orange</span> in the command blocks.</li>
   <li>Yellow boxes are warnings — read them before doing the steps next to them. Blue boxes are helpful context — read them once.</li>
 </ul>
@@ -247,8 +247,7 @@
   <label><input type="checkbox" data-k="p1a" data-default="1"> Mac: LeRobot 0.6.1 installed, <code>lerobot-info</code> verified ✓ done 2026-08-04 (Phase 1)</label>
   <label><input type="checkbox" data-k="p1c" data-default="1"> LeLab installed (<code>lelab</code> command works) ✓ done (Phase 1)</label>
   <label><input type="checkbox" data-k="p1b" data-default="1"> Hugging Face login on the Mac as <code>vik101</code> ✓ done (Phase 1)</label>
-  <label><input type="checkbox" data-k="pc1" data-default="1"> Training PC ready: WSL2 + Ubuntu, dual RTX 3090, driver verified with <code>nvidia-smi</code> ✓ done</label>
-  <label><input type="checkbox" data-k="pc2"> Training PC: <code>lerobot[training]</code> installed in a fresh env + <code>hf auth login</code> (Phase 5, step 2)</label>
+  <label><input type="checkbox" data-k="pc1" data-default="1"> Training compute: Hugging Face credit loaded — training runs on a cloud A100 via HF Jobs ✓ done</label>
   <label><input type="checkbox" data-k="p2a"> Both USB ports found and written down (Phase 2a)</label>
   <label><input type="checkbox" data-k="p2b"> All 12 motor IDs programmed (Phase 2b)</label>
   <label><input type="checkbox" data-k="p2c"> Both arms assembled and clamped (Phase 2b)</label>
@@ -259,7 +258,7 @@
   <label><input type="checkbox" data-k="p3a"> Teleop works; 20 min practice done (Phase 3)</label>
   <label><input type="checkbox" data-k="p3b"> Cameras mounted, framed, and fixed permanently (Phase 3)</label>
   <label><input type="checkbox" data-k="p4a"> 50-episode dataset recorded and replay-checked (Phase 4)</label>
-  <label><input type="checkbox" data-k="p5a"> ACT policy trained on the PC; loss flattened (Phase 5)</label>
+  <label><input type="checkbox" data-k="p5a"> ACT policy trained on the cloud A100 via HF Jobs; loss flattened (Phase 5)</label>
   <label><input type="checkbox" data-k="p6a"> Rollout succeeds at the trained position 8+/10 (Phase 6)</label>
 </div>
 
@@ -516,7 +515,7 @@ echo $HF_USER   <span class="c"># should print vik101</span></code></pre></li>
 
 <div class="note">
 <strong class="title">Which computer? Always the Mac</strong>
-The robot only ever connects to your <strong>Mac</strong> — every hardware step in Phases 2–4 and 6 happens there. The RTX PC never touches the robot; its only job is Phase 5 training, receiving the dataset and returning the policy via the Hugging Face Hub.
+The robot only ever connects to your <strong>Mac</strong> — every hardware step in Phases 2–4 and 6 happens there. Training (Phase 5) doesn't happen on any of your machines at all: it runs on a rented cloud GPU via Hugging Face Jobs, which receives the dataset and returns the policy through the Hub.
 </div>
 
 <h3>2a. Find your USB ports</h3>
@@ -880,35 +879,30 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
 <!-- ================================================================ -->
 <h2 id="phase5"><span class="phase">Phase 5 · Training</span>Train the policy</h2>
 
-<p>Goal of this phase: a trained ACT policy, stored on the Hugging Face Hub. Training needs a beefy graphics card (GPU) for an hour or so. <strong>You have an RTX PC — that's your training machine.</strong> The Hub makes the two-computer workflow seamless: the Mac records (it's plugged into the arms), the dataset uploads to the Hub automatically, the PC trains from the Hub, and the trained policy uploads back for the Mac to run.</p>
+<p>Goal of this phase: a trained ACT policy, stored on the Hugging Face Hub. Training needs a beefy graphics card (GPU) for an hour or so. <strong>Your plan: a rented cloud A100 via Hugging Face Jobs, paid from your loaded HF credit.</strong> Everything is launched from the Mac; no other computer is involved: the Mac records → the dataset uploads to the Hub → an A100 in HF's cloud trains it → the trained policy uploads back → the Mac runs it.</p>
 
 <ol class="steps">
   <li><span class="st">Choose where to train.</span>
   <div class="tablebox"><table>
     <tr><th>Option</th><th>When</th><th>Time (50k steps)</th></tr>
-    <tr><td><strong>Your RTX 3090 PC</strong> ⭐ — <code>--policy.device=cuda</code></td><td>Default choice. Free, private, repeatable. 24&nbsp;GB VRAM = room for big batches.</td><td class="num">~30–90 min</td></tr>
-    <tr><td><strong>Google Colab</strong> — cloud notebook</td><td>Backup when the PC is busy/unavailable</td><td class="num">~1–3 h</td></tr>
-    <tr><td><strong>HF Jobs</strong> — add <code>--job.target=a10g-small</code>, or start it from inside LeLab with live charts</td><td>Zero-setup cloud, pay pennies per run</td><td class="num">~1–2 h</td></tr>
+    <tr><td><strong>HF Jobs on an A100</strong> ⭐ — add <code>--job.target=a100-large</code> to the train command, or start it from inside LeLab with live charts</td><td>Default choice. Launched from the Mac, paid per second from your HF credit, nothing to maintain.</td><td class="num">~30–60 min</td></tr>
+    <tr><td><strong>HF Jobs on an A10G</strong> — <code>--job.target=a10g-small</code></td><td>Cheaper per run for small datasets; fine for a first test</td><td class="num">~1–2 h</td></tr>
+    <tr><td><strong>Google Colab</strong> — cloud notebook</td><td>Backup if Jobs is unavailable</td><td class="num">~1–3 h</td></tr>
     <tr><td><strong>Mac (Apple Silicon)</strong> — <code>--policy.device=mps</code></td><td>Last resort / overnight sanity runs</td><td class="num">overnight</td></tr>
   </table></div></li>
 
-  <li><span class="st">Set up the RTX PC (once). <span style="color:var(--brick);">Mostly done on your machine ✓</span></span>
-  <p><strong>Already done:</strong> WSL2 + Ubuntu is installed, and <code>nvidia-smi</code> confirms two RTX 3090s (24&nbsp;GB VRAM each) with a current driver. That's a serious training rig — better than the cloud options for this workload.</p>
-  <p><strong>Still pending</strong> inside the Ubuntu shell (there's an existing <code>~/lerobot</code> folder on the PC — leave it be; a clean install into its own environment avoids inheriting an unknown version):</p>
-  <pre><code>conda create -y -n lerobot python=3.12 &amp;&amp; conda activate lerobot
-pip install 'lerobot[training]'
-python -c "import torch; print(torch.cuda.is_available())"   <span class="c"># must print True</span>
-hf auth login   <span class="c"># same token as the Mac</span></code></pre>
-  <p>If that check prints <code>False</code>: <code>pip install --index-url https://download.pytorch.org/whl/cu128 torch torchvision</code>, then reinstall lerobot. (With your current driver, the default build should just work.)</p>
-  <p><strong>Working from the Mac:</strong> SSH in (<code>ssh shav@&lt;pc-ip&gt;</code>) and run training inside <code>tmux</code> (<code>sudo apt install tmux</code>; start with <code>tmux</code>, detach with Ctrl-B then D, reattach with <code>tmux attach</code>) so a dropped SSH connection doesn't kill an hour-long training run.</p></li>
+  <li><span class="st">One-time check: your Jobs access and the exact hardware names.</span>
+  <p>Your Mac is already logged in to the Hub (<code>vik101</code>) and wandb — that's all Jobs needs. Confirm access and list the available GPU flavors with current prices:</p>
+  <pre><code>hf jobs hardware</code></pre>
+  <p>Find the A100 entry and note its exact flavor name — this guide assumes <code>a100-large</code>; if the listing shows a different name, use that in the train command. Useful companions: <code>hf jobs logs &lt;job-id&gt;</code> to stream a run's output, <code>hf jobs cancel &lt;job-id&gt;</code> to stop one (billing stops with it), and <code>--job.timeout=4h</code> as a runaway guard.</p></li>
 
   <li><span class="st">Create a free Weights &amp; Biases account (recommended).</span>
   <p>It gives you live charts of training progress. Sign up at <a href="https://wandb.ai">wandb.ai</a>, then in the Terminal:</p>
   <pre><code>wandb login   <span class="c"># paste the API key from wandb.ai/authorize</span></code></pre>
   <p>Don't want it? Use <code>--wandb.enable=false</code> in the next step.</p></li>
 
-  <li><span class="st">Run the training command on the PC.</span>
-  <p>The dataset name is enough — it downloads from the Hub automatically. (Colab fallback: open the <a href="https://colab.research.google.com/github/huggingface/notebooks/blob/main/lerobot/training-act.ipynb">official ACT training notebook</a>, pick a GPU runtime, and run this same command inside it.) On the PC, <code>HF_USER</code> needs setting again (Phase 1, step 11) or just type <code>vik101</code> directly:</p>
+  <li><span class="st">Run the training command — from the Mac's Terminal.</span>
+  <p>The <code>--job.target</code> flag is what sends the run to the cloud A100 instead of your own machine. The dataset name is enough — the cloud job pulls it from the Hub (a local-only dataset would be auto-pushed to a private repo first). Alternative: start the same job by clicking inside LeLab, which shows live charts.</p>
   <pre><code>lerobot-train \
   --dataset.repo_id=${HF_USER}/so101_brick_place_v1 \
   --policy.type=act \
@@ -916,12 +910,14 @@ hf auth login   <span class="c"># same token as the Mac</span></code></pre>
   --policy.n_action_steps=15 \
   --output_dir=outputs/train/act_brick_v1 \
   --job_name=act_brick_v1 \
-  --policy.device=<span class="hl">cuda</span> \
-  --batch_size=8 \
-  --steps=50000 \
+  --job.target=<span class="hl">a100-large</span> \
+  --job.timeout=4h \
+  --batch_size=32 \
+  --steps=15000 \
   --wandb.enable=true \
-  --policy.repo_id=${HF_USER}/act_brick_v1</code></pre>
-  <p>The two chunk settings are the "predict 50, execute 15" pattern from the theory section — they must be chosen now, at training time. 50,000 steps suits a ~50-episode dataset; the loss usually stops improving well before the end, and stopping early is fine. On a 24&nbsp;GB RTX 3090 you can comfortably raise <code>--batch_size</code> to 32 — larger batches cover the same data in fewer steps, so also cut <code>--steps</code> roughly in proportion (e.g. batch 32 → ~15,000 steps). One 3090 is plenty; the second GPU is spare capacity for a future experiment, not needed now.</p></li>
+  --policy.repo_id=${HF_USER}/act_brick_v1 \
+  --save_checkpoint_to_hub=true</code></pre>
+  <p>The two chunk settings are the "predict 50, execute 15" pattern from the theory section — they must be chosen now, at training time. Batch 32 / 15,000 steps suits a ~50-episode dataset on an A100 (same data coverage as batch 8 / 50k, much faster wall-clock); the loss usually stops improving well before the end, and stopping early is fine. <code>--save_checkpoint_to_hub=true</code> pushes mid-run checkpoints, so a cancelled or crashed cloud job loses nothing. Note what you <em>don't</em> pass: <code>--policy.device</code> — the cloud job picks its own GPU.</p></li>
 
   <li><span class="st">Watch the loss go down.</span><p>On the wandb page, watch the "loss" chart. Good: falls steeply, then flattens near zero. When it's been flat for a long while, further training buys nothing — better data beats more steps, always.</p></li>
 

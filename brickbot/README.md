@@ -32,8 +32,7 @@ Details: [docs/10-brick-curriculum.md](docs/10-brick-curriculum.md)
 - [x] Phase 1 — Mac: LeRobot 0.6.1 installed in conda env `lerobot` (Python 3.12, torch 2.11 + MPS, all `lerobot-*` commands verified, 2026-08-04)
 - [x] Phase 1 — LeLab installed (`lelab` command available)
 - [x] Phase 1 — HF account + `hf auth login` on the Mac (logged in as `vik101`, 2026-08-04) — **Phase 1 complete ✓**
-- [x] Training PC ready — WSL2 + Ubuntu, **2× RTX 3090 (24 GB each)**, driver verified via `nvidia-smi` (2026-08-04)
-- [ ] Training PC — `lerobot[training]` installed in a fresh conda env + `hf auth login` + `wandb login`
+- [x] Training compute — **HF credit loaded; training runs on a cloud A100 via HF Jobs** (plan changed 2026-08-11; RTX-PC plan retired)
 - [x] wandb account created + logged in on the Mac as `vikramt-sammy` (2026-08-04); login still pending on the PC
 - [x] Phase 2 — ports found, 12 motor IDs programmed, arms assembled, both arms calibrated (2026-08-10; calibration versioned in `hardware/calibration/`) — **Phase 2 complete ✓**
 - [ ] Phase 3 — teleop works, cameras mounted and framed, everything fixed in place
@@ -50,7 +49,7 @@ Next action: [Phase 0 — prepare the kit](docs/03-phase0-prepare.md).
 - 2× bus-servo control boards, USB-C cables, power supplies
 - Still to buy: 2× USB webcams, powered USB hub, table clamp, wrist camera mount
 - Stage-1 bricks on hand: wooden stacking-tower (Jenga-style) blocks (Flying Tiger) — ~10–20 g each, fits the gripper; later upgrade: kiln-fired 1:12 clay minis
-- Training machine: PC "Shav" with **2× NVIDIA RTX 3090 (24 GB VRAM each)**, WSL2 + Ubuntu already set up, reachable from the Macs over SSH (`ssh shav@<pc-ip>`). Mac drives the arms; PC trains. See Phase 5.
+- Training compute: **Hugging Face Jobs (cloud A100), paid from loaded HF credit** — launched from the Mac; see Phase 5. (PC "Shav" with 2× RTX 3090 exists but is no longer part of the plan.)
 - Front camera: Logitech StreamCam (from home) — lock its autofocus via Logi Tune before recording. Wrist camera: use the kit's camera if it is a small board cam; otherwise buy a small wide-angle fixed-focus UVC board cam (~$30, e.g. InnoMaker 130°).
 
 ## Repo map
@@ -69,7 +68,7 @@ Next action: [Phase 0 — prepare the kit](docs/03-phase0-prepare.md).
 | [05 — Phase 2: Build & calibrate](docs/05-phase2-build-calibrate.md) | Ports, motor IDs, assembly, calibration |
 | [06 — Phase 3: Teleop & cameras](docs/06-phase3-teleop-cameras.md) | Drive the robot by hand, set up cameras, frame the scene |
 | [07 — Phase 4: Recording](docs/07-phase4-recording.md) | Record ~50 demonstrations, quality-check, upload |
-| [08 — Phase 5: Training](docs/08-phase5-training.md) | Train the ACT policy (RTX PC via WSL2 recommended; Colab/HF Jobs fallback) |
+| [08 — Phase 5: Training](docs/08-phase5-training.md) | Train the ACT policy on a cloud A100 via HF Jobs (launched from the Mac) |
 | [09 — Phase 6: Rollout](docs/09-phase6-rollout.md) | Run the policy, evaluate it the right way |
 | [10 — Brick curriculum](docs/10-brick-curriculum.md) | Stages 1–4 in full detail |
 | [11 — Mortar research](docs/11-mortar-research.md) | What the industry uses instead of mortar |
