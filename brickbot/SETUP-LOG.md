@@ -22,6 +22,7 @@ Calibration files are versioned in [`hardware/calibration/`](hardware/calibratio
 
 - Power supplies: _pending — record which supply (5V/12V or identical) goes to which arm_
 - ⚠️ Lesson (2026-08-09): boards must go into a DATA USB-C port on the Mac — one of the Mac's ports is power-only and causes "Motor not found". Use the same ports as during setup, always.
+- ⚠️ Lesson (2026-08-11): the desk extension strip has at least one bad socket — caused hours of intermittent "0/6 motors found" errors alternating between arms as plugs were shuffled. Robot power bricks now go into known-good sockets only; suspect socket taped over. Note: the control-board LED lights from USB alone, so a lit LED does NOT prove servo power is present. Diagnostic that settles any recurrence: `FeetechMotorsBus.scan_port(port)` per board — 6 IDs = bus healthy.
 - Follower motor IDs 1–6 programmed: **done 2026-08-09**
 - Leader motor IDs 1–6 programmed (gear codes: 1=C044, 2=C001, 3=C044, 4=C046, 5=C046, 6=C046): **done 2026-08-09**
 
