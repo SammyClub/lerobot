@@ -8,14 +8,14 @@
 
 2. **Find the exact trained brick position.** Run the replay command from [Phase 4](07-phase4-recording.md) on episode 0 and watch where the gripper goes to pick. Place the brick exactly there. This reconstructs a scene the policy definitely knows.
 
-3. **Let the robot take over.** In LeLab, pick the trained model (`act_brick_v1`) and run it on the robot. Enter the **exact task sentence from recording**. The leader arm stays on the shelf — the policy is driving.
+3. **Let the robot take over.** In LeLab, pick the trained model (`brickbot_act_v1`) and run it on the robot. Enter the **exact task sentence from recording**. The leader arm stays on the shelf — the policy is driving.
 
    <details><summary>Terminal equivalent</summary>
 
    ```bash
    lerobot-rollout \
      --strategy.type=episodic \
-     --policy.path=sammy-labs/act_brick_v1 \
+     --policy.path=sammy-labs/brickbot_act_v1 \
      --robot.type=so101_follower \
      --robot.port=FOLLOWER_PORT \
      --robot.id=brick_follower \

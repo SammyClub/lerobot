@@ -37,8 +37,8 @@ Calibration files are versioned in [`hardware/calibration/`](hardware/calibratio
 
 | Item | Name | Created |
 |---|---|---|
-| First dataset | `sammy-labs/so101_brick_place_v1` | _pending_ |
-| First policy | `sammy-labs/act_brick_v1` | _pending_ |
+| First dataset | `sammy-labs/brickbot_so101_place_v1` | _pending_ |
+| First policy | `sammy-labs/brickbot_act_v1` | _pending_ |
 
 ## Machines
 

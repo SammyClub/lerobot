@@ -88,8 +88,9 @@ Next action: [Phase 0 — prepare the kit](docs/03-phase0-prepare.md).
 - Robot ids: `brick_follower` / `brick_leader` (chosen at calibration; must never change)
 - Camera names: `front` / `wrist` at 640×480 @ 30 fps
 - HF username: `vik101` (login identity). Team org: `sammy-labs` — datasets, policies, and the HF Jobs training credit all live there (`HF_NAMESPACE=sammy-labs` on train commands)
-- First dataset: `sammy-labs/so101_brick_place_v1`, task string `"Pick up the brick and place it on the target square"`
-- First policy: `sammy-labs/act_brick_v1`
+- **Org demarcation rule: every repo this project pushes to `sammy-labs` is prefixed `brickbot_`** (datasets, policies, eval runs — no exceptions). Other teams share the org; the prefix is our namespace within it. A "Brick-Laying Robot" Collection on the org page groups all `brickbot_*` repos for discoverability.
+- First dataset: `sammy-labs/brickbot_so101_place_v1`, task string `"Pick up the brick and place it on the target square"`
+- First policy: `sammy-labs/brickbot_act_v1`
 - Placeholders `FOLLOWER_PORT` / `LEADER_PORT` are your USB port paths from Phase 2
 
 *Compiled 2026-08-04 against LeRobot v0.6.1. If a command errors, check [version drift](docs/02-version-drift.md) first.*

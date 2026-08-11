@@ -10,7 +10,7 @@
 
 2. **Decide the task sentence and never change it.** Ours: `Pick up the brick and place it on the target square`. Exact wording matters little for ACT, but it must be identical at recording and at rollout.
 
-3. **Start recording in LeLab.** In LeLab's recording screen, fill in the form: the task sentence, dataset name `so101_brick_place_v1`, **50 episodes**, 30-second episodes, 10-second reset time. Start. Episode 1 begins: up to 30 seconds to do the task, then a 10-second break to reset the scene, then the next episode starts automatically. Press the **spacebar** to advance the moment the brick is placed — don't wait out the clock.
+3. **Start recording in LeLab.** In LeLab's recording screen, fill in the form: the task sentence, dataset name `brickbot_so101_place_v1`, **50 episodes**, 30-second episodes, 10-second reset time. Start. Episode 1 begins: up to 30 seconds to do the task, then a 10-second break to reset the scene, then the next episode starts automatically. Press the **spacebar** to advance the moment the brick is placed — don't wait out the clock.
 
    <details><summary>Terminal equivalent (has per-episode redo keys)</summary>
 
@@ -24,7 +24,7 @@
        --teleop.port=LEADER_PORT \
        --teleop.id=brick_leader \
        --display_data=true \
-       --dataset.repo_id=sammy-labs/so101_brick_place_v1 \
+       --dataset.repo_id=sammy-labs/brickbot_so101_place_v1 \
        --dataset.num_episodes=50 \
        --dataset.single_task="Pick up the brick and place it on the target square" \
        --dataset.episode_time_s=30 \
@@ -55,11 +55,11 @@
        --robot.type=so101_follower \
        --robot.port=FOLLOWER_PORT \
        --robot.id=brick_follower \
-       --dataset.repo_id=sammy-labs/so101_brick_place_v1 \
+       --dataset.repo_id=sammy-labs/brickbot_so101_place_v1 \
        --dataset.episode=0
    ```
 
-   Replay a handful (change the episode number). Smooth motion = good data. Also watch all episodes as videos at https://huggingface.co/spaces/lerobot/visualize_dataset (enter `your-username/so101_brick_place_v1`).
+   Replay a handful (change the episode number). Smooth motion = good data. Also watch all episodes as videos at https://huggingface.co/spaces/lerobot/visualize_dataset (enter `your-username/brickbot_so101_place_v1`).
 
 6. **Know the privacy setting.** The dataset — including videos of your desk — uploads to the Hugging Face Hub automatically. To keep it offline add `--dataset.push_to_hub=false` (but the RTX PC / cloud training path needs it on the Hub — see [Phase 5](08-phase5-training.md)). Alternative: after upload, dataset page on huggingface.co → Settings → visibility → **Private**. Private datasets still work for your own training on any machine logged into your account.
 
@@ -69,7 +69,7 @@
    lerobot-record \
        ... same command as before ... \
        --resume=true \
-       --dataset.root=~/.cache/huggingface/lerobot/sammy-labs/so101_brick_place_v1 \
+       --dataset.root=~/.cache/huggingface/lerobot/sammy-labs/brickbot_so101_place_v1 \
        --dataset.num_episodes=25   # number of ADDITIONAL episodes
    ```
 

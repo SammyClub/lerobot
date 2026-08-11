@@ -44,18 +44,18 @@ Account exists (`vikramt-sammy`), Mac is logged in — the API key is forwarded 
 
 ```bash
 HF_NAMESPACE=sammy-labs lerobot-train \
-  --dataset.repo_id=sammy-labs/so101_brick_place_v1 \
+  --dataset.repo_id=sammy-labs/brickbot_so101_place_v1 \
   --policy.type=act \
   --policy.chunk_size=50 \
   --policy.n_action_steps=15 \
-  --output_dir=outputs/train/act_brick_v1 \
-  --job_name=act_brick_v1 \
+  --output_dir=outputs/train/brickbot_act_v1 \
+  --job_name=brickbot_act_v1 \
   --job.target=a100-large \
   --job.timeout=4h \
   --batch_size=32 \
   --steps=15000 \
   --wandb.enable=true \
-  --policy.repo_id=sammy-labs/act_brick_v1 \
+  --policy.repo_id=sammy-labs/brickbot_act_v1 \
   --save_checkpoint_to_hub=true
 ```
 
@@ -72,6 +72,6 @@ Watch the loss chart on wandb.ai: falls steeply, then flattens near zero. Flat f
 
 ## Confirm the policy is on the Hub
 
-`--policy.repo_id` uploads the trained policy automatically. Check `huggingface.co/sammy-labs/act_brick_v1` exists. Then go to [Phase 6](09-phase6-rollout.md) — rollout happens on the Mac.
+`--policy.repo_id` uploads the trained policy automatically. Check `huggingface.co/sammy-labs/brickbot_act_v1` exists. Then go to [Phase 6](09-phase6-rollout.md) — rollout happens on the Mac.
 
 [← Phase 4](07-phase4-recording.md) · [README](../README.md) · [Next: Phase 6 →](09-phase6-rollout.md)
