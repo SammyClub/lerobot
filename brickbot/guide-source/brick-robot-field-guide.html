@@ -231,7 +231,7 @@
   <li>Work through the phases in order, top to bottom. Each phase ends where the next begins.</li>
   <li>Every numbered step is one small action. Do the step. Then read the next one.</li>
   <li>Anything that looks like <code>this</code> is typed into the Terminal app (macOS: press ⌘-Space, type "Terminal", press Enter). Copy the whole block, paste it, press Enter.</li>
-  <li>Day-to-day driving of the robot happens in <strong>LeLab</strong>, Hugging Face's official app for this exact arm (you install it in Phase 1). The Terminal is for one-time setup, launching cloud training, and debugging. Wherever a step happens in LeLab, a collapsed <em>"Terminal equivalent"</em> box underneath holds the command version — open it only if the app misbehaves or you want to see what's underneath.</li>
+  <li>Everything runs from the Terminal with copy-paste commands — each step below tells you exactly what to type and what you should see. (LeLab, Hugging Face's GUI app, exists as an alternative, but this guide does not use it.)</li>
   <li>Values that appear in many commands: your two USB port names (found in Phase 2, shown in <span style="color:var(--brick); font-family:var(--mono); font-size:0.9em;">orange</span> placeholders — replace them), your Hugging Face username (<code>vik101</code>, used to log in), and the team org (<code>sammy-labs</code> — where datasets, policies, and the training credit live). <strong>Because other teams share the org, everything this project pushes there is prefixed <code>brickbot_</code></strong> — that prefix is our territory marker; never push an unprefixed repo.</li>
   <li>Yellow boxes are warnings — read them before doing the steps next to them. Blue boxes are helpful context — read them once.</li>
 </ul>
@@ -245,7 +245,7 @@
   <label><input type="checkbox" data-k="p0a"> Kit sorted; power supplies labeled; servo variants checked (Phase 0)</label>
   <label><input type="checkbox" data-k="p0b"> Extras in hand: wrist camera, hub, clamp — blocks ✓ (stacking-tower set) (Phase 0)</label>
   <label><input type="checkbox" data-k="p1a" data-default="1"> Mac: LeRobot 0.6.1 installed, <code>lerobot-info</code> verified ✓ done 2026-08-04 (Phase 1)</label>
-  <label><input type="checkbox" data-k="p1c" data-default="1"> LeLab installed (<code>lelab</code> command works) ✓ done (Phase 1)</label>
+  
   <label><input type="checkbox" data-k="p1b" data-default="1"> Hugging Face login on the Mac as <code>vik101</code> ✓ done (Phase 1)</label>
   <label><input type="checkbox" data-k="pc1" data-default="1"> Training compute: sammy-labs org credit loaded — training runs on a cloud A100 via HF Jobs ✓ done</label>
   <label><input type="checkbox" data-k="p2a"> Both USB ports found and written down (Phase 2a)</label>
@@ -287,7 +287,7 @@
   <tr><td><strong>ACT</strong></td><td>The specific policy type you'll train first. Small, fast, learns one task from ~50 demonstrations.</td></tr>
   <tr><td><strong>Calibration</strong></td><td>A one-time procedure that teaches each arm the limits of its joints, so both arms agree on what "elbow at 90°" means.</td></tr>
   <tr><td><strong>Hugging Face Hub</strong></td><td>A free website (like GitHub, but for AI) where your datasets and policies are stored online. LeRobot uses it automatically.</td></tr>
-  <tr><td><strong>LeLab</strong></td><td>Hugging Face's official app for the SO-101. Guided flows for calibration, teleop, recording, and running policies — in your browser.</td></tr>
+  
   <tr><td><strong>Terminal / command</strong></td><td>The text window where you type commands. Every command in this guide goes there.</td></tr>
   <tr><td><strong>Environment (conda)</strong></td><td>A clean, separate box of Python software so LeRobot's packages don't clash with anything else on your computer.</td></tr>
 </table>
@@ -459,7 +459,7 @@
 <!-- ================================================================ -->
 <h2 id="phase1"><span class="phase">Phase 1 · Software</span>Install the software <span style="color:var(--brick);">✓ completed 2026-08-04</span></h2>
 
-<p>Goal of this phase: LeRobot and LeLab installed and verified, and your free online accounts created. Everything happens in the Terminal. <strong>This phase is done on your Mac</strong> — LeRobot 0.6.1 in conda env <code>lerobot</code> (Python 3.12, PyTorch 2.11 with Apple-GPU support), LeLab installed, logged in to Hugging Face as <code>vik101</code>. The steps remain below for reference or for setting up another machine.</p>
+<p>Goal of this phase: LeRobot installed and verified, and your free online accounts created. Everything happens in the Terminal. <strong>This phase is done on your Mac</strong> — LeRobot 0.6.1 in conda env <code>lerobot</code> (Python 3.12, PyTorch 2.11 with Apple-GPU support), logged in to Hugging Face as <code>vik101</code>. The steps remain below for reference or for setting up another machine.</p>
 
 <ol class="steps">
   <li><span class="st">Install Miniconda (a Python manager).</span>
@@ -486,11 +486,7 @@
   <pre><code>lerobot-info</code></pre>
   <p>It should print version information without errors. If it errors, see <a href="#trouble">Troubleshooting</a>.</p></li>
 
-  <li><span class="st">Install LeLab — the app you'll drive the robot from.</span>
-  <p><a href="https://huggingface.co/docs/lerobot/main/en/lelab">LeLab</a> is Hugging Face's official app for the SO-101. Calibration, teleoperation, recording, and running policies all happen in it, in your browser, with guided flows. Install it once:</p>
-  <pre><code>brew install uv
-uv tool install git+https://github.com/huggingface/leLab.git</code></pre>
-  <p>From now on, typing <code>lelab</code> in any Terminal opens the app in your browser. Try it now to confirm it launches, then close it.</p></li>
+  
 
   <li><span class="st">Create a free Hugging Face account.</span>
   <p>Go to <a href="https://huggingface.co/join">huggingface.co/join</a>. Your datasets and trained policies will live there. Note your username.</p></li>
@@ -531,7 +527,7 @@ The robot only ever connects to your <strong>Mac</strong> — every hardware ste
 
 <h3>2b. Program the motor IDs (before assembly)</h3>
 
-<p>Each servo must be told its number (1–6) once, and this must happen <strong>before</strong> the servos are built into the arm — the tool works on <strong>one servo at a time</strong>. This is one of the two things that stays in the Terminal (LeLab's flows start at calibration).</p>
+<p>Each servo must be told its number (1–6) once, and this must happen <strong>before</strong> the servos are built into the arm — the tool works on <strong>one servo at a time</strong>.</p>
 
 <figure>
 <svg viewBox="0 0 760 220" role="img" aria-label="Left panel: during ID setup, exactly one servo is connected to the control board by a single cable. Right panel: after setup, all six servos are daisy-chained in a line, and servo 1 connects to the board.">
@@ -652,34 +648,22 @@ The robot only ever connects to your <strong>Mac</strong> — every hardware ste
 <figcaption>Calibration: hold the L-shape middle pose, confirm, then move each joint through its whole range so the software records the end stops.</figcaption>
 </figure>
 
-<p>Two equivalent routes — they produce identical calibration files and share the same arm names, so you can use either (or start in one and finish in the other). <strong>If LeLab's calibration flow misbehaves or gets stuck, use Route B — the terminal route is the reliable fallback.</strong></p>
-
-<h4 style="font-family: var(--sans); margin: 24px 0 4px;">Route A — LeLab (guided, clickable)</h4>
 <ol class="steps">
-  <li><span class="st">Power and connect both arms.</span><p>Correct power supply for each (check the tape labels!). USB into data ports.</p></li>
-  <li><span class="st">Open LeLab and add the follower.</span>
-  <p>Type <code>lelab</code> in the Terminal. In the app, add a robot: arm type <strong>follower</strong>, select its port, and name it <code>brick_follower</code>. The name labels this arm's calibration file — pick it once and <strong>never change it</strong>.</p></li>
-  <li><span class="st">Follow the guided calibration.</span><p>It's exactly the diagram above: hold the arm in the "L shape" middle pose (upright from the base, forearm horizontal, gripper down and closed), confirm, then gently sweep each joint all the way to both of its stops — gripper, wrist roll, wrist flex, elbow, shoulder lift, shoulder pan.</p></li>
-  <li><span class="st">Repeat for the leader.</span><p>Add a second robot: arm type <strong>leader</strong>, its port, name <code>brick_leader</code>. Same pose, same sweep. (The leader's "gripper" is its trigger — squeeze it fully open and closed.)</p></li>
-</ol>
-
-<h4 style="font-family: var(--sans); margin: 24px 0 4px;">Route B — Terminal (reliable fallback)</h4>
-<ol class="steps">
-  <li><span class="st">Power and connect the follower.</span><p>Correct power supply, USB into a data port. In a Terminal: <code>conda activate lerobot</code>.</p></li>
+  <li><span class="st">Power and connect both arms.</span><p>Correct power supply for each (check the tape labels!), USB into data ports. In a Terminal: <code>conda activate lerobot</code>.</p></li>
   <li><span class="st">Start the follower's calibration.</span>
-  <p>(Your port values are in the repo's <code>SETUP-LOG.md</code> — each machine has its own.)</p>
+  <p>The <code>id</code> names this arm's calibration file — pick it once and <strong>never change it</strong>. (Your port values are in the repo's <code>SETUP-LOG.md</code>.)</p>
   <pre><code>lerobot-calibrate \
     --robot.type=so101_follower \
     --robot.port=<span class="hl">FOLLOWER_PORT</span> \
     --robot.id=brick_follower</code></pre></li>
-  <li><span class="st">Hold the L-pose, press Enter.</span><p>Upright from the base, forearm horizontal, gripper down and closed — every joint near mid-range (diagram above). Then press Enter.</p></li>
+  <li><span class="st">Hold the L-pose, press Enter.</span><p>Upright from the base, forearm horizontal, gripper down and closed — every joint near mid-range (diagram above).</p></li>
   <li><span class="st">Sweep every joint to both ends, then press Enter.</span><p>One joint at a time, gently to both stops: gripper, wrist roll, wrist flex, elbow, shoulder lift, shoulder pan. The numbers on screen record each range. When all six have visited both ends, press Enter to save.</p></li>
   <li><span class="st">Repeat for the leader.</span>
   <pre><code>lerobot-calibrate \
     --teleop.type=so101_leader \
     --teleop.port=<span class="hl">LEADER_PORT</span> \
     --teleop.id=brick_leader</code></pre>
-  <p>Same pose, same sweep; the trigger is its gripper. The <code>id</code> names match LeLab's — app and terminal share calibration files, stored in <code>~/.cache/huggingface/lerobot/calibration/</code>.</p></li>
+  <p>Same pose, same sweep; the leader's "gripper" is its trigger — squeeze it fully open and closed. Files land in <code>~/.cache/huggingface/lerobot/calibration/</code> (versioned copies live in the repo's <code>hardware/calibration/</code>).</p></li>
 </ol>
 
 <div class="note">
@@ -693,9 +677,7 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
 <p>Goal of this phase: you can drive the follower smoothly with the leader, both cameras stream, and the scene is framed and fixed in place.</p>
 
 <ol class="steps">
-  <li><span class="st">Start teleoperation in LeLab (no cameras yet).</span>
-  <p>In LeLab, start teleoperation with <code>brick_leader</code> driving <code>brick_follower</code>. You get a live 3D view of both arms. Pick up the leader and move it slowly — the follower copies you.</p>
-  <details class="term"><summary>Terminal equivalent</summary>
+  <li><span class="st">Start teleoperation (no cameras yet).</span>
   <pre><code>lerobot-teleoperate \
     --robot.type=so101_follower \
     --robot.port=<span class="hl">FOLLOWER_PORT</span> \
@@ -703,8 +685,7 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
     --teleop.type=so101_leader \
     --teleop.port=<span class="hl">LEADER_PORT</span> \
     --teleop.id=brick_leader</code></pre>
-  <p>Ctrl-C stops it.</p>
-  </details></li>
+  <p>Pick up the leader and move it slowly — the follower copies you. Ctrl-C stops it.</p></li>
 
   <li><span class="st">Practice for 20 minutes.</span><p>Pick things up. Put them down. Your smoothness here is the ceiling on your data quality, and your data quality is the ceiling on your policy. Jerky puppeteering = jerky robot, forever.</p></li>
 
@@ -741,8 +722,7 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
   
 
   <li><span class="st">Rehearse: teleop with cameras.</span>
-  <p>In LeLab, attach both cameras to the follower — named exactly <code>front</code> and <code>wrist</code>, 640×480 at 30 fps — and start teleoperation. Or in the Terminal:</p>
-  <details class="term"><summary>Terminal equivalent</summary>
+  <p>The camera names <code>front</code> and <code>wrist</code> in this command matter — they're baked into every episode and the trained policy expects them forever:</p>
   <pre><code>lerobot-teleoperate \
     --robot.type=so101_follower \
     --robot.port=<span class="hl">FOLLOWER_PORT</span> \
@@ -752,8 +732,7 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
     --teleop.port=<span class="hl">LEADER_PORT</span> \
     --teleop.id=brick_leader \
     --display_data=true</code></pre>
-  </details>
-  <p>Practice the task <strong>looking only at the camera feeds — never at the robot</strong>. You are ready for Phase 4 when you can do the whole task smoothly in under 20 seconds, with the same grasp every time, several times in a row. 20+ minutes of practice is normal. Ctrl-C to stop.</p></li>
+  <p>Practice the task <strong>looking only at the camera feeds in the rerun window — never at the robot</strong>. You are ready for Phase 4 when you can do the whole task smoothly in under 20 seconds, with the same grasp every time, several times in a row. 20+ minutes of practice is normal. Ctrl-C to stop.</p></li>
 
   <li><span class="st">If teleop feels jittery, drop the live view.</span><p>The viewer costs computer power. During plain practice you can run without <code>--display_data=true</code> for smoothness — but during recording you must watch the feeds, so rehearse with the viewer on at least some of the time.</p></li>
 </ol>
@@ -825,9 +804,7 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
 
   <li><span class="st">Decide your task sentence and never change it.</span><p>Ours: <code>Pick up the brick and place it on the target square</code>. The exact wording matters little for ACT, but it must be identical at recording and at rollout. Write it in your notes.</p></li>
 
-  <li><span class="st">Start recording in LeLab.</span>
-  <p>In LeLab's recording screen, fill in the form: your task sentence, dataset name <code>brickbot_so101_place_v1</code>, <strong>50 episodes</strong>, 30-second episodes, 10-second reset time. Start. Recording of episode 1 begins: you have up to 30 seconds to do the task, then a 10-second break to reset the scene, then the next episode starts automatically. Press the <strong>spacebar</strong> to advance the moment the brick is placed — don't wait out the clock.</p>
-  <details class="term"><summary>Terminal equivalent (has per-episode redo keys)</summary>
+  <li><span class="st">Start recording.</span>
   <pre><code>lerobot-record \
     --robot.type=so101_follower \
     --robot.port=<span class="hl">FOLLOWER_PORT</span> \
@@ -842,14 +819,13 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
     --dataset.single_task="Pick up the brick and place it on the target square" \
     --dataset.episode_time_s=30 \
     --dataset.reset_time_s=10</code></pre>
+  <p>What happens: recording of episode 1 starts. You have up to 30 seconds per episode, then a 10-second break to reset the scene, then the next episode starts automatically. Three keys control everything:</p>
   <div class="tablebox"><table>
     <tr><th>Key</th><th>What it does</th></tr>
-    <tr><td class="num">→ (right arrow)</td><td>"Done" — ends the episode now and accepts it.</td></tr>
+    <tr><td class="num">→ (right arrow)</td><td>"Done" — ends the episode now and accepts it. Press it the moment the brick is placed.</td></tr>
     <tr><td class="num">← (left arrow)</td><td>"Redo" — throws away the current episode and restarts it. A redo is cheap, a bad episode is expensive.</td></tr>
     <tr><td class="num">ESC</td><td>Stops the whole session cleanly, saves, and uploads.</td></tr>
-  </table></div>
-  <p>If you fumble an episode in LeLab and can't redo it there, note its number and re-record via the terminal — or simply record a replacement episode; one bad episode in 50 hurts less than stopping your flow.</p>
-  </details></li>
+  </table></div></li>
 
   <li><span class="st">Record each episode by these rules.</span>
   <ul>
@@ -889,7 +865,7 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
   <li><span class="st">Choose where to train.</span>
   <div class="tablebox"><table>
     <tr><th>Option</th><th>When</th><th>Time (50k steps)</th></tr>
-    <tr><td><strong>HF Jobs on an A100</strong> ⭐ — add <code>--job.target=a100-large</code> to the train command, or start it from inside LeLab with live charts</td><td>Default choice. Launched from the Mac, paid per second from your HF credit, nothing to maintain.</td><td class="num">~30–60 min</td></tr>
+    <tr><td><strong>HF Jobs on an A100</strong> ⭐ — add <code>--job.target=a100-large</code> to the train command</td><td>Default choice. Launched from the Mac, paid per second from your HF credit, nothing to maintain.</td><td class="num">~30–60 min</td></tr>
     <tr><td><strong>HF Jobs on an A10G</strong> — <code>--job.target=a10g-small</code></td><td>Cheaper per run for small datasets; fine for a first test</td><td class="num">~1–2 h</td></tr>
     <tr><td><strong>Google Colab</strong> — cloud notebook</td><td>Backup if Jobs is unavailable</td><td class="num">~1–3 h</td></tr>
     <tr><td><strong>Mac (Apple Silicon)</strong> — <code>--policy.device=mps</code></td><td>Last resort / overnight sanity runs</td><td class="num">overnight</td></tr>
@@ -906,7 +882,7 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
   <p>Don't want it? Use <code>--wandb.enable=false</code> in the next step.</p></li>
 
   <li><span class="st">Run the training command — from the Mac's Terminal.</span>
-  <p>The <code>--job.target</code> flag sends the run to the cloud A100; the <code>HF_NAMESPACE</code> prefix bills it to the org. Dataset and policy live under <code>sammy-labs</code> so the whole team can use them. Alternative: start the same job by clicking inside LeLab, which shows live charts.</p>
+  <p>The <code>--job.target</code> flag sends the run to the cloud A100; the <code>HF_NAMESPACE</code> prefix bills it to the org. Dataset and policy live under <code>sammy-labs</code> so the whole team can use them.</p>
   <pre><code>HF_NAMESPACE=sammy-labs lerobot-train \
   --dataset.repo_id=sammy-labs/brickbot_so101_place_v1 \
   --policy.type=act \
@@ -940,8 +916,7 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
   <li><span class="st">Find the exact trained brick position (Terminal step).</span><p>Run the replay command from Phase 4 on episode 0 and watch where the gripper goes to pick. Place the brick exactly there. This reconstructs a scene the policy definitely knows.</p></li>
 
   <li><span class="st">Let the robot take over.</span>
-  <p>In LeLab, pick your trained model (<code>brickbot_act_v1</code>) and run it on the robot. Enter the <strong>exact task sentence from recording</strong>. The leader arm stays on the shelf — the policy is driving now.</p>
-  <details class="term"><summary>Terminal equivalent</summary>
+  <p>The leader arm stays on the shelf — the policy is driving now. Camera names (<code>front</code>, <code>wrist</code>) and the task sentence must match recording exactly:</p>
   <pre><code>lerobot-rollout \
   --strategy.type=episodic \
   --policy.path=sammy-labs/brickbot_act_v1 \
@@ -950,9 +925,7 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
   --robot.id=brick_follower \
   --robot.cameras="{ front: {type: opencv, index_or_path: <span class="hl">0</span>, width: 640, height: 480, fps: 30}, wrist: {type: opencv, index_or_path: <span class="hl">1</span>, width: 640, height: 480, fps: 30}}" \
   --task="Pick up the brick and place it on the target square" \
-  --duration=60</code></pre>
-  <p>Camera names (<code>front</code>, <code>wrist</code>) and the task sentence must match recording exactly.</p>
-  </details></li>
+  --duration=60</code></pre></li>
 
   <li><span class="st">Judge the result by this rule.</span>
   <ul>
@@ -1066,7 +1039,7 @@ Carries over: the whole LeRobot pipeline, your recording rig and habits, trainin
 <table>
   <tr><th>Problem</th><th>Cause → fix</th></tr>
   <tr><td>"command not found" for any <code>lerobot-…</code> command</td><td>The environment isn't active in this Terminal window → <code>conda activate lerobot</code></td></tr>
-  <tr><td>LeLab misbehaves or a flow gets stuck</td><td>Fall back to the "Terminal equivalent" box in the same step — app and CLI share the same calibration files and datasets, so nothing is lost switching between them</td></tr>
+  
   <tr><td><code>lerobot-find-port</code> finds nothing</td><td>Charge-only USB cable (swap it); board not powered; Waveshare board jumpers not on channel B</td></tr>
   <tr><td>Servo not found during motor setup</td><td>More than one servo connected — connect exactly ONE; check the 3-pin cable is seated</td></tr>
   <tr><td>Permission denied on the port (Linux)</td><td><code>sudo chmod 666 /dev/ttyACM*</code> now; <code>sudo usermod -aG dialout $USER</code> + log out/in, forever</td></tr>
@@ -1086,7 +1059,7 @@ Carries over: the whole LeRobot pipeline, your recording rig and habits, trainin
 <!-- ================================================================ -->
 <h2 id="sources">Sources</h2>
 <ul style="font-family: var(--sans); font-size: 14.5px;">
-  <li><strong>Official docs:</strong> <a href="https://huggingface.co/docs/lerobot/so101">SO-101 assembly &amp; calibration</a> · <a href="https://huggingface.co/docs/lerobot/installation">Installation</a> · <a href="https://huggingface.co/docs/lerobot/il_robots">Teleop, record, train, rollout</a> · <a href="https://huggingface.co/docs/lerobot/cameras">Cameras</a> · <a href="https://huggingface.co/docs/lerobot/main/en/lelab">LeLab</a> · <a href="https://huggingface.co/docs/lerobot/smolvla">SmolVLA</a> · <a href="https://github.com/huggingface/lerobot/releases">Release notes</a></li>
+  <li><strong>Official docs:</strong> <a href="https://huggingface.co/docs/lerobot/so101">SO-101 assembly &amp; calibration</a> · <a href="https://huggingface.co/docs/lerobot/installation">Installation</a> · <a href="https://huggingface.co/docs/lerobot/il_robots">Teleop, record, train, rollout</a> · <a href="https://huggingface.co/docs/lerobot/cameras">Cameras</a> · <a href="https://huggingface.co/docs/lerobot/smolvla">SmolVLA</a> · <a href="https://github.com/huggingface/lerobot/releases">Release notes</a></li>
   <li><strong>Hardware:</strong> <a href="https://github.com/TheRobotStudio/SO-ARM100">TheRobotStudio/SO-ARM100</a> · <a href="https://wiki.seeedstudio.com/lerobot_so100m/">Seeed wiki</a> (power-supply warning)</li>
   <li><strong>Trelis Research series (technique):</strong> <a href="https://www.youtube.com/watch?v=JjCUX4sxrJQ">Part 1 — hardware &amp; concepts</a> · <a href="https://www.youtube.com/watch?v=ZW8OiBGAe0M">Part 2 — how the models work</a> · <a href="https://www.youtube.com/watch?v=-tkEMLOLEwo">Part 3 — full training walkthrough</a> · your local repo <code>~/Code/sammy/ADVANCED-robotics/Training/</code> (modernized commands on its <code>modernize-lerobot-v0.6</code> branch)</li>
   <li><strong>Cloud training:</strong> <a href="https://colab.research.google.com/github/huggingface/notebooks/blob/main/lerobot/training-act.ipynb">ACT Colab notebook</a> · <a href="https://colab.research.google.com/github/huggingface/notebooks/blob/main/lerobot/training-smolvla.ipynb">SmolVLA Colab notebook</a></li>
