@@ -813,11 +813,12 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
     --teleop.id=brick_leader \
     --display_data=true \
     --dataset.repo_id=sammy-labs/brickbot_so101_wall_v1 \
+    --dataset.no_stamp=true \
     --dataset.num_episodes=50 \
     --dataset.single_task="build the block wall on the green mat in the order yellow, pink, orange: yellow and pink end to end, orange on top of both." \
     --dataset.episode_time_s=60 \
     --dataset.reset_time_s=25</code></pre>
-  <p>What happens: recording of episode 1 starts. You have up to 60 seconds per episode (the wall takes longer than a single placement — end early with → when the orange block settles), then a 25-second break to reset all three blocks to their homes, then the next episode starts automatically. Three keys control everything:</p>
+  <p>(<code>no_stamp</code> matters: without it, LeRobot appends a date-time tag to the dataset name, and every command that expects <code>brickbot_so101_wall_v1</code> misses it.) What happens: recording of episode 1 starts. You have up to 60 seconds per episode (the wall takes longer than a single placement — end early with → when the orange block settles), then a 25-second break to reset all three blocks to their homes, then the next episode starts automatically. Three keys control everything:</p>
   <div class="tablebox"><table>
     <tr><th>Key</th><th>What it does</th></tr>
     <tr><td class="num">→ (right arrow)</td><td>"Done" — ends the episode now and accepts it. Press it the moment the brick is placed.</td></tr>
@@ -872,40 +873,18 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
   <li><span class="st">One-time check: Jobs access, org billing, and the exact hardware names.</span>
   <p>The credits live in the <strong><a href="https://huggingface.co/sammy-labs">sammy-labs</a> org</strong>, so jobs must run under that namespace — billing follows the namespace. Confirm access and list GPU flavors with current prices:</p>
   <pre><code>hf jobs hardware</code></pre>
-  <p>Find the A100 entry and note its exact flavor name — this guide assumes <code>a100-large</code>; if the listing shows a different name, use that. The training command below sets <code>HF_NAMESPACE=sammy-labs</code> so the job runs (and bills) under the org — <strong>after your first run, check it appears on the org's Jobs page</strong>, which is the proof billing landed on the org credit, not your personal account. Two prerequisites: your org membership must have <strong>write</strong> permission, and if your access token is the fine-grained kind, it must include sammy-labs org access (a 403 on push = recreate the token with org scope). Useful companions: <code>hf jobs logs &lt;job-id&gt;</code>, <code>hf jobs cancel &lt;job-id&gt;</code> (billing stops with it), <code>--job.timeout=4h</code> as a runaway guard.</p></li>
+  <p>Find the A100 entry and note its exact flavor name — this guide assumes <code>a100-large</code>; if the listing shows a different name, use that. The training script (step 4) injects the org namespace so the job runs — and bills — under sammy-labs rather than your personal account. Two prerequisites: your org membership must have <strong>write</strong> permission, and if your access token is the fine-grained kind, it must include sammy-labs org access (a 403 on push = recreate the token with org scope). Useful companions: <code>hf jobs logs &lt;job-id&gt;</code>, <code>hf jobs cancel &lt;job-id&gt;</code> (billing stops with it), <code>--job.timeout=4h</code> as a runaway guard.</p></li>
 
   <li><span class="st">Create a free Weights &amp; Biases account (recommended).</span>
   <p>It gives you live charts of training progress. Sign up at <a href="https://wandb.ai">wandb.ai</a>, then in the Terminal:</p>
   <pre><code>wandb login   <span class="c"># paste the API key from wandb.ai/authorize</span></code></pre>
   <p>Don't want it? Use <code>--wandb.enable=false</code> in the next step.</p></li>
 
-  <li><span class="st">Run the training command — from the Mac's Terminal.</span>
-  <p>This fine-tunes <strong>NVIDIA GR00T N1.7</strong> (3B params, <code>--policy.type=groot</code>, native in LeRobot since July 2026) on your dataset, on a cloud A100 billed to the org. GR00T fine-tuning wants ~40 GB VRAM — the A100 (80 GB) is comfortably sized; smaller flavors are not.</p>
-  <pre><code>HF_NAMESPACE=sammy-labs lerobot-train \
-  --dataset.repo_id=sammy-labs/brickbot_so101_wall_v1 \
-  --dataset.image_transforms.enable=true \
-  --policy.type=groot \
-  --policy.base_model_path=nvidia/GR00T-N1.7-3B \
-  --policy.embodiment_tag=new_embodiment \
-  --policy.chunk_size=16 \
-  --policy.n_action_steps=16 \
-  --policy.use_relative_actions=true \
-  --policy.relative_exclude_joints='["gripper"]' \
-  --policy.use_bf16=true \
-  --use_policy_training_preset=true \
-  --batch_size=64 \
-  --steps=20000 \
-  --seed=42 \
-  --output_dir=outputs/train/brickbot_groot_v1 \
-  --job_name=brickbot_groot_v1 \
-  --job.target=<span class="hl">a100-large</span> \
-  --job.timeout=8h \
-  --wandb.enable=true \
-  --wandb.disable_artifact=true \
-  --policy.push_to_hub=true \
-  --policy.repo_id=sammy-labs/brickbot_groot_v1 \
-  --save_checkpoint_to_hub=true</code></pre>
-  <p>Differences from small-model training worth knowing: <strong>image augmentation is ON</strong> (<code>image_transforms.enable=true</code> — recommended for VLA fine-tuning, unlike from-scratch ACT where it hurt small datasets); chunking is 16 predicted / 16 trained (you'll execute 8 at rollout); actions are relative (except the gripper); bf16 keeps the 3B model inside memory; ~20,000 steps at batch 64 is NVIDIA's reference recipe. Expect a few hours on the A100.</p></li>
+  <li><span class="st">Run the training script — from the Mac's Terminal.</span>
+  <p>One command; it fine-tunes <strong>NVIDIA GR00T N1.7</strong> on your dataset on a cloud A100 <strong>billed to the sammy-labs org</strong>:</p>
+  <pre><code>conda run -n lerobot python scripts/train_wall_groot.py          <span class="c"># full run, 20,000 steps</span>
+conda run -n lerobot python scripts/train_wall_groot.py 2000     <span class="c"># cheap smoke test first</span></code></pre>
+  <p>Why a script: LeRobot's job submitter has no org-namespace option — it always bills the personal account (which has no credits → "402 Payment Required"). The script injects <code>namespace=sammy-labs</code> into the job API before launching the standard trainer, and carries the full GR00T recipe: image augmentation ON (right for VLA fine-tuning), chunk 16/16 (execute 8 at rollout), relative actions except the gripper, bf16, batch 64, checkpoints pushed to the Hub mid-run. It streams the job's logs in your terminal; the policy lands at <code>sammy-labs/brickbot_groot_v1</code>. Expect a few hours for the full run. Confirm after the first submission that the job shows on the <a href="https://huggingface.co/sammy-labs">org's</a> Jobs page — that's the proof it's billing org credit.</p></li>
 
   <li><span class="st">Watch the loss go down.</span><p>On the wandb page, watch the loss chart. Good: falls steeply, then flattens. Fine-tuning loss won't reach zero — flat is the signal, not small. When it's been flat for a long while, further training buys nothing — better data beats more steps, always.</p></li>
 
