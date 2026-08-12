@@ -17,7 +17,7 @@ The SO-101 can lift roughly **200–500 g**. A standard clay brick weighs **1.9�
 
 | Stage | What | Hardware | Cost |
 |---|---|---|---|
-| 1 (now) | Miniature masonry: wooden stacking-tower (Jenga-style) blocks → 1:12–1:6 kiln-fired clay minis; running-bond courses with even 3–5 mm gaps; endgame: rebuild the tower | SO-101 | ~$0–50 |
+| 1 (now) | Miniature masonry with wooden stacking-tower blocks, policy = GR00T N1.7 fine-tune; first task: three-block wall (yellow + pink end to end, orange bridging) → courses with even gaps → rebuild the tower; later: 1:12–1:6 kiln-fired clay minis | SO-101 | ~$0–50 |
 | 2 | Half-scale real fired bricks (250–400 g) — the SO-101's ceiling; wider printed gripper, recovery demos | SO-101 | ~$50–150 |
 | 3 | Adhesive skills: servo-triggered glue-gun end effector, bead extrusion practice (hot glue → PU foam) | SO-101 → next arm | ~$100 |
 | 4 | Real masonry: **AAC blocks + thin-bed/PU adhesive on AgileX PiPER (~$2.5k)**; standard clay brick needs Unitree Z1 (~$15k) / UR5e ($30k+) | PiPER / Z1 / UR5e | $3k–40k |
@@ -30,14 +30,13 @@ Details: [docs/10-brick-curriculum.md](docs/10-brick-curriculum.md)
 
 - [ ] Phase 0 — kit sorted, power supplies labeled, extras ordered
 - [x] Phase 1 — Mac: LeRobot 0.6.1 installed in conda env `lerobot` (Python 3.12, torch 2.11 + MPS, all `lerobot-*` commands verified, 2026-08-04)
-- [x] Phase 1 — LeLab installed (`lelab` command available)
 - [x] Phase 1 — HF account + `hf auth login` on the Mac (logged in as `vik101`, 2026-08-04) — **Phase 1 complete ✓**
 - [x] Training compute — **sammy-labs org credit; training runs on a cloud A100 via HF Jobs under `HF_NAMESPACE=sammy-labs`** (plan changed 2026-08-11; RTX-PC plan retired)
 - [x] wandb account created + logged in on the Mac as `vikramt-sammy` (2026-08-04)
 - [x] Phase 2 — ports found, 12 motor IDs programmed, arms assembled, both arms calibrated (2026-08-10; calibration versioned in `hardware/calibration/`) — **Phase 2 complete ✓**
 - [ ] Phase 3 — teleop works, cameras mounted and framed, everything fixed in place
 - [ ] Phase 4 — 50-episode dataset recorded and replay-checked
-- [ ] Phase 5 — first ACT policy trained, loss flattened
+- [ ] Phase 5 — GR00T N1.7 fine-tuned on the cloud A100, loss flattened
 - [ ] Phase 6 — rollout succeeds at trained position 8+/10
 
 Next action: [Phase 0 — prepare the kit](docs/03-phase0-prepare.md).
@@ -54,21 +53,21 @@ Next action: [Phase 0 — prepare the kit](docs/03-phase0-prepare.md).
 
 ## Repo map
 
-> **Workflow convention:** day-to-day driving of the robot (calibration, teleop, recording, rollout) happens in **LeLab**, Hugging Face's official app for this arm (installed in Phase 1). The Terminal is for one-time setup, launching cloud training, and debugging — collapsed "Terminal equivalent" blocks in the phase docs hold the command fallbacks.
+> **Workflow convention:** everything runs from the Terminal with copy-paste commands — each phase doc gives the exact command and what to expect. Machine-specific values (ports, camera indices) live in [SETUP-LOG.md](SETUP-LOG.md).
 
 ### The guide (follow in order)
 
 | Doc | Contents |
 |---|---|
 | [00 — Glossary](docs/00-glossary.md) | Plain-language definitions of every term used |
-| [01 — Concepts](docs/01-concepts.md) | How imitation learning, teleop, ACT, and chunking work |
+| [01 — Concepts](docs/01-concepts.md) | How imitation learning, teleop, GR00T, and chunking work |
 | [02 — Version drift](docs/02-version-drift.md) | ⚠️ Old tutorials are everywhere — command translation table |
 | [03 — Phase 0: Prepare](docs/03-phase0-prepare.md) | Sort the kit, power-supply warning, gear codes, shopping list |
 | [04 — Phase 1: Software](docs/04-phase1-software.md) | Miniconda → LeRobot → Hugging Face account |
 | [05 — Phase 2: Build & calibrate](docs/05-phase2-build-calibrate.md) | Ports, motor IDs, assembly, calibration |
 | [06 — Phase 3: Teleop & cameras](docs/06-phase3-teleop-cameras.md) | Drive the robot by hand, set up cameras, frame the scene |
 | [07 — Phase 4: Recording](docs/07-phase4-recording.md) | Record ~50 demonstrations, quality-check, upload |
-| [08 — Phase 5: Training](docs/08-phase5-training.md) | Train the ACT policy on a cloud A100 via HF Jobs (launched from the Mac) |
+| [08 — Phase 5: Training](docs/08-phase5-training.md) | Fine-tune GR00T N1.7 on a cloud A100 via HF Jobs (launched from the Mac) |
 | [09 — Phase 6: Rollout](docs/09-phase6-rollout.md) | Run the policy, evaluate it the right way |
 | [10 — Brick curriculum](docs/10-brick-curriculum.md) | Stages 1–4 in full detail |
 | [11 — Mortar research](docs/11-mortar-research.md) | What the industry uses instead of mortar |
@@ -89,8 +88,9 @@ Next action: [Phase 0 — prepare the kit](docs/03-phase0-prepare.md).
 - Camera names: `front` / `wrist` at 640×480 @ 30 fps
 - HF username: `vik101` (login identity). Team org: `sammy-labs` — datasets, policies, and the HF Jobs training credit all live there (`HF_NAMESPACE=sammy-labs` on train commands)
 - **Org demarcation rule: every repo this project pushes to `sammy-labs` is prefixed `brickbot_`** (datasets, policies, eval runs — no exceptions). Other teams share the org; the prefix is our namespace within it. A "Brick-Laying Robot" Collection on the org page groups all `brickbot_*` repos for discoverability.
-- First dataset: `sammy-labs/brickbot_so101_place_v1`, task string `"Pick up the brick and place it on the target square"`
-- First policy: `sammy-labs/brickbot_act_v1`
+- Policy: **NVIDIA GR00T N1.7** (`nvidia/GR00T-N1.7-3B` fine-tuned via `--policy.type=groot`)
+- First dataset: `sammy-labs/brickbot_so101_wall_v1`, task string `"build the block wall on the green mat in the order yellow, pink, orange: yellow and pink end to end, orange on top of both."`
+- First policy: `sammy-labs/brickbot_groot_v1`
 - Placeholders `FOLLOWER_PORT` / `LEADER_PORT` are your USB port paths from Phase 2
 
 *Compiled 2026-08-04 against LeRobot v0.6.1. If a command errors, check [version drift](docs/02-version-drift.md) first.*

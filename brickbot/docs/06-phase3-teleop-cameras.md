@@ -4,9 +4,7 @@
 
 **Goal:** you can drive the follower smoothly with the leader, both cameras stream, and the scene is framed and fixed in place.
 
-1. **Start teleoperation in LeLab (no cameras yet).** In LeLab, start teleoperation with `brick_leader` driving `brick_follower`. You get a live 3D view of both arms. Pick up the leader and move it slowly — the follower copies.
-
-   <details><summary>Terminal equivalent</summary>
+1. **Start teleoperation (no cameras yet):**
 
    ```bash
    lerobot-teleoperate \
@@ -18,9 +16,7 @@
        --teleop.id=brick_leader
    ```
 
-   Ctrl-C stops.
-
-   </details>
+   Pick up the leader and move it slowly — the follower copies. Ctrl-C stops.
 
 2. **Practice for 20 minutes.** Pick things up, put them down. Your smoothness here is the ceiling on your data quality, and data quality is the ceiling on the policy. Jerky puppeteering = jerky robot, forever.
 
@@ -55,9 +51,7 @@
 
 8. **Lock the front camera's settings:** `scripts/lock_front_camera.sh` (run with no camera app open). The Acer A610 is fixed-focus, and its *manual white balance is broken* (green cast — so WB stays auto; harmless under fixed lighting). What the script locks is **exposure**: it measures the auto-exposure brightness baseline, switches to manual, and binary-searches the exposure value until brightness matches — then fixes the frame rate. Unlocked exposure pulses brighter/darker as the dark arm crosses the white table — noise in every frame. ⚠️ UVC settings can reset on replug/reboot, and the right exposure depends on lighting — **run the script at the start of every recording session, after scene + lighting are final.** (`--auto` reverts to full auto. Uses [uvc-util](https://github.com/jtfrey/uvc-util), built to `~/.local/bin`.)
 
-9. **Rehearse: teleop with cameras.** In LeLab, attach both cameras to the follower — named exactly `front` and `wrist`, 640×480 at 30 fps — and start teleoperation. Practice the task **looking only at the camera feeds — never at the robot**. Ready for Phase 4 when: the whole task, smoothly, in under 20 seconds, same grasp every time, several times in a row. 20+ minutes of practice is normal.
-
-   <details><summary>Terminal equivalent</summary>
+9. **Rehearse: teleop with cameras.** The camera names `front` and `wrist` in this command matter — they're baked into every episode and the trained policy expects them forever:
 
    ```bash
    lerobot-teleoperate \
@@ -71,7 +65,7 @@
        --display_data=true
    ```
 
-   </details>
+   Practice the task **looking only at the camera feeds in the rerun window — never at the robot**. Ready for Phase 4 when: the whole wall built smoothly in under ~50 seconds — same build order (yellow, pink, orange), same grasps, no bumped blocks — several times in a row. 20+ minutes of practice is normal. Ctrl-C to stop.
 
 10. **If teleop feels jittery, drop the live view.** The viewer costs compute; practice without `--display_data=true` for smoothness if needed. During recording you must watch the feeds — [Phase 4](07-phase4-recording.md) explains why — so rehearse with the viewer on at least some of the time.
 
