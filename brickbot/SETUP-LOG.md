@@ -30,7 +30,7 @@ Calibration files are versioned in [`hardware/calibration/`](hardware/calibratio
 
 | Camera | Model | Index / path | Mounted |
 |---|---|---|---|
-| front (main) | Acer 1080p webcam (B0GJD6PHTZ) | **0** (recorded 2026-08-12) | _pending_ — fixed-focus; lock exposure+WB each session via `scripts/lock_front_camera.sh` (locked 2026-08-12: exposure 157, WB 4600K) |
+| front (main) | Acer 1080p webcam (B0GJD6PHTZ) | **0** (recorded 2026-08-12) | _pending_ — fixed-focus; lock via `scripts/lock_front_camera.sh` each session — auto-calibrates manual exposure to match auto baseline; WB stays AUTO (manual WB broken, see lesson) |
 | wrist | InnoMaker U20CAM-1080P (32×32) | **1** (recorded 2026-08-12) | _pending_ — official SO-ARM101 printed mount |
 
 ⚠️ Note: this is the REVERSE of the guide's original examples (which assumed front=1, wrist=0). All doc examples were flipped to match on 2026-08-12. Indices can reshuffle if cameras change USB sockets — re-check with `lerobot-find-cameras opencv` after any replug.
@@ -46,4 +46,5 @@ Calibration files are versioned in [`hardware/calibration/`](hardware/calibratio
 
 - Mac (robot machine): conda env `lerobot`, LeRobot 0.6.1, HF `vik101`, wandb `vikramt-sammy` — ready 2026-08-04
 - Training: **HF Jobs cloud A100** (`--job.target=a100-large`), paid from the sammy-labs org credit (jobs launched with `HF_NAMESPACE=sammy-labs`) — plan of record since 2026-08-11. Verify flavor names/prices with `hf jobs hardware`. (PC "Shav", 2× RTX 3090 + WSL2, retired from the plan; its env setup was never completed.)
+- ⚠️ Lesson (2026-08-12): the Acer A610's MANUAL white balance is broken — AWB off = strong green cast (green-ratio 1.42 vs 1.00 auto), temperature value ignored. WB must stay auto. Manual exposure works but applies a wrong stored value; `scripts/lock_front_camera.sh` binary-searches exposure to match the auto-exposure brightness baseline (found: ~46-50 under current lighting). Re-run after any lighting change.
 - ⚠️ Lesson (2026-08-11): follower gripper not tracking the trigger → the leader trigger horn screw was loose (lever moved, servo shaft did not). Diagnosed by live-reading Present_Position — frozen value = mechanical decoupling. After re-seating any horn, recalibrate that arm and re-export to hardware/calibration/.
