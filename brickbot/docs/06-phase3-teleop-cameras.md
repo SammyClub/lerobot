@@ -49,7 +49,7 @@
 
    Leave the viewer running while you adjust. When it's right, don't touch anything and go to the next step.
 
-6. **Lock the front camera's settings.** The Acer is a generic UVC camera (no vendor app). Use [CameraController](https://github.com/Itaybre/CameraController) (GUI) or [uvc-util](https://github.com/jtfrey/uvc-util) (CLI): autofocus **OFF** with manual focus at block distance (if the camera exposes focus control at all — test for hunting first by moving a hand toward the lens in the alignment viewer), auto-exposure **OFF**, auto white balance **OFF**. Otherwise the image pulses brighter/darker as the dark arm crosses the white table — noise in every frame. ⚠️ Generic UVC settings can reset on replug/reboot — re-check the lock at the start of every recording session.
+6. **Lock the front camera's settings:** `scripts/lock_front_camera.sh`. The Acer A610 is fixed-focus (nothing to lock there); the script freezes exposure + white balance at whatever auto last converged on, via [uvc-util](https://github.com/jtfrey/uvc-util) (built to `~/.local/bin`). After a lighting change: `--auto` to re-converge, stream ~10 s, run again to freeze (see script header). Unlocked, the image pulses brighter/darker as the dark arm crosses the white table — noise in every frame. ⚠️ UVC settings can reset on replug/reboot — **run the script at the start of every recording session.**
 
 7. **Fix everything in place. Permanently.** Tighten the camera arm's knobs. Tape the cables. Check the follower's clamp. From this moment until the policy runs, **nothing about the cameras or the arm's position may change.** A camera nudged 2 cm invalidates every recorded episode.
 

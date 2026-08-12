@@ -30,7 +30,7 @@ Calibration files are versioned in [`hardware/calibration/`](hardware/calibratio
 
 | Camera | Model | Index / path | Mounted |
 |---|---|---|---|
-| front (main) | Acer 1080p webcam (B0GJD6PHTZ) | **0** (recorded 2026-08-12) | _pending_ — lock focus/exposure/WB via CameraController or uvc-util (UVC settings may reset on replug — re-check each session) |
+| front (main) | Acer 1080p webcam (B0GJD6PHTZ) | **0** (recorded 2026-08-12) | _pending_ — fixed-focus; lock exposure+WB each session via `scripts/lock_front_camera.sh` (locked 2026-08-12: exposure 157, WB 4600K) |
 | wrist | InnoMaker U20CAM-1080P (32×32) | **1** (recorded 2026-08-12) | _pending_ — official SO-ARM101 printed mount |
 
 ⚠️ Note: this is the REVERSE of the guide's original examples (which assumed front=1, wrist=0). All doc examples were flipped to match on 2026-08-12. Indices can reshuffle if cameras change USB sockets — re-check with `lerobot-find-cameras opencv` after any replug.
