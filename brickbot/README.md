@@ -50,7 +50,7 @@ Next action: [Phase 0 — prepare the kit](docs/03-phase0-prepare.md).
 - Still to buy: 2× USB webcams, powered USB hub, table clamp, wrist camera mount
 - Stage-1 bricks on hand: wooden stacking-tower (Jenga-style) blocks (Flying Tiger) — ~10–20 g each, fits the gripper; later upgrade: kiln-fired 1:12 clay minis
 - Training compute: **Hugging Face Jobs (cloud A100), paid from loaded HF credit** — launched from the Mac; see Phase 5. (PC "Shav" with 2× RTX 3090 exists but is no longer part of the plan.)
-- Front camera: Logitech StreamCam (from home) — lock its autofocus via Logi Tune before recording. Wrist camera: use the kit's camera if it is a small board cam; otherwise buy a small wide-angle fixed-focus UVC board cam (~$30, e.g. InnoMaker 130°).
+- Front camera: **Acer 1080p webcam** (generic UVC — lock focus/exposure/WB via CameraController or uvc-util before recording; settings may reset on replug). Wrist camera: InnoMaker U20CAM-1080P on the printed SO-ARM101 mount. Indices in [SETUP-LOG.md](SETUP-LOG.md).
 
 ## Repo map
 

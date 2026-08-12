@@ -445,7 +445,7 @@
 
   <li><span class="st">Order the extra equipment.</span>
   <ul>
-    <li><strong>Front camera: already sorted ✓</strong> — your Logitech StreamCam. Lock its autofocus with the free Logi Tune app once framing is final (Phase 3).</li>
+    <li><strong>Front camera: already sorted ✓</strong> — the Acer 1080p webcam (generic UVC, plug-and-play).</li>
     <li><strong>Wrist camera:</strong> check the kit's included camera first — if it's a small bare board camera, use it on the wrist. If it's a full-size webcam, buy a small wide-angle (~130°) fixed-focus UVC board camera (~$30, e.g. InnoMaker). Light and small matters: every gram on the wrist eats payload.</li>
     <li><strong>A powered USB hub</strong> — you will plug in 4 devices (2 arms, 2 cameras).</li>
     <li><strong>A clamp</strong> to fix the follower's base to the desk.</li>
@@ -716,7 +716,7 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
   <li><span class="st">Mount the cameras.</span>
   <ul>
     <li><strong>Wrist camera:</strong> on the arm near the gripper, looking at what the gripper is about to grab. Screw it down hard — glue it if it wobbles.</li>
-    <li><strong>Front camera</strong> (the StreamCam): on the desk-clamp camera arm, high and looking steeply down, so the table fills the frame and nothing beyond the table's back edge is visible.</li>
+    <li><strong>Front camera</strong> (the Acer webcam): on the desk-clamp camera arm, high and looking steeply down, so the table fills the frame and nothing beyond the table's back edge is visible.</li>
   </ul></li>
 
   <li><span class="st">Open the live alignment view and frame the scene.</span>
@@ -730,7 +730,7 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
   </ul>
   <p>Leave the viewer running while you adjust. When it's right, don't touch anything and go to the next step.</p></li>
 
-  <li><span class="st">Lock the front camera's settings in Logi Tune.</span><p>Open the <strong>Logi Tune</strong> app (free from Logitech) → select the StreamCam → autofocus <strong>OFF</strong>, focus set manually to the block distance → auto-exposure <strong>OFF</strong> → auto white balance <strong>OFF</strong>. Without this, the image pulses brighter and darker as the dark arm crosses the white table — noise in every frame.</p></li>
+  <li><span class="st">Lock the front camera's settings.</span><p>The Acer is a generic UVC camera (no vendor app). Use <a href="https://github.com/Itaybre/CameraController">CameraController</a> (GUI) or <a href="https://github.com/jtfrey/uvc-util">uvc-util</a> (CLI): autofocus <strong>OFF</strong> with focus set manually to the block distance (if the camera exposes focus control at all — test for hunting by moving a hand toward the lens in the alignment viewer), auto-exposure <strong>OFF</strong>, auto white balance <strong>OFF</strong>. Without this, the image pulses brighter and darker as the dark arm crosses the white table — noise in every frame. ⚠️ Generic UVC settings can reset on replug or reboot — re-check the lock at the start of every recording session.</p></li>
 
   <li><span class="st">Fix everything in place. Permanently.</span><p>Tighten the camera arm's knobs. Tape the cables. Check the follower's clamp. From this moment until your policy runs, <strong>nothing about the cameras or the arm's position may change</strong>. A camera nudged 2 cm invalidates every episode you've recorded.</p></li>
 
