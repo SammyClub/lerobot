@@ -19,7 +19,7 @@
      --robot.type=so101_follower \
      --robot.port=FOLLOWER_PORT \
      --robot.id=brick_follower \
-     --robot.cameras="{ front: {type: opencv, index_or_path: 1, width: 640, height: 480, fps: 30}, wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}}" \
+     --robot.cameras="{ front: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}, wrist: {type: opencv, index_or_path: 1, width: 640, height: 480, fps: 30}}" \
      --task="Pick up the brick and place it on the target square" \
      --duration=60
    ```

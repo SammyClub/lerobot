@@ -39,7 +39,7 @@
 5. **Open the live alignment view and frame the scene.** The repo has a purpose-built tool ([scripts/camera_align.py](../scripts/camera_align.py)) that shows both cameras live in the rerun viewer:
 
    ```bash
-   python scripts/camera_align.py --front 1 --wrist 0 --width 640 --height 480
+   python scripts/camera_align.py --front 0 --wrist 1 --width 640 --height 480
    ```
 
    While watching it, arrange the world until the front camera sees *only* what matters:
@@ -64,7 +64,7 @@
        --robot.type=so101_follower \
        --robot.port=FOLLOWER_PORT \
        --robot.id=brick_follower \
-       --robot.cameras="{ front: {type: opencv, index_or_path: 1, width: 640, height: 480, fps: 30}, wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}}" \
+       --robot.cameras="{ front: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}, wrist: {type: opencv, index_or_path: 1, width: 640, height: 480, fps: 30}}" \
        --teleop.type=so101_leader \
        --teleop.port=LEADER_PORT \
        --teleop.id=brick_leader \

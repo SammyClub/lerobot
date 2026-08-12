@@ -711,7 +711,7 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
   <li><span class="st">Plug in both cameras and identify them.</span>
   <p>This one is a Terminal step — the tool saves a snapshot from each camera, which is the easiest way to tell them apart:</p>
   <pre><code>lerobot-find-cameras opencv</code></pre>
-  <p>It lists each camera with a number (its "index"). Open the saved snapshots to see which number is which. Write down: wrist camera index = __, front camera index = __. The laptop's built-in camera also appears — ignore it. <strong>The commands below assume wrist = 0, front = 1 — change them if yours differ.</strong></p></li>
+  <p>It lists each camera with a number (its "index"). Open the saved snapshots to see which number is which. Write down: wrist camera index = __, front camera index = __. The laptop's built-in camera also appears — ignore it. <strong>The commands below assume front = 0, wrist = 1 (this station's real values, recorded in SETUP-LOG.md) — change them if yours differ.</strong></p></li>
 
   <li><span class="st">Mount the cameras.</span>
   <ul>
@@ -721,7 +721,7 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
 
   <li><span class="st">Open the live alignment view and frame the scene.</span>
   <p>The repo has a purpose-built tool for this (<code>scripts/camera_align.py</code>) — it shows both cameras live in the rerun viewer:</p>
-  <pre><code>python scripts/camera_align.py --front <span class="hl">1</span> --wrist <span class="hl">0</span> --width 640 --height 480</code></pre>
+  <pre><code>python scripts/camera_align.py --front <span class="hl">0</span> --wrist <span class="hl">1</span> --width 640 --height 480</code></pre>
   <p>While watching it, physically arrange the world until the front camera sees <em>only</em> what matters:</p>
   <ul>
     <li>The brick, the target area, and the follower arm: fully visible at all times.</li>
@@ -743,7 +743,7 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
     --robot.type=so101_follower \
     --robot.port=<span class="hl">FOLLOWER_PORT</span> \
     --robot.id=brick_follower \
-    --robot.cameras="{ front: {type: opencv, index_or_path: <span class="hl">1</span>, width: 640, height: 480, fps: 30}, wrist: {type: opencv, index_or_path: <span class="hl">0</span>, width: 640, height: 480, fps: 30}}" \
+    --robot.cameras="{ front: {type: opencv, index_or_path: <span class="hl">0</span>, width: 640, height: 480, fps: 30}, wrist: {type: opencv, index_or_path: <span class="hl">1</span>, width: 640, height: 480, fps: 30}}" \
     --teleop.type=so101_leader \
     --teleop.port=<span class="hl">LEADER_PORT</span> \
     --teleop.id=brick_leader \
@@ -828,7 +828,7 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
     --robot.type=so101_follower \
     --robot.port=<span class="hl">FOLLOWER_PORT</span> \
     --robot.id=brick_follower \
-    --robot.cameras="{ front: {type: opencv, index_or_path: <span class="hl">1</span>, width: 640, height: 480, fps: 30}, wrist: {type: opencv, index_or_path: <span class="hl">0</span>, width: 640, height: 480, fps: 30}}" \
+    --robot.cameras="{ front: {type: opencv, index_or_path: <span class="hl">0</span>, width: 640, height: 480, fps: 30}, wrist: {type: opencv, index_or_path: <span class="hl">1</span>, width: 640, height: 480, fps: 30}}" \
     --teleop.type=so101_leader \
     --teleop.port=<span class="hl">LEADER_PORT</span> \
     --teleop.id=brick_leader \
@@ -944,7 +944,7 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
   --robot.type=so101_follower \
   --robot.port=<span class="hl">FOLLOWER_PORT</span> \
   --robot.id=brick_follower \
-  --robot.cameras="{ front: {type: opencv, index_or_path: <span class="hl">1</span>, width: 640, height: 480, fps: 30}, wrist: {type: opencv, index_or_path: <span class="hl">0</span>, width: 640, height: 480, fps: 30}}" \
+  --robot.cameras="{ front: {type: opencv, index_or_path: <span class="hl">0</span>, width: 640, height: 480, fps: 30}, wrist: {type: opencv, index_or_path: <span class="hl">1</span>, width: 640, height: 480, fps: 30}}" \
   --task="Pick up the brick and place it on the target square" \
   --duration=60</code></pre>
   <p>Camera names (<code>front</code>, <code>wrist</code>) and the task sentence must match recording exactly.</p>

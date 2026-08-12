@@ -30,8 +30,10 @@ Calibration files are versioned in [`hardware/calibration/`](hardware/calibratio
 
 | Camera | Model | Index / path | Mounted |
 |---|---|---|---|
-| front | Logitech StreamCam | _pending_ | _pending_ — lock focus + exposure + white balance in Logi Tune |
-| wrist | InnoMaker U20CAM-1080P (32×32) | _pending_ | _pending_ — official SO-ARM101 printed mount |
+| front (main) | Logitech StreamCam | **0** (recorded 2026-08-12) | _pending_ — lock focus + exposure + white balance in Logi Tune |
+| wrist | InnoMaker U20CAM-1080P (32×32) | **1** (recorded 2026-08-12) | _pending_ — official SO-ARM101 printed mount |
+
+⚠️ Note: this is the REVERSE of the guide's original examples (which assumed front=1, wrist=0). All doc examples were flipped to match on 2026-08-12. Indices can reshuffle if cameras change USB sockets — re-check with `lerobot-find-cameras opencv` after any replug.
 
 ## Datasets & policies
 
