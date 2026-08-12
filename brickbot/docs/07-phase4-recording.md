@@ -23,6 +23,7 @@
        --teleop.id=brick_leader \
        --display_data=true \
        --dataset.repo_id=sammy-labs/brickbot_so101_wall_v1 \
+       --dataset.no_stamp=true \
        --dataset.num_episodes=50 \
        --dataset.single_task="build the block wall on the green mat in the order yellow, pink, orange: yellow and pink end to end, orange on top of both." \
        --dataset.episode_time_s=60 \
