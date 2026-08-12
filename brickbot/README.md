@@ -28,7 +28,7 @@ Details: [docs/10-brick-curriculum.md](docs/10-brick-curriculum.md)
 
 **Stage 1.** Progress checklist (tick as completed):
 
-- [ ] Phase 0 — kit sorted, power supplies labeled, extras ordered
+- [x] Phase 0 — kit sorted, extras acquired (blocks, cameras, mounts) — complete by 2026-08-09
 - [x] Phase 1 — Mac: LeRobot 0.6.1 installed in conda env `lerobot` (Python 3.12, torch 2.11 + MPS, all `lerobot-*` commands verified, 2026-08-04)
 - [x] Phase 1 — HF account + `hf auth login` on the Mac (logged in as `vik101`, 2026-08-04) — **Phase 1 complete ✓**
 - [x] Training compute — **sammy-labs org credit; training runs on a cloud A100 via HF Jobs under `HF_NAMESPACE=sammy-labs`** (plan changed 2026-08-11; RTX-PC plan retired)
@@ -39,14 +39,13 @@ Details: [docs/10-brick-curriculum.md](docs/10-brick-curriculum.md)
 - [ ] Phase 5 — GR00T N1.7 fine-tuned on the cloud A100, loss flattened
 - [ ] Phase 6 — rollout succeeds at trained position 8+/10
 
-Next action: [Phase 0 — prepare the kit](docs/03-phase0-prepare.md).
+Next action: finish [Phase 3](docs/06-phase3-teleop-cameras.md) — rehearse the wall build to the ~50 s bar, then record ([Phase 4](docs/07-phase4-recording.md)).
 
 ## Hardware inventory
 
 - SO-101 leader arm + follower arm, full kit, **disassembled** (Partabot, [SO-ARM101](https://partabot.com/products/so-arm101))
 - 12× Feetech STS3215 servos (6 per arm; check voltage variants — see Phase 0)
 - 2× bus-servo control boards, USB-C cables, power supplies
-- Still to buy: 2× USB webcams, powered USB hub, table clamp, wrist camera mount
 - Stage-1 bricks on hand: wooden stacking-tower (Jenga-style) blocks (Flying Tiger) — ~10–20 g each, fits the gripper; later upgrade: kiln-fired 1:12 clay minis
 - Training compute: **Hugging Face Jobs (cloud A100), paid from loaded HF credit** — launched from the Mac; see Phase 5. (PC "Shav" with 2× RTX 3090 exists but is no longer part of the plan.)
 - Front camera: **Acer 1080p webcam** (generic UVC — lock focus/exposure/WB via CameraController or uvc-util before recording; settings may reset on replug). Wrist camera: InnoMaker U20CAM-1080P on the printed SO-ARM101 mount. Indices in [SETUP-LOG.md](SETUP-LOG.md).
