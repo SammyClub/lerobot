@@ -258,7 +258,7 @@
   <label><input type="checkbox" data-k="p3a"> Teleop works; 20 min practice done (Phase 3)</label>
   <label><input type="checkbox" data-k="p3b"> Cameras mounted, framed, and fixed permanently (Phase 3)</label>
   <label><input type="checkbox" data-k="p4a"> 50-episode dataset recorded and replay-checked (Phase 4)</label>
-  <label><input type="checkbox" data-k="p5a"> ACT policy trained on the cloud A100 via HF Jobs; loss flattened (Phase 5)</label>
+  <label><input type="checkbox" data-k="p5a"> GR00T N1.7 fine-tuned on the cloud A100 via HF Jobs; loss flattened (Phase 5)</label>
   <label><input type="checkbox" data-k="p6a"> Rollout succeeds at the trained position 8+/10 (Phase 6)</label>
 </div>
 
@@ -284,7 +284,7 @@
   <tr><td><strong>Episode</strong></td><td>One recorded demonstration of the task, start to finish. About 20–30 seconds.</td></tr>
   <tr><td><strong>Dataset</strong></td><td>Your collection of episodes: camera videos plus motor angles, saved together.</td></tr>
   <tr><td><strong>Policy</strong></td><td>The trained AI model. It looks at the cameras and decides how to move the motors. "Training a policy" = creating this model from your dataset.</td></tr>
-  <tr><td><strong>ACT</strong></td><td>The specific policy type you'll train first. Small, fast, learns one task from ~50 demonstrations.</td></tr>
+  <tr><td><strong>GR00T N1.7</strong></td><td>The policy you'll train: NVIDIA's pre-trained 3B vision-language-action model, fine-tuned on your ~50 demonstrations. It reads your task sentence.</td></tr>
   <tr><td><strong>Calibration</strong></td><td>A one-time procedure that teaches each arm the limits of its joints, so both arms agree on what "elbow at 90°" means.</td></tr>
   <tr><td><strong>Hugging Face Hub</strong></td><td>A free website (like GitHub, but for AI) where your datasets and policies are stored online. LeRobot uses it automatically.</td></tr>
   
@@ -351,38 +351,36 @@
 <p>The trained policy then replaces you. At each moment it looks at: the two camera images and the six current motor angles. Nothing else — no memory, no history. It outputs a short plan of future motor angles, called a <strong>chunk</strong>:</p>
 
 <figure>
-<svg viewBox="0 0 760 130" role="img" aria-label="Diagram of action chunking: the policy predicts 50 future steps, the robot executes only the first 15, throws the rest away, and predicts again from a fresh camera image.">
+<svg viewBox="0 0 760 130" role="img" aria-label="Diagram of action chunking: the policy predicts a chunk of 16 future steps, the robot executes the first 8, throws the rest away, and predicts again from a fresh camera image.">
   <defs>
     <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
     </marker>
   </defs>
   <g>
-    <rect x="40" y="40" width="204" height="26" fill="var(--brick)" opacity="0.85" rx="3"/>
-    <rect x="244" y="40" width="476" height="26" fill="none" stroke="currentColor" stroke-dasharray="5 4" stroke-width="1.6" rx="3"/>
+    <rect x="40" y="40" width="340" height="26" fill="var(--brick)" opacity="0.85" rx="3"/>
+    <rect x="380" y="40" width="340" height="26" fill="none" stroke="currentColor" stroke-dasharray="5 4" stroke-width="1.6" rx="3"/>
   </g>
   <g stroke="currentColor" stroke-width="1.6" fill="none">
-    <path d="M 244 78 C 220 108, 100 112, 60 80" marker-end="url(#arr2)"/>
+    <path d="M 380 78 C 330 112, 110 112, 60 80" marker-end="url(#arr2)"/>
   </g>
   <g fill="currentColor" font-size="12">
-    <text x="142" y="31" text-anchor="middle" fill="var(--brick)" font-weight="700">execute first 15 steps (~0.5 s)</text>
-    <text x="482" y="31" text-anchor="middle">35 more predicted steps — thrown away</text>
-    <text x="152" y="112" text-anchor="middle">look at cameras again, predict a fresh 50</text>
+    <text x="210" y="31" text-anchor="middle" fill="var(--brick)" font-weight="700">execute first 8 steps</text>
+    <text x="550" y="31" text-anchor="middle">8 more predicted steps — thrown away</text>
+    <text x="185" y="112" text-anchor="middle">look at cameras again, predict a fresh chunk</text>
     <text x="40" y="82">step 1</text>
-    <text x="720" y="82" text-anchor="end">step 50</text>
+    <text x="720" y="82" text-anchor="end">step 16</text>
   </g>
 </svg>
-<figcaption>"Train long, execute short": predict 50 steps ahead, act on 15, re-look, repeat. This keeps the robot responsive to what actually happens.</figcaption>
+<figcaption>"Predict a chunk, execute half, re-look, repeat" — GR00T predicts 16 steps and executes 8. This keeps the robot responsive to what actually happens.</figcaption>
 </figure>
 
-<p>Three facts about ACT that explain almost everything you will observe:</p>
+<p>The policy you will train is <strong>NVIDIA GR00T N1.7</strong> — a 3-billion-parameter vision-language-action model, pre-trained by NVIDIA on huge amounts of robot data and <em>fine-tuned</em> on your demonstrations (it joined LeRobot natively in July 2026). Three facts that explain most of what you will observe:</p>
 <ul>
-  <li><strong>ACT memorizes on purpose.</strong> It learns to reproduce your demonstrations extremely well — and only your demonstrations. Put the brick where it never saw a brick, and it is lost. This is expected. Coverage comes from recording more varied episodes, not from more training.</li>
-  <li><strong>Consistency beats quantity.</strong> If half your demos grab the brick one way and half another way, the model averages them into something that works neither way. Pick one style. Repeat it every episode.</li>
-  <li><strong>The cameras are its only eyes.</strong> If you can't tell what to do from the camera images alone, neither can the model.</li>
+  <li><strong>It starts smart, and your demos specialize it.</strong> Unlike a from-scratch model, GR00T already understands objects, language, and manipulation in general; your 50 episodes teach it your specific arm, cameras, and task. It generalizes better than small models — but coverage still comes from varied episodes, not from more training steps.</li>
+  <li><strong>Consistency still beats quantity.</strong> Inconsistent demonstrations still teach a muddled behavior. Pick one style. Repeat it every episode.</li>
+  <li><strong>The cameras and your task sentence are its inputs.</strong> It genuinely reads the instruction — with a language-conditioned model, the task sentence describes the goal, and consistency of wording between recording and rollout matters. If you can't do the task from the camera images alone, neither can the model.</li>
 </ul>
-
-<p>Later, you can swap ACT for a big pre-trained model (SmolVLA, π₀, GR00T) that understands language and generalizes better. Do ACT first. It teaches you the whole pipeline with the fewest moving parts.</p>
 
 <!-- ================================================================ -->
 <h2 id="versions">Warning: old instructions are everywhere</h2>
@@ -732,7 +730,7 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
     --teleop.port=<span class="hl">LEADER_PORT</span> \
     --teleop.id=brick_leader \
     --display_data=true</code></pre>
-  <p>Practice the task <strong>looking only at the camera feeds in the rerun window — never at the robot</strong>. You are ready for Phase 4 when you can do the whole task smoothly in under 20 seconds, with the same grasp every time, several times in a row. 20+ minutes of practice is normal. Ctrl-C to stop.</p></li>
+  <p>Practice the task <strong>looking only at the camera feeds in the rerun window — never at the robot</strong>. You are ready for Phase 4 when you can build the whole wall smoothly in under ~50 seconds — same build order (yellow, pink, orange), same grasps, no bumped blocks — several times in a row. 20+ minutes of practice is normal. Ctrl-C to stop.</p></li>
 
   <li><span class="st">If teleop feels jittery, drop the live view.</span><p>The viewer costs computer power. During plain practice you can run without <code>--display_data=true</code> for smoothness — but during recording you must watch the feeds, so rehearse with the viewer on at least some of the time.</p></li>
 </ol>
@@ -793,16 +791,16 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
 <!-- ================================================================ -->
 <h2 id="phase4"><span class="phase">Phase 4 · Data</span>Record your demonstrations</h2>
 
-<p>Goal of this phase: a dataset of ~50 good episodes of one task, checked and uploaded. Your first task: <strong>"Pick up the brick and place it on the target square."</strong> Your "brick" is one of the wooden stacking-tower blocks. (The task sentence can say "brick" even though it's a block — for ACT the wording barely matters; only consistency does.)</p>
+<p>Goal of this phase: a dataset of ~50 good episodes of one task, checked and uploaded. The task: <strong>build a three-block wall</strong> — yellow and pink blocks end to end on the green mat, orange bridging on top of both. With a language-conditioned model like GR00T, the task sentence genuinely describes the goal, so it is written to match what happens — and it must stay word-for-word identical from recording through rollout.</p>
 
 <ol class="steps">
-  <li><span class="st">Set the scene.</span><p>Brick at one fixed starting spot. Target zone marked. One warning about marks:</p>
+  <li><span class="st">Set the scene.</span><p>Green mat down (it is the visual anchor for "where the wall goes"). Each of the three blocks — yellow, pink, orange — gets one fixed home position, identical every episode. One warning about marks:</p>
   <div class="note">
   <strong class="title">Tape is visible to the robot too</strong>
   Anything in the camera image becomes part of what the policy learns. A taped target square is fine — <em>if it is identical in every episode and still there when the policy runs</em>. For the brick's starting spot, put your alignment mark <strong>outside</strong> the camera's view (e.g. on the table edge) so you can reset precisely without teaching the robot to depend on a mark.
   </div></li>
 
-  <li><span class="st">Decide your task sentence and never change it.</span><p>Ours: <code>Pick up the brick and place it on the target square</code>. The exact wording matters little for ACT, but it must be identical at recording and at rollout. Write it in your notes.</p></li>
+  <li><span class="st">Decide your task sentence and never change it.</span><p>Ours: <code>build the block wall on the green mat in the order yellow, pink, orange: yellow and pink end to end, orange on top of both.</code> GR00T reads this — keep it word-for-word identical at recording and at rollout.</p></li>
 
   <li><span class="st">Start recording.</span>
   <pre><code>lerobot-record \
@@ -814,12 +812,12 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
     --teleop.port=<span class="hl">LEADER_PORT</span> \
     --teleop.id=brick_leader \
     --display_data=true \
-    --dataset.repo_id=sammy-labs/brickbot_so101_place_v1 \
+    --dataset.repo_id=sammy-labs/brickbot_so101_wall_v1 \
     --dataset.num_episodes=50 \
-    --dataset.single_task="Pick up the brick and place it on the target square" \
-    --dataset.episode_time_s=30 \
-    --dataset.reset_time_s=10</code></pre>
-  <p>What happens: recording of episode 1 starts. You have up to 30 seconds per episode, then a 10-second break to reset the scene, then the next episode starts automatically. Three keys control everything:</p>
+    --dataset.single_task="build the block wall on the green mat in the order yellow, pink, orange: yellow and pink end to end, orange on top of both." \
+    --dataset.episode_time_s=60 \
+    --dataset.reset_time_s=25</code></pre>
+  <p>What happens: recording of episode 1 starts. You have up to 60 seconds per episode (the wall takes longer than a single placement — end early with → when the orange block settles), then a 25-second break to reset all three blocks to their homes, then the next episode starts automatically. Three keys control everything:</p>
   <div class="tablebox"><table>
     <tr><th>Key</th><th>What it does</th></tr>
     <tr><td class="num">→ (right arrow)</td><td>"Done" — ends the episode now and accepts it. Press it the moment the brick is placed.</td></tr>
@@ -842,9 +840,9 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
     --robot.type=so101_follower \
     --robot.port=<span class="hl">FOLLOWER_PORT</span> \
     --robot.id=brick_follower \
-    --dataset.repo_id=sammy-labs/brickbot_so101_place_v1 \
+    --dataset.repo_id=sammy-labs/brickbot_so101_wall_v1 \
     --dataset.episode=0</code></pre>
-  <p>Replay a handful of episodes (change the number). Smooth motion = good data. You can also watch all episodes as videos at the <a href="https://huggingface.co/spaces/lerobot/visualize_dataset">dataset visualizer</a> — enter your dataset name (<code>sammy-labs/brickbot_so101_place_v1</code>).</p></li>
+  <p>Replay a handful of episodes (change the number). Smooth motion = good data. You can also watch all episodes as videos at the <a href="https://huggingface.co/spaces/lerobot/visualize_dataset">dataset visualizer</a> — enter your dataset name (<code>sammy-labs/brickbot_so101_wall_v1</code>).</p></li>
 
   <li><span class="st">Know your privacy setting.</span><p>The dataset — including the videos of your desk — uploads to the Hugging Face Hub automatically. To keep it offline, add <code>--dataset.push_to_hub=false</code> to the record command (but cloud training then needs it on the Hub). Or after upload, open the dataset page on huggingface.co → Settings → change visibility to Private.</p></li>
 
@@ -852,23 +850,23 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
   <pre><code>lerobot-record \
     ... same command as before ... \
     --resume=true \
-    --dataset.root=~/.cache/huggingface/lerobot/sammy-labs/brickbot_so101_place_v1 \
+    --dataset.root=~/.cache/huggingface/lerobot/sammy-labs/brickbot_so101_wall_v1 \
     --dataset.num_episodes=25   <span class="c"># number of ADDITIONAL episodes</span></code></pre></li>
 </ol>
 
 <!-- ================================================================ -->
 <h2 id="phase5"><span class="phase">Phase 5 · Training</span>Train the policy</h2>
 
-<p>Goal of this phase: a trained ACT policy, stored on the Hugging Face Hub. Training needs a beefy graphics card (GPU) for an hour or so. <strong>Your plan: a rented cloud A100 via Hugging Face Jobs, paid from your loaded HF credit.</strong> Everything is launched from the Mac; no other computer is involved: the Mac records → the dataset uploads to the Hub → an A100 in HF's cloud trains it → the trained policy uploads back → the Mac runs it.</p>
+<p>Goal of this phase: a fine-tuned GR00T N1.7 policy, stored on the Hugging Face Hub. Training needs a beefy graphics card (GPU) for an hour or so. <strong>Your plan: a rented cloud A100 via Hugging Face Jobs, paid from your loaded HF credit.</strong> Everything is launched from the Mac; no other computer is involved: the Mac records → the dataset uploads to the Hub → an A100 in HF's cloud trains it → the trained policy uploads back → the Mac runs it.</p>
 
 <ol class="steps">
   <li><span class="st">Choose where to train.</span>
   <div class="tablebox"><table>
     <tr><th>Option</th><th>When</th><th>Time (50k steps)</th></tr>
-    <tr><td><strong>HF Jobs on an A100</strong> ⭐ — add <code>--job.target=a100-large</code> to the train command</td><td>Default choice. Launched from the Mac, paid per second from your HF credit, nothing to maintain.</td><td class="num">~30–60 min</td></tr>
-    <tr><td><strong>HF Jobs on an A10G</strong> — <code>--job.target=a10g-small</code></td><td>Cheaper per run for small datasets; fine for a first test</td><td class="num">~1–2 h</td></tr>
-    <tr><td><strong>Google Colab</strong> — cloud notebook</td><td>Backup if Jobs is unavailable</td><td class="num">~1–3 h</td></tr>
-    <tr><td><strong>Mac (Apple Silicon)</strong> — <code>--policy.device=mps</code></td><td>Last resort / overnight sanity runs</td><td class="num">overnight</td></tr>
+    <tr><td><strong>HF Jobs on an A100 (80 GB)</strong> ⭐ — <code>--job.target=a100-large</code></td><td>Default choice — GR00T fine-tuning needs ~40 GB VRAM. Launched from the Mac, billed to the org.</td><td class="num">a few hours (20k steps)</td></tr>
+    <tr><td><strong>HF Jobs on an A10G</strong></td><td>Not viable for GR00T (24 GB &lt; the ~40 GB it needs)</td><td class="num">—</td></tr>
+    
+    <tr><td><strong>Mac (Apple Silicon)</strong></td><td>Not viable for GR00T fine-tuning (needs ~40 GB VRAM)</td><td class="num">—</td></tr>
   </table></div></li>
 
   <li><span class="st">One-time check: Jobs access, org billing, and the exact hardware names.</span>
@@ -882,27 +880,37 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
   <p>Don't want it? Use <code>--wandb.enable=false</code> in the next step.</p></li>
 
   <li><span class="st">Run the training command — from the Mac's Terminal.</span>
-  <p>The <code>--job.target</code> flag sends the run to the cloud A100; the <code>HF_NAMESPACE</code> prefix bills it to the org. Dataset and policy live under <code>sammy-labs</code> so the whole team can use them.</p>
+  <p>This fine-tunes <strong>NVIDIA GR00T N1.7</strong> (3B params, <code>--policy.type=groot</code>, native in LeRobot since July 2026) on your dataset, on a cloud A100 billed to the org. GR00T fine-tuning wants ~40 GB VRAM — the A100 (80 GB) is comfortably sized; smaller flavors are not.</p>
   <pre><code>HF_NAMESPACE=sammy-labs lerobot-train \
-  --dataset.repo_id=sammy-labs/brickbot_so101_place_v1 \
-  --policy.type=act \
-  --policy.chunk_size=50 \
-  --policy.n_action_steps=15 \
-  --output_dir=outputs/train/brickbot_act_v1 \
-  --job_name=brickbot_act_v1 \
+  --dataset.repo_id=sammy-labs/brickbot_so101_wall_v1 \
+  --dataset.image_transforms.enable=true \
+  --policy.type=groot \
+  --policy.base_model_path=nvidia/GR00T-N1.7-3B \
+  --policy.embodiment_tag=new_embodiment \
+  --policy.chunk_size=16 \
+  --policy.n_action_steps=16 \
+  --policy.use_relative_actions=true \
+  --policy.relative_exclude_joints='["gripper"]' \
+  --policy.use_bf16=true \
+  --use_policy_training_preset=true \
+  --batch_size=64 \
+  --steps=20000 \
+  --seed=42 \
+  --output_dir=outputs/train/brickbot_groot_v1 \
+  --job_name=brickbot_groot_v1 \
   --job.target=<span class="hl">a100-large</span> \
-  --job.timeout=4h \
-  --batch_size=32 \
-  --steps=15000 \
+  --job.timeout=8h \
   --wandb.enable=true \
-  --policy.repo_id=sammy-labs/brickbot_act_v1 \
+  --wandb.disable_artifact=true \
+  --policy.push_to_hub=true \
+  --policy.repo_id=sammy-labs/brickbot_groot_v1 \
   --save_checkpoint_to_hub=true</code></pre>
-  <p>The two chunk settings are the "predict 50, execute 15" pattern from the theory section — they must be chosen now, at training time. Batch 32 / 15,000 steps suits a ~50-episode dataset on an A100 (same data coverage as batch 8 / 50k, much faster wall-clock); the loss usually stops improving well before the end, and stopping early is fine. <code>--save_checkpoint_to_hub=true</code> pushes mid-run checkpoints, so a cancelled or crashed cloud job loses nothing. Note what you <em>don't</em> pass: <code>--policy.device</code> — the cloud job picks its own GPU.</p></li>
+  <p>Differences from small-model training worth knowing: <strong>image augmentation is ON</strong> (<code>image_transforms.enable=true</code> — recommended for VLA fine-tuning, unlike from-scratch ACT where it hurt small datasets); chunking is 16 predicted / 16 trained (you'll execute 8 at rollout); actions are relative (except the gripper); bf16 keeps the 3B model inside memory; ~20,000 steps at batch 64 is NVIDIA's reference recipe. Expect a few hours on the A100.</p></li>
 
-  <li><span class="st">Watch the loss go down.</span><p>On the wandb page, watch the "loss" chart. Good: falls steeply, then flattens near zero. When it's been flat for a long while, further training buys nothing — better data beats more steps, always.</p></li>
+  <li><span class="st">Watch the loss go down.</span><p>On the wandb page, watch the loss chart. Good: falls steeply, then flattens. Fine-tuning loss won't reach zero — flat is the signal, not small. When it's been flat for a long while, further training buys nothing — better data beats more steps, always.</p></li>
 
-  <li><span class="st">Confirm the policy is on the Hub.</span><p>Because of <code>--policy.repo_id</code>, the trained policy uploads automatically. Check that <code>huggingface.co/sammy-labs/brickbot_act_v1</code> exists. If it doesn't, upload the result by hand:</p>
-  <pre><code>hf upload sammy-labs/brickbot_act_v1 outputs/train/brickbot_act_v1/checkpoints/last/pretrained_model</code></pre></li>
+  <li><span class="st">Confirm the policy is on the Hub.</span><p>Because of <code>--policy.repo_id</code>, the trained policy uploads automatically. Check that <code>huggingface.co/sammy-labs/brickbot_groot_v1</code> exists. If it doesn't, upload the result by hand:</p>
+  <pre><code>hf upload sammy-labs/brickbot_groot_v1 outputs/train/brickbot_groot_v1/checkpoints/last/pretrained_model</code></pre></li>
 </ol>
 
 <!-- ================================================================ -->
@@ -918,20 +926,30 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
   <li><span class="st">Let the robot take over.</span>
   <p>The leader arm stays on the shelf — the policy is driving now. Camera names (<code>front</code>, <code>wrist</code>) and the task sentence must match recording exactly:</p>
   <pre><code>lerobot-rollout \
-  --strategy.type=episodic \
-  --policy.path=sammy-labs/brickbot_act_v1 \
+  --strategy.type=base \
+  --policy.path=sammy-labs/brickbot_groot_v1 \
+  --policy.base_model_path=nvidia/GR00T-N1.7-3B \
+  --policy.n_action_steps=8 \
   --robot.type=so101_follower \
   --robot.port=<span class="hl">FOLLOWER_PORT</span> \
   --robot.id=brick_follower \
   --robot.cameras="{ front: {type: opencv, index_or_path: <span class="hl">0</span>, width: 640, height: 480, fps: 30}, wrist: {type: opencv, index_or_path: <span class="hl">1</span>, width: 640, height: 480, fps: 30}}" \
-  --task="Pick up the brick and place it on the target square" \
-  --duration=60</code></pre></li>
+  --task="build the block wall on the green mat in the order yellow, pink, orange: yellow and pink end to end, orange on top of both." \
+  --duration=120 \
+  --device=<span class="hl">mps</span> \
+  --display_data=true \
+  --inference.type=rtc \
+  --inference.rtc.execution_horizon=10</code></pre>
+  <div class="callout">
+  <strong class="title">Open question: is the Mac fast enough to run a 3B model live?</strong>
+  GR00T N1.7 is ~3 billion parameters — much heavier at inference than a small policy. First try it on the Mac (<code>--device=mps</code>) with RTC (real-time chunking) enabled as above, which is designed to smooth execution on slow hardware. If the arm moves in lurches or stalls between chunks, the fallback is <strong>async inference</strong>: run LeRobot's policy server on a GPU machine or cloud box and keep only the robot client on the Mac (<code>python -m lerobot.async_inference.policy_server</code> / <code>robot_client</code>). Tell me what you observe on the first rollout and we'll pick.
+  </div></li>
 
   <li><span class="st">Judge the result by this rule.</span>
   <ul>
     <li><strong>Works at the trained position:</strong> success! Run it 10 times; 8+/10 is a solid first policy.</li>
     <li><strong>Fails even at the trained position:</strong> something in the pipeline is broken — wrong calibration name, moved camera, wrong camera names, wrong policy path. Fix the pipeline. Do not touch training settings.</li>
-    <li><strong>Works at the trained position, fails elsewhere:</strong> completely normal. ACT only knows what it saw. Cure: record a v2 dataset with the brick at ~10 different start positions, ~10 episodes each, and retrain.</li>
+    <li><strong>Works at the trained setup, fails when things move:</strong> common, though GR00T generalizes better than small models. Cure: record a v2 dataset with varied block start positions and retrain.</li>
   </ul></li>
 
   <li><span class="st">Read the failure body-language.</span>
@@ -946,7 +964,7 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
   <span class="check-title">Milestone 1 — complete when</span>
   <label><input type="checkbox" data-k="m1a"> Follower mirrors leader smoothly with cameras streaming</label>
   <label><input type="checkbox" data-k="m1b"> 50-episode dataset recorded, replayed, checked</label>
-  <label><input type="checkbox" data-k="m1c"> ACT policy trained; loss curve flattened</label>
+  <label><input type="checkbox" data-k="m1c"> GR00T policy fine-tuned; loss curve flattened</label>
   <label><input type="checkbox" data-k="m1d"> Robot succeeds at the trained position 8+ times out of 10</label>
 </div>
 
@@ -1062,7 +1080,8 @@ Carries over: the whole LeRobot pipeline, your recording rig and habits, trainin
   <li><strong>Official docs:</strong> <a href="https://huggingface.co/docs/lerobot/so101">SO-101 assembly &amp; calibration</a> · <a href="https://huggingface.co/docs/lerobot/installation">Installation</a> · <a href="https://huggingface.co/docs/lerobot/il_robots">Teleop, record, train, rollout</a> · <a href="https://huggingface.co/docs/lerobot/cameras">Cameras</a> · <a href="https://huggingface.co/docs/lerobot/smolvla">SmolVLA</a> · <a href="https://github.com/huggingface/lerobot/releases">Release notes</a></li>
   <li><strong>Hardware:</strong> <a href="https://github.com/TheRobotStudio/SO-ARM100">TheRobotStudio/SO-ARM100</a> · <a href="https://wiki.seeedstudio.com/lerobot_so100m/">Seeed wiki</a> (power-supply warning)</li>
   <li><strong>Trelis Research series (technique):</strong> <a href="https://www.youtube.com/watch?v=JjCUX4sxrJQ">Part 1 — hardware &amp; concepts</a> · <a href="https://www.youtube.com/watch?v=ZW8OiBGAe0M">Part 2 — how the models work</a> · <a href="https://www.youtube.com/watch?v=-tkEMLOLEwo">Part 3 — full training walkthrough</a> · your local repo <code>~/Code/sammy/ADVANCED-robotics/Training/</code> (modernized commands on its <code>modernize-lerobot-v0.6</code> branch)</li>
-  <li><strong>Cloud training:</strong> <a href="https://colab.research.google.com/github/huggingface/notebooks/blob/main/lerobot/training-act.ipynb">ACT Colab notebook</a> · <a href="https://colab.research.google.com/github/huggingface/notebooks/blob/main/lerobot/training-smolvla.ipynb">SmolVLA Colab notebook</a></li>
+  <li><strong>GR00T N1.7:</strong> <a href="https://huggingface.co/blog/nvidia/nvidia-isaac-teleop-and-gr00t17-in-lerobot">GR00T 1.7 in LeRobot (official workflow)</a> · <a href="https://huggingface.co/blog/nvidia/gr00t-n1-7">model announcement</a> · <a href="https://huggingface.co/nvidia/GR00T-N1.7-3B">nvidia/GR00T-N1.7-3B</a></li>
+  
   <li><strong>Brick robots &amp; mortar:</strong> <a href="https://www.fbr.com.au/">FBR Hadrian X</a> · <a href="https://www.monumental.co/">Monumental</a> · <a href="https://www.construction-robotics.com/sam-2/">SAM100</a> · <a href="https://imiweb.org/wp-content/uploads/2015/10/01.02-AAC-MASONRY-UNITS.pdf">AAC thin-bed masonry</a> · <a href="https://tytan.com/en/product/foam-adhesives/foam-adhesive-for-bricklaying/">Tytan PU foam</a></li>
   <li><strong>Next arms:</strong> <a href="https://global.agilex.ai/products/piper">AgileX PiPER</a> · <a href="https://shop.unitree.com/products/unitree-z1">Unitree Z1</a> · <a href="https://github.com/real-stanford/arx5-sdk">ARX5 SDK</a></li>
 </ul>
