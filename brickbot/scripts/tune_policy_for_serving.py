@@ -46,3 +46,8 @@ api.create_commit(repo_id=REPO, operations=ops,
     commit_message=f"Serve checkpoint {ckpts[-1]}: promote to root, num_inference_timesteps=4")
 cfg = json.load(open(hf_hub_download(REPO, "config.json", force_download=True)))
 print("root config:", {k: cfg[k] for k in ("num_inference_timesteps", "use_relative_actions", "chunk_size")})
+
+# keep the repo at a single revision — LFS history of 12.6 GB models is what
+# filled the org's private-storage quota on 2026-08-13 (lost a full training run)
+api.super_squash_history(repo_id=REPO)
+print("history squashed")
