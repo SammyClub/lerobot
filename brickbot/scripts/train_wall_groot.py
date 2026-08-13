@@ -39,8 +39,9 @@ sys.argv = [
     "--policy.embodiment_tag=new_embodiment",
     "--policy.chunk_size=16",
     "--policy.n_action_steps=16",
-    "--policy.use_relative_actions=true",
-    '--policy.relative_exclude_joints=["gripper"]',
+    # Absolute actions REQUIRED: the async policy server cannot stream-decode
+    # GR00T relative actions (discovered 2026-08-13 — silent inference failure).
+    "--policy.use_relative_actions=false",
     "--policy.use_bf16=true",
     "--use_policy_training_preset=true",
     "--batch_size=64",
