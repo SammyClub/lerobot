@@ -23,7 +23,7 @@ import pathlib
 from huggingface_hub import HfApi, get_token
 
 NAMESPACE = "sammy-labs"
-FLAVOR = "a10g-large"  # a10g-small OOM-killed loading GR00T (system RAM); large has headroom
+FLAVOR = "a100-large"  # inference latency: a10g measured too slow for smooth motion (2026-08-13); A100 for serving
 PORT = 8080
 STATE_FILE = pathlib.Path(__file__).parent / ".cloud_policy_job.json"
 

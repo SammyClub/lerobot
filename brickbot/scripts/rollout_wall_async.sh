@@ -17,5 +17,5 @@ exec conda run --no-capture-output -n lerobot python -m lerobot.async_inference.
     --robot.cameras="{ front: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}, wrist: {type: opencv, index_or_path: 1, width: 640, height: 480, fps: 30}}" \
     --task="build the block wall on the green mat in the order yellow, pink, orange - yellow and pink end to end, orange on top of both." \
     --actions_per_chunk=16 \
-    --chunk_size_threshold=0.6 \
+    --chunk_size_threshold=0.8 \
     --aggregate_fn_name=weighted_average
