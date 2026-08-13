@@ -32,8 +32,10 @@ job = api.run_job(
     namespace=NAMESPACE,
     image="huggingface/lerobot-gpu:latest",
     command=[
-        "python", "-m", "lerobot.async_inference.policy_server",
-        "--host=0.0.0.0", f"--port={PORT}",
+        "sh", "-c",
+        # tee to a file so the server's stderr is always readable over SSH
+        # (the platform log endpoint proved flaky under load, 2026-08-13)
+        f"python -m lerobot.async_inference.policy_server --host=0.0.0.0 --port={PORT} 2>&1 | tee /tmp/policy_server.log",
     ],
     flavor=FLAVOR,
     timeout="4h",  # auto-stop safety net; cancel earlier when done
