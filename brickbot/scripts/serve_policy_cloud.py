@@ -23,7 +23,7 @@ import pathlib
 from huggingface_hub import HfApi, get_token
 
 NAMESPACE = "sammy-labs"
-FLAVOR = "a10g-small"  # 24 GB — plenty for 3B bf16 inference, cheaper than A100
+FLAVOR = "a10g-large"  # a10g-small OOM-killed loading GR00T (system RAM); large has headroom
 PORT = 8080
 STATE_FILE = pathlib.Path(__file__).parent / ".cloud_policy_job.json"
 
