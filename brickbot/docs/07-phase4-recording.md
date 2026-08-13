@@ -8,7 +8,7 @@
 
    > **Tape is visible to the robot too.** Anything in the camera image becomes part of what the policy learns. The green mat is fine — it is identical in every episode and still there when the policy runs. For the blocks' home positions, put alignment marks **outside** the camera's view (e.g. on the table edge) so you can reset precisely without teaching the robot to depend on a mark.
 
-2. **Decide the task sentence and never change it.** Ours: `build the block wall on the green mat in the order yellow, pink, orange: yellow and pink end to end, orange on top of both.` GR00T reads this — keep it word-for-word identical at recording and at rollout.
+2. **Decide the task sentence and never change it.** Ours: `build the block wall on the green mat in the order yellow, pink, orange - yellow and pink end to end, orange on top of both.` GR00T reads this — keep it word-for-word identical at recording and at rollout.
 
 3. **Start recording:**
 
@@ -25,7 +25,7 @@
        --dataset.repo_id=sammy-labs/brickbot_so101_wall_v1 \
        --dataset.no_stamp=true \
        --dataset.num_episodes=50 \
-       --dataset.single_task="build the block wall on the green mat in the order yellow, pink, orange: yellow and pink end to end, orange on top of both." \
+       --dataset.single_task="build the block wall on the green mat in the order yellow, pink, orange - yellow and pink end to end, orange on top of both." \
        --dataset.episode_time_s=60 \
        --dataset.reset_time_s=25
    ```

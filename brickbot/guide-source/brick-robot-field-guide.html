@@ -800,7 +800,7 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
   Anything in the camera image becomes part of what the policy learns. A taped target square is fine — <em>if it is identical in every episode and still there when the policy runs</em>. For the brick's starting spot, put your alignment mark <strong>outside</strong> the camera's view (e.g. on the table edge) so you can reset precisely without teaching the robot to depend on a mark.
   </div></li>
 
-  <li><span class="st">Decide your task sentence and never change it.</span><p>Ours: <code>build the block wall on the green mat in the order yellow, pink, orange: yellow and pink end to end, orange on top of both.</code> GR00T reads this — keep it word-for-word identical at recording and at rollout.</p></li>
+  <li><span class="st">Decide your task sentence and never change it.</span><p>Ours: <code>build the block wall on the green mat in the order yellow, pink, orange - yellow and pink end to end, orange on top of both.</code> GR00T reads this — keep it word-for-word identical at recording and at rollout.</p></li>
 
   <li><span class="st">Start recording.</span>
   <pre><code>lerobot-record \
@@ -815,7 +815,7 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
     --dataset.repo_id=sammy-labs/brickbot_so101_wall_v1 \
     --dataset.no_stamp=true \
     --dataset.num_episodes=50 \
-    --dataset.single_task="build the block wall on the green mat in the order yellow, pink, orange: yellow and pink end to end, orange on top of both." \
+    --dataset.single_task="build the block wall on the green mat in the order yellow, pink, orange - yellow and pink end to end, orange on top of both." \
     --dataset.episode_time_s=60 \
     --dataset.reset_time_s=25</code></pre>
   <p>(<code>no_stamp</code> matters: without it, LeRobot appends a date-time tag to the dataset name, and every command that expects <code>brickbot_so101_wall_v1</code> misses it.) What happens: recording of episode 1 starts. You have up to 60 seconds per episode (the wall takes longer than a single placement — end early with → when the orange block settles), then a 25-second break to reset all three blocks to their homes, then the next episode starts automatically. Three keys control everything:</p>

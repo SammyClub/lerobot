@@ -26,6 +26,6 @@ exec conda run --no-capture-output -n lerobot lerobot-record \
     --resume=true \
     --dataset.root="$HOME/.cache/huggingface/lerobot/sammy-labs/brickbot_so101_wall_v1" \
     --dataset.num_episodes="$EPISODES" \
-    --dataset.single_task="build the block wall on the green mat in the order yellow, pink, orange: yellow and pink end to end, orange on top of both." \
+    --dataset.single_task="build the block wall on the green mat in the order yellow, pink, orange - yellow and pink end to end, orange on top of both." \
     --dataset.episode_time_s=60 \
     --dataset.reset_time_s=25

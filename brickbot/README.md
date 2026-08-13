@@ -88,7 +88,7 @@ Next action: finish [Phase 3](docs/06-phase3-teleop-cameras.md) — rehearse the
 - HF username: `vik101` (login identity). Team org: `sammy-labs` — datasets, policies, and the HF Jobs training credit all live there (org-namespace injection handled by scripts/train_wall_groot.py — plain HF_NAMESPACE does not work for Jobs)
 - **Org demarcation rule: every repo this project pushes to `sammy-labs` is prefixed `brickbot_`** (datasets, policies, eval runs — no exceptions). Other teams share the org; the prefix is our namespace within it. A "Brick-Laying Robot" Collection on the org page groups all `brickbot_*` repos for discoverability.
 - Policy: **NVIDIA GR00T N1.7** (`nvidia/GR00T-N1.7-3B` fine-tuned via `--policy.type=groot`)
-- First dataset: `sammy-labs/brickbot_so101_wall_v1`, task string `"build the block wall on the green mat in the order yellow, pink, orange: yellow and pink end to end, orange on top of both."`
+- First dataset: `sammy-labs/brickbot_so101_wall_v1`, task string `"build the block wall on the green mat in the order yellow, pink, orange - yellow and pink end to end, orange on top of both."`
 - First policy: `sammy-labs/brickbot_groot_v1`
 - Placeholders `FOLLOWER_PORT` / `LEADER_PORT` are your USB port paths from Phase 2
 
