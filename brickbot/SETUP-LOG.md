@@ -39,7 +39,7 @@ Calibration files are versioned in [`hardware/calibration/`](hardware/calibratio
 
 | Item | Name | Created |
 |---|---|---|
-| First dataset | `sammy-labs/brickbot_so101_wall_v1` (three-block wall task) | recording in progress — 38/100 episodes as of 2026-08-12 |
+| First dataset | `sammy-labs/brickbot_so101_wall_v1` (three-block wall task) | COMPLETE: 100 episodes, pushed to Hub 2026-08-13 |
 | First policy | `sammy-labs/brickbot_groot_v1` (GR00T N1.7 fine-tune) | interim v1: 4,000 steps on 38 episodes, org A100 via HF Jobs, 1h41m clean run (2026-08-12). Full 20k run pending 100 episodes. |
 
 ## Machines

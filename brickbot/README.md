@@ -34,10 +34,10 @@ Details: [docs/10-brick-curriculum.md](docs/10-brick-curriculum.md)
 - [x] Training compute — **sammy-labs org credit; training runs on a cloud A100 via HF Jobs under `HF_NAMESPACE=sammy-labs`** (plan changed 2026-08-11; RTX-PC plan retired)
 - [x] wandb account created + logged in on the Mac as `vikramt-sammy` (2026-08-04)
 - [x] Phase 2 — ports found, 12 motor IDs programmed, arms assembled, both arms calibrated (2026-08-10; calibration versioned in `hardware/calibration/`) — **Phase 2 complete ✓**
-- [ ] Phase 3 — teleop works, cameras mounted and framed, everything fixed in place
-- [ ] Phase 4 — 50-episode dataset recorded and replay-checked
-- [ ] Phase 5 — GR00T N1.7 fine-tuned on the cloud A100, loss flattened
-- [ ] Phase 6 — rollout succeeds at trained position 8+/10
+- [x] Phase 3 — teleop works, cameras mounted/framed/locked (2026-08-13) — **complete ✓**
+- [x] Phase 4 — **100-episode** wall dataset recorded and pushed (2026-08-13) — **complete ✓**
+- [~] Phase 5 — full 20k-step GR00T run IN FLIGHT on the A100 (started 2026-08-13 ~13:20, ~8 h); interim 4k policy already trained + rollout-validated
+- [~] Phase 6 — cloud async inference pipeline VALIDATED (70 min continuous rollout, zero server errors, 2026-08-13); formal 8+/10 evaluation pending the full policy
 
 Next action: finish [Phase 3](docs/06-phase3-teleop-cameras.md) — rehearse the wall build to the ~50 s bar, then record ([Phase 4](docs/07-phase4-recording.md)).
 
