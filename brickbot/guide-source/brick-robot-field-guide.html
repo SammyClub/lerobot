@@ -902,27 +902,17 @@ conda run -n lerobot python scripts/train_wall_groot.py 2000     <span class="c"
 
   <li><span class="st">Find the exact trained brick position (Terminal step).</span><p>Run the replay command from Phase 4 on episode 0 and watch where the gripper goes to pick. Place the brick exactly there. This reconstructs a scene the policy definitely knows.</p></li>
 
-  <li><span class="st">Let the robot take over.</span>
-  <p>The leader arm stays on the shelf — the policy is driving now. Camera names (<code>front</code>, <code>wrist</code>) and the task sentence must match recording exactly:</p>
-  <pre><code>lerobot-rollout \
-  --strategy.type=base \
-  --policy.path=sammy-labs/brickbot_groot_v1 \
-  --policy.base_model_path=nvidia/GR00T-N1.7-3B \
-  --policy.n_action_steps=8 \
-  --robot.type=so101_follower \
-  --robot.port=<span class="hl">FOLLOWER_PORT</span> \
-  --robot.id=brick_follower \
-  --robot.cameras="{ front: {type: opencv, index_or_path: <span class="hl">0</span>, width: 640, height: 480, fps: 30}, wrist: {type: opencv, index_or_path: <span class="hl">1</span>, width: 640, height: 480, fps: 30}}" \
-  --task="build the block wall on the green mat in the order yellow, pink, orange: yellow and pink end to end, orange on top of both." \
-  --duration=120 \
-  --device=<span class="hl">mps</span> \
-  --display_data=true \
-  --inference.type=rtc \
-  --inference.rtc.execution_horizon=10</code></pre>
-  <div class="callout">
-  <strong class="title">Open question: is the Mac fast enough to run a 3B model live?</strong>
-  GR00T N1.7 is ~3 billion parameters — much heavier at inference than a small policy. First try it on the Mac (<code>--device=mps</code>) with RTC (real-time chunking) enabled as above, which is designed to smooth execution on slow hardware. If the arm moves in lurches or stalls between chunks, the fallback is <strong>async inference</strong>: run LeRobot's policy server on a GPU machine or cloud box and keep only the robot client on the Mac (<code>python -m lerobot.async_inference.policy_server</code> / <code>robot_client</code>). Tell me what you observe on the first rollout and we'll pick.
-  </div></li>
+  <li><span class="st">Let the robot take over — via the cloud policy server.</span>
+  <p><strong>Why cloud:</strong> measured on 2026-08-13, the Mac runs 3B GR00T inference at 0.6–4 Hz against the 30 Hz control target — not viable. The policy therefore runs on a rented GPU (HF Jobs, org-billed) and the Mac keeps only a lightweight robot client, connected through an SSH tunnel. Three commands, three terminals, in order:</p>
+  <pre><code><span class="c"># 1. Start the cloud policy server (bills while running!)</span>
+conda run -n lerobot python scripts/serve_policy_cloud.py
+
+<span class="c"># 2. Open the tunnel (own terminal, leave it running)</span>
+scripts/connect_policy_tunnel.sh
+
+<span class="c"># 3. Run the robot client (arm moves!)</span>
+scripts/rollout_wall_async.sh</code></pre>
+  <p>Wait for the server job's logs to show it started (command printed by step 1) before step 3. The leader arm stays on the shelf; camera names and the task sentence are baked into the client script. <strong>When you finish a session, stop the server</strong> — <code>hf jobs cancel &lt;job-id&gt; --namespace sammy-labs</code> (the id is printed at step 1 and saved in <code>scripts/.cloud_policy_job.json</code>); it also auto-stops after 4 h as a safety net. One-time prerequisite: an SSH key registered at <a href="https://huggingface.co/settings/keys">huggingface.co/settings/keys</a>.</p></li>
 
   <li><span class="st">Judge the result by this rule.</span>
   <ul>
