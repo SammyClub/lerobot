@@ -30,6 +30,10 @@ def _with_namespace(fn):
 for _name in ("run_job", "inspect_job", "fetch_job_logs"):
     setattr(jobs_hf, _name, _with_namespace(getattr(jobs_hf, _name)))
 
+# Second upstream wart (2026-08-14): for --policy.path fine-tunes the job wrapper
+# IGNORES --policy.repo_id and builds "<user>/<job>_<stamp>" instead. Pin it:
+jobs_hf.build_repo_id = lambda username, base_name, now: "sammy-labs/brickbot_smolvla_v1"
+
 steps = sys.argv[1] if len(sys.argv) > 1 else "6000"
 
 sys.argv = [
