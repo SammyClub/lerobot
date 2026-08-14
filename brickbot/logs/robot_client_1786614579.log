@@ -1,0 +1,215 @@
+DEBUG 2026-08-13 10:49:39 rt_utils.py:257 Third-party plugin import summary: imported=[] failed=[]
+DEBUG 2026-08-13 10:49:39 formatter.py:57 action type: None, Result: , nargs: 0, default metavar: None
+DEBUG 2026-08-13 10:49:39 formatter.py:57 action type: <class 'str'>, Result: str, nargs: None, default metavar: None
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at policy_type has a default value of None
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at pretrained_name_or_path has a default value of None
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at actions_per_chunk has a default value of None
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at task has a default value of 
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at server_address has a default value of localhost:8080
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at policy_device has a default value of cpu
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at client_device has a default value of cpu
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at chunk_size_threshold has a default value of 0.5
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at fps has a default value of 30
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at aggregate_fn_name has a default value of weighted_average
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at debug_visualize_queue_size has a default value of False
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.port has a default value of None
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.disable_torque_on_disconnect has a default value of True
+DEBUG 2026-08-13 10:49:39 _wrapper.py:214 wrapped field at robot.max_relative_target has a default value of None
+DEBUG 2026-08-13 10:49:39 _wrapper.py:214 wrapped field at robot.cameras has a default value of {}
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.use_degrees has a default value of True
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.position_p_coefficient has a default value of 16
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.position_i_coefficient has a default value of 0
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.position_d_coefficient has a default value of 32
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.num_read_retries has a default value of 2
+DEBUG 2026-08-13 10:49:39 _wrapper.py:214 wrapped field at robot.id has a default value of None
+DEBUG 2026-08-13 10:49:39 _wrapper.py:214 wrapped field at robot.calibration_dir has a default value of None
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.port has a default value of None
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.disable_torque_on_disconnect has a default value of True
+DEBUG 2026-08-13 10:49:39 _wrapper.py:214 wrapped field at robot.max_relative_target has a default value of None
+DEBUG 2026-08-13 10:49:39 _wrapper.py:214 wrapped field at robot.cameras has a default value of {}
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.use_degrees has a default value of True
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.position_p_coefficient has a default value of 16
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.position_i_coefficient has a default value of 0
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.position_d_coefficient has a default value of 32
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.num_read_retries has a default value of 2
+DEBUG 2026-08-13 10:49:39 _wrapper.py:214 wrapped field at robot.id has a default value of None
+DEBUG 2026-08-13 10:49:39 _wrapper.py:214 wrapped field at robot.calibration_dir has a default value of None
+DEBUG 2026-08-13 10:49:39 _wrapper.py:214 wrapped field at robot.id has a default value of None
+DEBUG 2026-08-13 10:49:39 _wrapper.py:214 wrapped field at robot.calibration_dir has a default value of None
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.left_arm_config.port has a default value of None
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.left_arm_config.disable_torque_on_disconnect has a default value of True
+DEBUG 2026-08-13 10:49:39 _wrapper.py:214 wrapped field at robot.left_arm_config.max_relative_target has a default value of None
+DEBUG 2026-08-13 10:49:39 _wrapper.py:214 wrapped field at robot.left_arm_config.cameras has a default value of {}
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.left_arm_config.use_degrees has a default value of True
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.left_arm_config.position_p_coefficient has a default value of 16
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.left_arm_config.position_i_coefficient has a default value of 0
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.left_arm_config.position_d_coefficient has a default value of 32
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.left_arm_config.num_read_retries has a default value of 2
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.right_arm_config.port has a default value of None
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.right_arm_config.disable_torque_on_disconnect has a default value of True
+DEBUG 2026-08-13 10:49:39 _wrapper.py:214 wrapped field at robot.right_arm_config.max_relative_target has a default value of None
+DEBUG 2026-08-13 10:49:39 _wrapper.py:214 wrapped field at robot.right_arm_config.cameras has a default value of {}
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.right_arm_config.use_degrees has a default value of True
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.right_arm_config.position_p_coefficient has a default value of 16
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.right_arm_config.position_i_coefficient has a default value of 0
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.right_arm_config.position_d_coefficient has a default value of 32
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.right_arm_config.num_read_retries has a default value of 2
+DEBUG 2026-08-13 10:49:39 _wrapper.py:214 wrapped field at robot.cameras has a default value of {}
+DEBUG 2026-08-13 10:49:39 _wrapper.py:214 wrapped field at robot.id has a default value of None
+DEBUG 2026-08-13 10:49:39 _wrapper.py:214 wrapped field at robot.calibration_dir has a default value of None
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.port has a default value of None
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.disable_torque_on_disconnect has a default value of True
+DEBUG 2026-08-13 10:49:39 _wrapper.py:214 wrapped field at robot.max_relative_target has a default value of None
+DEBUG 2026-08-13 10:49:39 _wrapper.py:214 wrapped field at robot.cameras has a default value of {}
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.use_degrees has a default value of False
+DEBUG 2026-08-13 10:49:39 _wrapper.py:214 wrapped field at robot.id has a default value of None
+DEBUG 2026-08-13 10:49:39 _wrapper.py:214 wrapped field at robot.calibration_dir has a default value of None
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.port has a default value of None
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.disable_torque_on_disconnect has a default value of True
+DEBUG 2026-08-13 10:49:39 _wrapper.py:214 wrapped field at robot.max_relative_target has a default value of None
+DEBUG 2026-08-13 10:49:39 _wrapper.py:214 wrapped field at robot.cameras has a default value of {}
+DEBUG 2026-08-13 10:49:39 _wrapper.py:181 wrapped field at robot.use_degrees has a default value of False
+DEBUG 2026-08-13 10:49:39 formatter.py:57 action type: <class 'str'>, Result: str, nargs: None, default metavar: None
+DEBUG 2026-08-13 10:49:39 docstring.py:65 Couldn't find source: could not find class definition
+DEBUG 2026-08-13 10:49:39 ocstring.py:298 Warning: Unable to parse attribute docstring:     def __post_init__(self):
+DEBUG 2026-08-13 10:49:39 ocstring.py:298 Warning: Unable to parse attribute docstring:     def __post_init__(self):
+DEBUG 2026-08-13 10:49:39 ocstring.py:298 Warning: Unable to parse attribute docstring:     def __post_init__(self):
+DEBUG 2026-08-13 10:49:39 formatter.py:57 action type: <class 'str'>, Result: str, nargs: None, default metavar: None
+DEBUG 2026-08-13 10:49:39 formatter.py:57 action type: <class 'str'>, Result: str, nargs: None, default metavar: None
+DEBUG 2026-08-13 10:49:39 formatter.py:57 action type: <class 'str'>, Result: str, nargs: None, default metavar: None
+DEBUG 2026-08-13 10:49:39 formatter.py:57 action type: <class 'str'>, Result: str, nargs: None, default metavar: None
+DEBUG 2026-08-13 10:49:39 ocstring.py:298 Warning: Unable to parse attribute docstring:     def __post_init__(self):
+DEBUG 2026-08-13 10:49:39 ocstring.py:298 Warning: Unable to parse attribute docstring:     def __post_init__(self):
+DEBUG 2026-08-13 10:49:39 ocstring.py:298 Warning: Unable to parse attribute docstring:         default="cpu",
+DEBUG 2026-08-13 10:49:39 ocstring.py:298 Warning: Unable to parse attribute docstring:         default="weighted_average",
+DEBUG 2026-08-13 10:49:39 ocstring.py:298 Warning: Unable to parse attribute docstring:         default=False, metadata={"help": "Visualize the action queue size"}
+DEBUG 2026-08-13 10:49:39 gparsing.py:152 
+POST PROCESSING
+
+DEBUG 2026-08-13 10:49:39 gparsing.py:153 (raw) parsed args: Namespace(server_address='127.0.0.1:8080', policy_type='groot', pretrained_name_or_path='sammy-labs/brickbot_groot_v1', policy_device='cuda', task='build the block wall on the green mat in the order yellow, pink, orange: yellow and pink end to end, orange on top of both.', actions_per_chunk='16', chunk_size_threshold='0.6', aggregate_fn_name='weighted_average', **{'robot.type': 'so101_follower', 'robot.port': '/dev/tty.usbmodem5AE60824171', 'robot.id': 'brick_follower', 'robot.cameras': '{ front: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}, wrist: {type: opencv, index_or_path: 1, width: 640, height: 480, fps: 30}}'})
+DEBUG 2026-08-13 10:49:39 decoding.py:130 from_dict for <class 'lerobot.async_inference.configs.RobotClientConfig'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = policy_type, type = <class 'str'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = pretrained_name_or_path, type = <class 'str'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = robot, type = <class 'lerobot.robots.config.RobotConfig'>
+DEBUG 2026-08-13 10:49:39 decoding.py:130 from_dict for <class 'lerobot.robots.so_follower.config_so_follower.SOFollowerRobotConfig'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = port, type = <class 'str'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = cameras, type = dict[str, lerobot.cameras.configs.CameraConfig]
+DEBUG 2026-08-13 10:49:39 decoding.py:281 Decoding a Dict field: dict[str, lerobot.cameras.configs.CameraConfig]
+DEBUG 2026-08-13 10:49:39 decoding.py:130 from_dict for <class 'lerobot.cameras.opencv.configuration_opencv.OpenCVCameraConfig'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = fps, type = typing.Optional[int]
+DEBUG 2026-08-13 10:49:39 decoding.py:313 Decoding a Union field: typing.Optional[int]
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = width, type = typing.Optional[int]
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = height, type = typing.Optional[int]
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = index_or_path, type = typing.Union[int, pathlib.Path]
+DEBUG 2026-08-13 10:49:39 decoding.py:313 Decoding a Union field: typing.Union[int, pathlib.Path]
+DEBUG 2026-08-13 10:49:39 decoding.py:130 from_dict for <class 'lerobot.cameras.opencv.configuration_opencv.OpenCVCameraConfig'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = fps, type = typing.Optional[int]
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = width, type = typing.Optional[int]
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = height, type = typing.Optional[int]
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = index_or_path, type = typing.Union[int, pathlib.Path]
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = id, type = typing.Optional[str]
+DEBUG 2026-08-13 10:49:39 decoding.py:313 Decoding a Union field: typing.Optional[str]
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = actions_per_chunk, type = <class 'int'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = task, type = <class 'str'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = server_address, type = <class 'str'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = policy_device, type = <class 'str'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = chunk_size_threshold, type = <class 'float'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = aggregate_fn_name, type = <class 'str'>
+INFO 2026-08-13 10:49:39 t_client.py:486 {'actions_per_chunk': 16,
+ 'aggregate_fn_name': 'weighted_average',
+ 'chunk_size_threshold': 0.6,
+ 'client_device': 'cpu',
+ 'debug_visualize_queue_size': False,
+ 'fps': 30,
+ 'policy_device': 'cuda',
+ 'policy_type': 'groot',
+ 'pretrained_name_or_path': 'sammy-labs/brickbot_groot_v1',
+ 'robot': {'calibration_dir': None,
+           'cameras': {'front': {'backend': <Cv2Backends.ANY: 0>,
+                                 'color_mode': <ColorMode.RGB: 'rgb'>,
+                                 'fourcc': None,
+                                 'fps': 30,
+                                 'height': 480,
+                                 'index_or_path': 0,
+                                 'rotation': <Cv2Rotation.NO_ROTATION: 0>,
+                                 'warmup_s': 1,
+                                 'width': 640},
+                       'wrist': {'backend': <Cv2Backends.ANY: 0>,
+                                 'color_mode': <ColorMode.RGB: 'rgb'>,
+                                 'fourcc': None,
+                                 'fps': 30,
+                                 'height': 480,
+                                 'index_or_path': 1,
+                                 'rotation': <Cv2Rotation.NO_ROTATION: 0>,
+                                 'warmup_s': 1,
+                                 'width': 640}},
+           'disable_torque_on_disconnect': True,
+           'id': 'brick_follower',
+           'max_relative_target': None,
+           'num_read_retries': 2,
+           'port': '/dev/tty.usbmodem5AE60824171',
+           'position_d_coefficient': 32,
+           'position_i_coefficient': 0,
+           'position_p_coefficient': 16,
+           'use_degrees': True},
+ 'server_address': '127.0.0.1:8080',
+ 'task': "{'build the block wall on the green mat in the order yellow, pink, "
+         "orange': 'yellow and pink end to end, orange on top of both.'}"}
+DEBUG 2026-08-13 10:49:39 decoding.py:281 Decoding a Dict field: typing.Dict[str, lerobot.motors.motors_bus.MotorCalibration]
+DEBUG 2026-08-13 10:49:39 decoding.py:130 from_dict for <class 'lerobot.motors.motors_bus.MotorCalibration'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = id, type = <class 'int'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = drive_mode, type = <class 'int'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = homing_offset, type = <class 'int'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = range_min, type = <class 'int'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = range_max, type = <class 'int'>
+DEBUG 2026-08-13 10:49:39 decoding.py:130 from_dict for <class 'lerobot.motors.motors_bus.MotorCalibration'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = id, type = <class 'int'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = drive_mode, type = <class 'int'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = homing_offset, type = <class 'int'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = range_min, type = <class 'int'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = range_max, type = <class 'int'>
+DEBUG 2026-08-13 10:49:39 decoding.py:130 from_dict for <class 'lerobot.motors.motors_bus.MotorCalibration'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = id, type = <class 'int'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = drive_mode, type = <class 'int'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = homing_offset, type = <class 'int'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = range_min, type = <class 'int'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = range_max, type = <class 'int'>
+DEBUG 2026-08-13 10:49:39 decoding.py:130 from_dict for <class 'lerobot.motors.motors_bus.MotorCalibration'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = id, type = <class 'int'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = drive_mode, type = <class 'int'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = homing_offset, type = <class 'int'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = range_min, type = <class 'int'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = range_max, type = <class 'int'>
+DEBUG 2026-08-13 10:49:39 decoding.py:130 from_dict for <class 'lerobot.motors.motors_bus.MotorCalibration'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = id, type = <class 'int'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = drive_mode, type = <class 'int'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = homing_offset, type = <class 'int'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = range_min, type = <class 'int'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = range_max, type = <class 'int'>
+DEBUG 2026-08-13 10:49:39 decoding.py:130 from_dict for <class 'lerobot.motors.motors_bus.MotorCalibration'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = id, type = <class 'int'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = drive_mode, type = <class 'int'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = homing_offset, type = <class 'int'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = range_min, type = <class 'int'>
+DEBUG 2026-08-13 10:49:39 decoding.py:150 Decode name = range_max, type = <class 'int'>
+DEBUG 2026-08-13 10:49:39 ort_utils.py:65 Detected feetech-servo-sdk version: 1.0.0
+DEBUG 2026-08-13 10:49:39 ort_utils.py:65 Detected pyserial version: 3.5
+DEBUG 2026-08-13 10:49:39 ort_utils.py:65 Detected deepdiff version: 8.6.2
+DEBUG 2026-08-13 10:49:39 tors_bus.py:528 FeetechMotorsBus connected.
+INFO 2026-08-13 10:49:42 a_opencv.py:195 OpenCVCamera(0) connected.
+INFO 2026-08-13 10:49:44 a_opencv.py:195 OpenCVCamera(1) connected.
+INFO 2026-08-13 10:49:44 follower.py:109 brick_follower SOFollower connected.
+INFO 2026-08-13 10:49:44 t_client.py:114 Initializing client to connect to server at 127.0.0.1:8080
+INFO 2026-08-13 10:49:44 t_client.py:133 Robot connected and ready
+DEBUG 2026-08-13 10:49:44 t_client.py:150 Connected to policy server in 0.2590s
+INFO 2026-08-13 10:49:44 t_client.py:156 Sending policy instructions to policy server
+DEBUG 2026-08-13 10:49:44 t_client.py:157 Policy type: groot | Pretrained name or path: sammy-labs/brickbot_groot_v1 | Device: cuda
+ERROR 2026-08-13 10:52:54 t_client.py:170 Failed to connect to policy server: <_InactiveRpcError of RPC that terminated with:
+	status = StatusCode.UNAVAILABLE
+	details = "failed to connect to all addresses; last error: UNAVAILABLE: ipv4:127.0.0.1:8080: Socket closed"
+	debug_error_string = "UNAVAILABLE:failed to connect to all addresses; last error: UNAVAILABLE: ipv4:127.0.0.1:8080: Socket closed"
+>
+DEBUG 2026-08-13 10:52:54 tors_bus.py:562 FeetechMotorsBus disconnected.
+INFO 2026-08-13 10:52:54 a_opencv.py:631 OpenCVCamera(0) disconnected.
+INFO 2026-08-13 10:52:54 a_opencv.py:631 OpenCVCamera(1) disconnected.
+INFO 2026-08-13 10:52:54 follower.py:238 brick_follower SOFollower disconnected.

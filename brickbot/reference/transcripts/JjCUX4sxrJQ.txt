@@ -1,0 +1,567 @@
+[00:00:00] This is the first in a series of videos
+[00:00:01] where I'm going to talk to you about
+[00:00:03] training robots. I'll take you all the
+[00:00:05] way from deciding how to choose a robot
+[00:00:07] to getting it installed, creating data,
+[00:00:10] training, and then evaluating
+[00:00:11] performance. You'll be able to create
+[00:00:13] data like this. So, you'll be able to
+[00:00:15] use a leader robot to pick up objects
+[00:00:18] like this little cube here, and then do
+[00:00:20] a pick and play place task. And of
+[00:00:23] course, you can generalize to more
+[00:00:24] complicated tasks. So, we'll be
+[00:00:26] gathering some data like this along the
+[00:00:28] course of this series of videos, and
+[00:00:30] I'll be explaining how these models
+[00:00:32] work. Now, there are four initial videos
+[00:00:35] I've planned. The first today about
+[00:00:36] building versus buying your first robot.
+[00:00:39] The next video then will be about the
+[00:00:41] basics of how these models work. I'll
+[00:00:43] cover three of the main models. The
+[00:00:44] action chunking transformer, Nvidia's
+[00:00:46] Groot N1, which is a pre-trained model
+[00:00:48] that you just need to fine-tune, and
+[00:00:49] then PI0, which is also pre-trained and
+[00:00:51] you can fine-tune. I will then show you
+[00:00:54] how to train the ACT model, action
+[00:00:56] trunking transformer from scratch and
+[00:00:59] I'll show you how to fine-tune the Groot
+[00:01:01] M1 model. Now, those three videos are
+[00:01:03] for later. Today, we're going to focus
+[00:01:05] on the build versus by decision. I'll
+[00:01:08] start by giving you an overview of this
+[00:01:10] robot here, which is called the SO1.
+[00:01:13] I'll describe its motors and movements.
+[00:01:15] I'll explain why I have two robots here,
+[00:01:17] how that's useful for gathering data,
+[00:01:19] and can help us out with training. Then
+[00:01:21] I'll talk about either building these by
+[00:01:24] 3D printing the parts and assembling
+[00:01:26] them with motors or buying the
+[00:01:28] ready-made robots. And last of all, I'll
+[00:01:30] give you a quick intro to how the
+[00:01:32] models, the AI models work. It'll be
+[00:01:34] somewhat cursory, but I want to repeat
+[00:01:35] myself a few times over the course of
+[00:01:37] this series so the concepts become
+[00:01:39] clear.
+[00:01:42] So I have two robots here. This one here
+[00:01:44] is called the leader robot, and this one
+[00:01:47] here is called the follower. The
+[00:01:49] follower is the one that does the work.
+[00:01:51] And you'll notice that the follower
+[00:01:53] ultimately, well, you won't notice, but
+[00:01:55] ultimately the follower should be
+[00:01:56] operating on its own and doing this pick
+[00:01:58] and place task of picking up the cube
+[00:02:00] and putting it over here into the bowl.
+[00:02:03] Now, to help the follower do that, it
+[00:02:05] has access to two cameras. The first
+[00:02:07] camera here, which we're calling a wrist
+[00:02:09] camera, because the robot is able to
+[00:02:11] twist its wrist like this. And there's
+[00:02:14] also a camera you can see right here,
+[00:02:15] which is a front view camera that's
+[00:02:18] showing the whole picture, both the
+[00:02:20] robot and its movements, but also the
+[00:02:22] cube and the bowl itself. Now, you could
+[00:02:25] just train with one camera. I've done it
+[00:02:26] myself just using the wrist camera, but
+[00:02:29] the more cameras you have, I won't say
+[00:02:31] the more internet is maybe too much, but
+[00:02:33] if you have two cameras, it's generally
+[00:02:34] going to perform better than having one
+[00:02:36] camera. Now the way I have it set up
+[00:02:39] here, I'm able to very easily look at
+[00:02:41] what's happening when I move this one
+[00:02:44] and I am copying well it's copying me uh
+[00:02:47] on the left hand side and this is
+[00:02:49] deterministic. There is no AI involved
+[00:02:51] at this point. Any movement that I make
+[00:02:54] here it will measure the rotation of the
+[00:02:56] motor and then it will try to bring this
+[00:02:58] motor here to the same position as the
+[00:03:01] one that I have for my leader.
+[00:03:04] Now, because this movement here, you
+[00:03:06] can't see it because it's very fast, but
+[00:03:08] this movement is always going to lag a
+[00:03:10] little bit, the leader movement, and
+[00:03:13] it's that difference in angle, that tiny
+[00:03:15] bit of lag that will drive a current
+[00:03:17] that is going to cause this motor to
+[00:03:20] move, to be in the same position as this
+[00:03:22] motor. And that control is called a P
+[00:03:25] loop. It's a proportional, integrator,
+[00:03:27] differential. These are the three terms
+[00:03:29] that are used in the controller. You
+[00:03:31] don't need to worry about that because
+[00:03:32] it's all pre-programmed. But behind the
+[00:03:34] scenes, what's happening is my motor
+[00:03:36] here is changing position. It's leading
+[00:03:39] the movement. And that gap between this
+[00:03:41] motor's position and the recorded
+[00:03:43] position here is allowing a current to
+[00:03:46] be designed to give exactly the right
+[00:03:48] movement to get it to copy.
+[00:03:51] Now, why do I have two of these? I have
+[00:03:53] them so I can create data. And this is
+[00:03:55] something I'll do in later videos, but
+[00:03:57] I'll be using this leader robot to pick
+[00:03:59] up the queue very many times and create
+[00:04:02] some different data sets. So I'll be
+[00:04:04] able to pick like this. I'll be able to
+[00:04:07] put it down like this. And we will have
+[00:04:09] recorded the movements. Well, we'll have
+[00:04:11] recorded the movements by camera here,
+[00:04:13] by camera here. And we will also record
+[00:04:15] the movements of the leader because the
+[00:04:19] difference again between the leaders
+[00:04:21] angles of the motors and the followers
+[00:04:23] is ultimately giving us the signal for
+[00:04:25] how we should control the currents
+[00:04:27] albeit automated behind the scenes. Now
+[00:04:30] just a few more notes on this here which
+[00:04:32] is an S101
+[00:04:34] robot that is a slightly updated version
+[00:04:37] than the SO00. Both of them are
+[00:04:40] described in great detail by hugging
+[00:04:42] face and I'll put links uh in the
+[00:04:44] description. Now, let me describe the
+[00:04:46] robot briefly and then I'll describe
+[00:04:48] what's different about SO101 versus SO
+[00:04:50] 100 and earlier robots like the MOS V1.
+[00:04:54] This has got six different motors. I'll
+[00:04:57] probably turn this one to look easier.
+[00:04:59] It has a first one here which controls
+[00:05:01] the gripper. Notice how on the follower
+[00:05:03] hand it's in the form of a trigger which
+[00:05:06] is just easier. And on this hand here,
+[00:05:08] it's actually a pinser. The second motor
+[00:05:11] is the wrist. So, you're able to rotate
+[00:05:13] like this. The third motor is then kind
+[00:05:16] of an elbow joint here. There's an other
+[00:05:19] joint right here. That's the fifth. Um,
+[00:05:22] let me see if I'm counting right. 1 2 3.
+[00:05:25] Sorry, this is the fourth. The fifth
+[00:05:27] motor is here. And then the sixth motor
+[00:05:29] is allowing me to rotate like this. So,
+[00:05:31] this is a six motor robot. and it's
+[00:05:34] replicated to be the exact same on the
+[00:05:37] follower uh the follower roer and on the
+[00:05:40] leader.
+[00:05:42] Now the SO 101 differs from the SO00
+[00:05:46] only in very small ways. The wiring here
+[00:05:48] of the motors together is slightly
+[00:05:50] better and more neat than it is in the
+[00:05:52] SO. The second difference is that in the
+[00:05:56] SO00 design,
+[00:05:58] the motors here are all the same. Every
+[00:06:00] single motor is the same. And this
+[00:06:02] causes a problem because when I want to
+[00:06:04] manually move this leader robot here, if
+[00:06:07] you have motors that are geared to
+[00:06:09] provide the right strength, it makes it
+[00:06:11] very hard to make movements like this.
+[00:06:13] And so to overcome that, these motors
+[00:06:16] are actually different in the SO101, and
+[00:06:19] they allow me to they're basically
+[00:06:20] geared to be looser, so I can still move
+[00:06:23] them. In the SO00, you had to actually
+[00:06:26] remove the gears from each of these
+[00:06:27] motors, which was a bit of a pain
+[00:06:29] because you'd have to take the screws
+[00:06:30] off, take the gears out in order to
+[00:06:32] loosen up. But this is all uh solved for
+[00:06:35] in the SO 101.
+[00:06:38] So now I'll show you very briefly how we
+[00:06:40] are going to train these uh train these
+[00:06:44] robots. Quite simply, we're going to
+[00:06:47] have at any time stamp, we're going to
+[00:06:49] have an image from this camera, an image
+[00:06:52] from this camera, and we're going to
+[00:06:54] have the motor positions, all six motor
+[00:06:56] positions fed in to a transformer to a
+[00:06:58] neural net. And the neural net is going
+[00:07:01] to be asked to predict the next
+[00:07:03] sequence, not just one motor position,
+[00:07:05] but the next sequence of maybe 10 motor
+[00:07:07] positions. So for each of these six
+[00:07:10] motors, the model is going to have to
+[00:07:12] predict the 10 next time stamps, which
+[00:07:14] could be, for example, at 10
+[00:07:16] milliseconds apart. They're generally
+[00:07:18] going to be very close or very short
+[00:07:21] time um cadences between each of those
+[00:07:23] timestamps. So ultimately, and you'll
+[00:07:25] see this in all of the models we cover,
+[00:07:27] we're going to typically predict a
+[00:07:29] number of time stamps, not just one. It
+[00:07:31] would be too slow to recursively predict
+[00:07:33] uh very frequent ones. So we predict a
+[00:07:35] full chunk. That's why it's called
+[00:07:37] action chunking. you'll see and they are
+[00:07:39] all the future motor positions and if we
+[00:07:42] have the future motor positions we then
+[00:07:44] use the P loop the controller loop in
+[00:07:46] order to bring the motors to those
+[00:07:49] future positions. So you can imagine
+[00:07:51] that at every time stamp we're going to
+[00:07:54] predict 10 time stamps forward. We will
+[00:07:56] then roll out well the the robot will do
+[00:07:59] that. It will take those 10 steps and in
+[00:08:01] that time we'll have to predict the next
+[00:08:03] 10 time stamps. And so we're going to
+[00:08:06] keep doing that. We predict 10, move 10,
+[00:08:07] predict 10, move 10. And there will be
+[00:08:09] some overlap in the computing movement.
+[00:08:12] You can see that here on my slides. So a
+[00:08:15] brief uh model overview. We have the
+[00:08:16] risk camera coming in as input. We have
+[00:08:19] the overhead camera or the front camera
+[00:08:22] and we have the current motor positions.
+[00:08:23] These go into a neural net and they will
+[00:08:25] give us predicted motor positions.
+[00:08:28] Typically 10 future positions for each
+[00:08:31] of the six motors.
+[00:08:33] So as an example, the current motor
+[00:08:35] position if we had a one motor robot
+[00:08:37] could be 30°. The model will predict the
+[00:08:40] motor positions for the next time 10
+[00:08:41] time stamps which might be in 20
+[00:08:43] milliseconds, 31, then 32, then 35, etc.
+[00:08:47] The robot will execute those actions
+[00:08:49] that would take 200 milliseconds if it's
+[00:08:51] 20 milliseconds per time stamp. And
+[00:08:53] while the robot executes, the model will
+[00:08:55] receive another image from the camera,
+[00:08:58] another set of motor positions, and it
+[00:09:00] will predict the next 200 milliseconds.
+[00:09:01] So it's moving forward in chunks like
+[00:09:03] this. And you'll see this when we train.
+[00:09:05] But if you make the chunks of prediction
+[00:09:07] too long, it becomes unstable towards
+[00:09:09] the end of the prediction because it
+[00:09:12] might veer off in a direction that's
+[00:09:13] different from the reality of how the
+[00:09:15] robot moves. But if you make them too
+[00:09:17] short on the other hand, then it can be
+[00:09:20] quite hard for the computer to be done
+[00:09:22] computing in time for the next set of
+[00:09:25] predictions to be ready. So you have
+[00:09:26] this trade-off where you want your
+[00:09:28] horizon to be kind of long enough so you
+[00:09:30] have time to compute but you also don't
+[00:09:32] want it to be too long because it
+[00:09:33] becomes unstable and there are some
+[00:09:35] other considerations we'll see.
+[00:09:38] Now just in terms there'll be a lot of
+[00:09:40] terminology here uh when we talk about
+[00:09:42] the current motor positions so the
+[00:09:44] angles you see here this is often called
+[00:09:46] the proprioception.
+[00:09:48] Another piece of terminology that I
+[00:09:50] think is a bit misleading. We are
+[00:09:52] typically predicting motor positions.
+[00:09:54] Those are fed to the controller and that
+[00:09:57] is all handled itself. There's no AI
+[00:09:58] involved. But sometimes we call those
+[00:10:00] motor positions actions which can be a
+[00:10:03] bit confusing. But you'll often hear
+[00:10:05] hear about actions or latent actions and
+[00:10:09] these really refer to motor positions
+[00:10:11] that are being predicted.
+[00:10:14] Here you can see that the predicted
+[00:10:16] motor positions are going to be
+[00:10:17] typically for the next time step steps.
+[00:10:19] 10 time steps. It will differ between
+[00:10:21] models, but this will be the first
+[00:10:22] model. For ACT, we'll probably aim for
+[00:10:24] 10 time steps. H for each of the six
+[00:10:26] motors. So, we're actually predicting 60
+[00:10:29] scalers here. We're predicting 10 times
+[00:10:31] the number of motors. And each of these
+[00:10:34] is a scaler that you can think of as
+[00:10:35] going from some angle maybe minus 180 to
+[00:10:38] + 180. Uh it might be scaled
+[00:10:40] differently, but you can just think of
+[00:10:41] it like that.
+[00:10:43] There is one other form of input that we
+[00:10:45] will see which is a text command. In the
+[00:10:47] simplest act model, the text command is
+[00:10:50] basically just some some fixed token.
+[00:10:53] But in the more advanced models like
+[00:10:54] root N1 or PI, they are actually using V
+[00:10:57] vision language models and those have
+[00:11:00] got the ability to input text. So you
+[00:11:02] could literally say pick up the blue
+[00:11:04] cube and put it into uh this container
+[00:11:08] here. So there can be a text input as
+[00:11:11] well. Everything, the text, the camera's
+[00:11:14] input, the image, the overhead camera,
+[00:11:15] and the current motor positions, they go
+[00:11:18] through encoders. So they they are
+[00:11:19] converted into embeddings that will be
+[00:11:21] the right size to go into the neural
+[00:11:22] net. Often we will use off-the-shelf
+[00:11:25] encoders. They're not shown here.
+[00:11:27] Perhaps we would use a clip model for
+[00:11:28] vision. Uh perhaps we would use a Gemma
+[00:11:31] or Polygeemma model for doing text and
+[00:11:34] language, sorry, text and images. So we
+[00:11:36] will encode this information, pass it
+[00:11:38] through the neural net, and then predict
+[00:11:39] some motor positions.
+[00:11:42] Now, how are robotic models different
+[00:11:44] from LLMs? They are substantially
+[00:11:47] different. I would say typically they
+[00:11:50] are not auto reggressive. I've already
+[00:11:52] said many times we would predict a chunk
+[00:11:54] of of motor positions in the future, not
+[00:11:57] just one at a time. We won't auto
+[00:11:59] reggressively generate new words like we
+[00:12:01] do in language models. One of the
+[00:12:03] reasons for that is we need to be able
+[00:12:05] to move very quickly to keep up with
+[00:12:06] real time. And if you had to just do it
+[00:12:09] one time stamp at a time and each time
+[00:12:11] stamp's only 10 milliseconds, it's going
+[00:12:12] to be very hard to autoregressively
+[00:12:14] decode fast enough.
+[00:12:17] The second thing that's unlike language
+[00:12:19] models is we don't really put in a
+[00:12:20] history. In language models, we've got a
+[00:12:23] whole sentence and we try and continue
+[00:12:25] the sentence. But here we're just
+[00:12:26] putting in the latest time uh the latest
+[00:12:28] images. We're putting in the latest
+[00:12:30] motor positions. So there's not this
+[00:12:32] analogy of putting in the history. Now
+[00:12:34] it actually could improve performance.
+[00:12:36] You'll see in literature if you put in
+[00:12:38] even one historical set of motor
+[00:12:40] positions this can help a lot with
+[00:12:42] smoothing. So that's a more advanced
+[00:12:44] technique but we won't see it within the
+[00:12:45] models we're covering.
+[00:12:47] Another difference with language models
+[00:12:49] is we aren't outputting tokens. We are
+[00:12:51] outputting motor positions which are
+[00:12:53] scalers. They vary from say minus 180 to
+[00:12:55] plus 180. Whereas in language models
+[00:12:57] things are quantized. We have specific
+[00:12:59] tokens. So that's a difference. We'll
+[00:13:02] also see not in the ACT model but in the
+[00:13:04] Groot and the PI zero model that we will
+[00:13:07] use diffusion models much like how say
+[00:13:11] any of those image models uh stable
+[00:13:14] diffusion for example midjourney those
+[00:13:17] companies they're using diffusion to
+[00:13:18] create images and we will be using
+[00:13:20] diffusion to create a trajectory a
+[00:13:23] trajectory of motor positions. So, we'll
+[00:13:26] see that. Last of all, the models we're
+[00:13:29] going to look at are generally small.
+[00:13:31] They need to be small because they need
+[00:13:32] to be fast to keep up with real time. If
+[00:13:34] we used a big GBT4 model, it would be
+[00:13:36] very difficult to decode fast enough uh
+[00:13:39] to keep up with real time and move the
+[00:13:41] robot in the right speed.
+[00:13:45] Now, I won't get into too much detail
+[00:13:47] here, um, but I want to give you a quick
+[00:13:49] idea of the robots, the models we're
+[00:13:51] going to use. I talked about act action
+[00:13:53] trunking transformer groo and pi zero.
+[00:13:56] They are all transformers. They all use
+[00:13:58] the concept of tension which means
+[00:14:00] looking back and looking at the
+[00:14:01] interreationships between say images and
+[00:14:03] text and images and motor positions.
+[00:14:06] Groot and pi zero are trans are
+[00:14:08] diffusion transformers whereas ACT is
+[00:14:10] not. It's a pure transformer. It's not a
+[00:14:12] token producing transformer but it
+[00:14:14] produces motor scalar values. ACT is not
+[00:14:18] pre-trained. It's a very lightweight
+[00:14:20] model. It's only about 200 megabytes.
+[00:14:22] You will fully train it yourself in uh
+[00:14:24] the third tutorial. Whereas Groot and Pi
+[00:14:27] 0, they are pre-trained. They have used
+[00:14:29] large amount of data. Groot,
+[00:14:31] interestingly, has used unlabeled
+[00:14:32] videos, which means videos of robots
+[00:14:34] where you don't know the motor
+[00:14:35] positions. We'll talk about how that's
+[00:14:37] even possible to do. And PI 0 uses a
+[00:14:39] large amount of robotics data that is
+[00:14:41] labeled as I understand.
+[00:14:44] Lastly, ACT. It's a simple model. It's
+[00:14:46] fast, but it cannot multitask very well.
+[00:14:48] Whereas the other models, they are
+[00:14:50] capable of embodying many different
+[00:14:52] tasks and you can command them to do
+[00:14:54] different tasks, particularly if you add
+[00:14:56] fine-tuning for specific tasks. Note
+[00:14:58] that none of these models we're going to
+[00:15:00] cover are auto reggressive. This isn't
+[00:15:02] really seen in robotics. I expect maybe
+[00:15:04] it'll be seen more in the future. Just
+[00:15:06] like with audio, we've got more auto
+[00:15:07] reagent models now. And none of these
+[00:15:10] use tokens for motor positions. So
+[00:15:12] there's no quantization of the motor
+[00:15:13] positions here.
+[00:15:16] If you did watch my series on time
+[00:15:18] series, which is forecasting things like
+[00:15:20] weather or stocks or different anything
+[00:15:22] in a time series, there's a strong
+[00:15:24] analogy here between ACT and patch tst,
+[00:15:27] which is a lightweight time series
+[00:15:29] forecasting model. It also predicts a
+[00:15:31] chunk of future uh timestamps kind of
+[00:15:34] like ACT. And then there's kind of an
+[00:15:36] analogy between Kronos and Groot. Kronos
+[00:15:39] is actually auto reggressive, but it's a
+[00:15:40] pre-trained model just like Groot. It's
+[00:15:43] trained on a lot of data and can
+[00:15:44] generalize very well for time series.
+[00:15:46] Groot and pi zero can generalize pretty
+[00:15:49] well. At least we'll see if they do
+[00:15:50] generalize in practice uh for any
+[00:15:53] application particularly issue find like
+[00:15:55] cross.
+[00:15:58] So I've done this in a bit of a
+[00:15:59] different order but what I want to talk
+[00:16:01] about now is the question of building or
+[00:16:03] buying.
+[00:16:05] You have a few options. One option is to
+[00:16:08] go all out and to build it yourself by
+[00:16:10] buying the individual motors. So you can
+[00:16:13] buy these little motors here on Alibaba.
+[00:16:17] And of course you'll need slightly
+[00:16:19] different motors if you want the SO101
+[00:16:21] compared to the SO 100. And you can then
+[00:16:23] print using a 3D printer, which I'll
+[00:16:25] talk about in a second, all of these
+[00:16:27] parts. And this is a a significant
+[00:16:29] improvement on say the MOSS V1, which
+[00:16:32] was very nicely designed, but required
+[00:16:34] you to put these brackets together.
+[00:16:35] There was no 3D printing, but the 3D
+[00:16:37] printing makes it uh quite a quite a lot
+[00:16:39] easier. I will note that there can be
+[00:16:42] some errors when you 3D print and
+[00:16:44] sometimes the screws, they don't hold
+[00:16:46] very well. If you look here at my camera
+[00:16:50] holder, which I had to screw in, it's
+[00:16:53] actually missing um it's missing a screw
+[00:16:55] here. And I did try to put the screw in,
+[00:16:57] but it got unthreaded or it basically
+[00:16:59] broke the threads. So, I got a little
+[00:17:01] bit of Gorilla Glue and I just glued it
+[00:17:03] down there so that it's steady in
+[00:17:05] position because you probably don't want
+[00:17:06] that moving. Could cause some noise
+[00:17:08] during the data collection.
+[00:17:10] So, you do have the option to print. If
+[00:17:12] you print, the problem is you're
+[00:17:14] probably not going to get the same price
+[00:17:16] on these motors as somebody who's
+[00:17:18] selling the full package. And also, you
+[00:17:20] need to have a 3D printer, uh, which
+[00:17:22] I'll talk about in a moment. So you'll
+[00:17:24] have either cost of buying a 3D printer,
+[00:17:25] which is a cool thing to have or the
+[00:17:27] cost of somehow finding online somewhere
+[00:17:29] to print them. So for that reason, I
+[00:17:32] actually, even though I have a 3D
+[00:17:33] printer and I've 3D printed uh some of
+[00:17:35] the parts and I've assembled a Mosby one
+[00:17:37] before, I did buy this and I bought it
+[00:17:39] for about I think €200 plus it cost me a
+[00:17:43] little bit more because of customs and
+[00:17:45] then shipping. But the beauty is I got
+[00:17:47] this and I was able to get it running
+[00:17:49] within probably uh a few hours. It's
+[00:17:52] actually the motors are already
+[00:17:53] calibrated. So, I just needed to do a
+[00:17:55] more general kind of homing of the
+[00:17:58] robots, which means just putting them in
+[00:18:00] kind of a standard centralized position
+[00:18:02] and then uh basically moving them
+[00:18:04] through a full range of movement. I'll
+[00:18:06] show you that uh on the third video.
+[00:18:09] Either way, that allowed me to start
+[00:18:11] quite a lot faster. And I think it
+[00:18:12] probably was similar price or maybe not
+[00:18:16] too much more expensive than printing
+[00:18:18] stuff myself and then uh having to buy
+[00:18:20] the motors and the parts in any case cuz
+[00:18:22] you will need to buy things like the
+[00:18:24] camera. You'll need to buy say this uh
+[00:18:26] holder here to hold this sturdily down.
+[00:18:29] I bought these mats uh separately on
+[00:18:31] Amazon just to have some kind of surface
+[00:18:33] to protect the table.
+[00:18:36] So you can find some links um on the
+[00:18:38] hugging face documentation which I'll
+[00:18:40] link as well where I'll give a
+[00:18:42] description of well hugging face has
+[00:18:44] given a description of where you can
+[00:18:45] directly buy these these assembled or
+[00:18:48] you can order the individual motors like
+[00:18:50] this. There's a parts list for the US,
+[00:18:51] for the EU, and I think for outside of
+[00:18:53] those two locations.
+[00:18:55] Just with respect to 3D printing, I
+[00:18:58] myself have got an Ender V3SE,
+[00:19:02] and it's a printer that's got a print
+[00:19:04] plate of about 220 x 220, and it can
+[00:19:07] print up to 250. That is actually not
+[00:19:10] big enough to be able to print all of
+[00:19:11] the parts at once. So, you need to batch
+[00:19:13] it into two. In hindsight, and I've had
+[00:19:16] the printer a little while, I probably
+[00:19:17] would have bought a bamboo A1 instead,
+[00:19:20] which has got a 256 x 256 mm x 256
+[00:19:24] height. And I think you can fit um all
+[00:19:27] or substantially all of the parts in one
+[00:19:29] print. So, you're going to save time in
+[00:19:30] printing if you have the bamboo A1
+[00:19:32] instead of the Ender V3SE that I
+[00:19:35] purchased. Now, the Bamboo is a bit more
+[00:19:37] expensive. It's definitely less than
+[00:19:38] 300. Whereas uh the Ender V3SE,
+[00:19:42] the Ender 3, V3SE, it's a complicated
+[00:19:45] name. It's probably you can get it for
+[00:19:47] less than 200. That's what I got it for.
+[00:19:50] So, those are your options on build
+[00:19:52] versus buy. If you do order it, probably
+[00:19:54] you've got about a week before you
+[00:19:56] receive it. So, um if you're interested
+[00:19:58] in kind of following along, I'll be
+[00:20:00] trying to release these videos on a
+[00:20:01] weekly basis. For now, I've got a GitHub
+[00:20:04] brief, as you might expect if you watch
+[00:20:06] this channel often. It's called Advanced
+[00:20:08] Robotics. It contains already some
+[00:20:11] description of the build versus by um
+[00:20:13] decision and some of the key links. And
+[00:20:16] it's also got some scripts that I'm
+[00:20:18] working on for training the ACT model
+[00:20:20] and the Groot model. And those scripts
+[00:20:22] will become final and available on that
+[00:20:24] uh paid repo. You can find more details
+[00:20:26] at trellis.com/advanced-rootics
+[00:20:30] if you're interested in having access to
+[00:20:32] the scripts. Um, if you're not in a
+[00:20:34] position to purchase, I will try and
+[00:20:36] describe as much as I can in these
+[00:20:38] videos so you can hopefully follow along
+[00:20:40] with your own digging and a bit of help
+[00:20:41] from chat GPT2. That's it for this first
+[00:20:44] video here on build versus buy. You can
+[00:20:47] let me know any of your questions down
+[00:20:48] below in the comments. Cheers.

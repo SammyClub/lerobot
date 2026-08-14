@@ -1,0 +1,6 @@
+outputs/
+wandb/
+*.vtt
+.DS_Store
+__pycache__/
+scripts/.cloud_policy_job.json

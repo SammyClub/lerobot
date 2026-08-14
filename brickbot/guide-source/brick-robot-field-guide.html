@@ -1,0 +1,1074 @@
+<title>Brick-Laying Robot Field Guide — SO-101 + LeRobot</title>
+<style>
+  :root {
+    --bg: #f4f5f2;
+    --surface: #ffffff;
+    --surface-2: #ebede8;
+    --ink: #21262a;
+    --ink-soft: #565e63;
+    --line: #d6d9d2;
+    --brick: #a8452b;
+    --brick-soft: #f3e2db;
+    --blue: #2e5e8c;
+    --blue-soft: #e3ecf4;
+    --code-bg: #22272b;
+    --code-ink: #dfe5e2;
+    --code-accent: #e8a075;
+    --warn-bg: #f6ead9;
+    --warn-edge: #b07822;
+    --serif: "Charter", "Iowan Old Style", Georgia, "Times New Roman", serif;
+    --sans: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #17191c; --surface: #1e2225; --surface-2: #24292d; --ink: #e3e1da;
+      --ink-soft: #a2a8a5; --line: #353b3f; --brick: #d97a55; --brick-soft: #3a2a23;
+      --blue: #85aed4; --blue-soft: #22303d; --code-bg: #101315; --code-ink: #d5dcd8;
+      --code-accent: #e8a075; --warn-bg: #322a1c; --warn-edge: #cf9b45;
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #f4f5f2; --surface: #ffffff; --surface-2: #ebede8; --ink: #21262a;
+    --ink-soft: #565e63; --line: #d6d9d2; --brick: #a8452b; --brick-soft: #f3e2db;
+    --blue: #2e5e8c; --blue-soft: #e3ecf4; --code-bg: #22272b; --code-ink: #dfe5e2;
+    --code-accent: #e8a075; --warn-bg: #f6ead9; --warn-edge: #b07822;
+  }
+  :root[data-theme="dark"] {
+    --bg: #17191c; --surface: #1e2225; --surface-2: #24292d; --ink: #e3e1da;
+    --ink-soft: #a2a8a5; --line: #353b3f; --brick: #d97a55; --brick-soft: #3a2a23;
+    --blue: #85aed4; --blue-soft: #22303d; --code-bg: #101315; --code-ink: #d5dcd8;
+    --code-accent: #e8a075; --warn-bg: #322a1c; --warn-edge: #cf9b45;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: var(--serif); font-size: 17px; line-height: 1.65;
+    margin: 0; padding: 0;
+  }
+  .wrap { max-width: 840px; margin: 0 auto; padding: 0 24px 96px; }
+
+  header.hero { padding: 64px 0 40px; border-bottom: 3px solid var(--brick); margin-bottom: 40px; }
+  .eyebrow {
+    font-family: var(--sans); font-size: 12px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--brick); margin: 0 0 14px;
+  }
+  h1 {
+    font-family: var(--sans); font-weight: 800; font-size: clamp(30px, 5.5vw, 46px);
+    line-height: 1.08; letter-spacing: -0.02em; margin: 0 0 18px; text-wrap: balance;
+  }
+  .standfirst { font-size: 19px; color: var(--ink-soft); max-width: 60ch; margin: 0; }
+
+  h2 {
+    font-family: var(--sans); font-weight: 800; font-size: 26px; letter-spacing: -0.015em;
+    margin: 64px 0 6px; padding-top: 18px; border-top: 1px solid var(--line); text-wrap: balance;
+  }
+  h2 .phase {
+    display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--brick); margin-bottom: 6px;
+  }
+  h3 { font-family: var(--sans); font-weight: 700; font-size: 19px; margin: 34px 0 8px; }
+  p { margin: 12px 0; max-width: 70ch; }
+  a { color: var(--blue); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  strong { font-weight: 700; }
+  ul, ol { padding-left: 26px; max-width: 70ch; }
+  li { margin: 6px 0; }
+
+  code {
+    font-family: var(--mono); font-size: 0.86em;
+    background: var(--surface-2); padding: 1px 5px; border-radius: 4px;
+  }
+  pre {
+    background: var(--code-bg); color: var(--code-ink);
+    font-family: var(--mono); font-size: 13.5px; line-height: 1.6;
+    padding: 16px 18px; border-radius: 8px; overflow-x: auto; margin: 12px 0;
+  }
+  pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+  pre .c { color: #7f8a86; }
+  pre .hl { color: var(--code-accent); }
+
+  details.term { margin: 10px 0 2px; }
+  details.term summary {
+    cursor: pointer; font-family: var(--sans); font-size: 13px; font-weight: 600;
+    color: var(--ink-soft); list-style-position: inside;
+  }
+  details.term summary:hover { color: var(--ink); }
+  details.term[open] summary { margin-bottom: 6px; }
+
+  /* Step lists */
+  ol.steps { list-style: none; counter-reset: step; padding: 0; margin: 18px 0; max-width: none; }
+  ol.steps > li {
+    counter-increment: step; position: relative;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+    padding: 16px 20px 16px 66px; margin: 10px 0;
+  }
+  ol.steps > li::before {
+    content: counter(step);
+    position: absolute; left: 20px; top: 16px;
+    font-family: var(--sans); font-weight: 800; font-size: 21px; line-height: 1.2;
+    color: var(--brick); font-variant-numeric: tabular-nums;
+  }
+  ol.steps .st {
+    display: block; font-family: var(--sans); font-weight: 700; font-size: 16px;
+    margin-bottom: 4px;
+  }
+  ol.steps p { margin: 6px 0; font-size: 15.5px; }
+  ol.steps pre { margin: 10px 0 4px; }
+  ol.steps ul { font-size: 15.5px; }
+
+  .tablebox { overflow-x: auto; margin: 16px 0; }
+  table { border-collapse: collapse; width: 100%; font-family: var(--sans); font-size: 14.5px; }
+  th {
+    text-align: left; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink-soft); padding: 8px 12px; border-bottom: 2px solid var(--line); white-space: nowrap;
+  }
+  td { padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  td code { white-space: nowrap; }
+  .num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  .callout {
+    background: var(--warn-bg); border-left: 4px solid var(--warn-edge);
+    padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 18px 0;
+    font-family: var(--sans); font-size: 15px;
+  }
+  .callout strong.title { display: block; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--warn-edge); margin-bottom: 4px; }
+  .note {
+    background: var(--blue-soft); border-left: 4px solid var(--blue);
+    padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 18px 0;
+    font-family: var(--sans); font-size: 15px;
+  }
+  .note strong.title { display: block; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--blue); margin-bottom: 4px; }
+
+  .verdict {
+    background: var(--brick-soft); border: 1px solid var(--brick);
+    border-radius: 10px; padding: 20px 24px; margin: 24px 0;
+    font-family: var(--sans); font-size: 15.5px;
+  }
+  .verdict h3 { margin-top: 0; color: var(--brick); }
+
+  nav.toc {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+    padding: 20px 26px; font-family: var(--sans); font-size: 15px; margin: 0 0 8px;
+  }
+  nav.toc ol { margin: 8px 0 0; padding-left: 22px; columns: 2; column-gap: 32px; }
+  nav.toc li { margin: 4px 0; break-inside: avoid; }
+  nav.toc a { text-decoration: none; }
+  nav.toc a:hover { text-decoration: underline; }
+  nav.toc .toc-title { font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); }
+  @media (max-width: 560px) { nav.toc ol { columns: 1; } }
+
+  .check {
+    font-family: var(--sans); font-size: 15px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+    padding: 16px 20px; margin: 18px 0;
+  }
+  .check label { display: flex; gap: 10px; align-items: baseline; padding: 5px 0; cursor: pointer; }
+  .check input { accent-color: var(--brick); transform: translateY(2px); flex-shrink: 0; }
+  .check .check-title { font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 6px; }
+
+  figure {
+    margin: 22px 0; padding: 18px 18px 12px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+  }
+  figure svg { display: block; max-width: 100%; height: auto; margin: 0 auto; }
+  figcaption {
+    font-family: var(--sans); font-size: 13.5px; color: var(--ink-soft);
+    margin-top: 10px; text-align: center;
+  }
+  svg text { font-family: var(--sans); }
+
+  .stages { display: grid; gap: 14px; margin: 20px 0; font-family: var(--sans); }
+  .stage {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+    padding: 16px 20px; display: grid; grid-template-columns: 56px 1fr; gap: 16px;
+  }
+  .stage .snum { font-weight: 800; font-size: 26px; color: var(--brick); font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .stage .snum small { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); }
+  .stage h4 { margin: 0 0 6px; font-size: 16px; }
+  .stage p { margin: 4px 0; font-size: 14.5px; color: var(--ink-soft); max-width: none; }
+  .stage .cost { font-size: 13px; color: var(--brick); font-weight: 700; }
+
+  footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--line); font-family: var(--sans); font-size: 13.5px; color: var(--ink-soft); }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto !important; } }
+  html { scroll-behavior: smooth; }
+</style>
+
+<div class="wrap">
+
+<header class="hero">
+  <p class="eyebrow">Project handbook · SO-101 · LeRobot · August 2026</p>
+  <h1>The Brick-Laying Robot Field&nbsp;Guide</h1>
+  <p class="standfirst">A step-by-step path from the unassembled SO-101 kit on your desk to a robot that learns tasks from your demonstrations — and an honest plan for reaching real bricks and mortar.</p>
+</header>
+
+<nav class="toc">
+  <span class="toc-title">Contents</span>
+  <ol>
+    <li><a href="#howto">How to use this guide</a></li>
+    <li><a href="#reality">Reality check</a></li>
+    <li><a href="#glossary">Words you will see</a></li>
+    <li><a href="#concepts">How the robot learns</a></li>
+    <li><a href="#versions">Warning: old instructions are everywhere</a></li>
+    <li><a href="#phase0">Phase 0 — Prepare and sort the kit</a></li>
+    <li><a href="#phase1">Phase 1 — Install the software</a></li>
+    <li><a href="#phase2">Phase 2 — Set up motors, assemble, calibrate</a></li>
+    <li><a href="#phase3">Phase 3 — Drive the robot by hand</a></li>
+    <li><a href="#phase4">Phase 4 — Record your demonstrations</a></li>
+    <li><a href="#phase5">Phase 5 — Train the policy</a></li>
+    <li><a href="#phase6">Phase 6 — Run the policy</a></li>
+    <li><a href="#bricks">The brick curriculum</a></li>
+    <li><a href="#mortar">Robot-friendly mortar</a></li>
+    <li><a href="#ladder">The hardware ladder</a></li>
+    <li><a href="#trouble">Troubleshooting</a></li>
+    <li><a href="#sources">Sources</a></li>
+  </ol>
+</nav>
+
+<!-- ================================================================ -->
+<h2 id="howto">How to use this guide</h2>
+<ul>
+  <li>Work through the phases in order, top to bottom. Each phase ends where the next begins.</li>
+  <li>Every numbered step is one small action. Do the step. Then read the next one.</li>
+  <li>Anything that looks like <code>this</code> is typed into the Terminal app (macOS: press ⌘-Space, type "Terminal", press Enter). Copy the whole block, paste it, press Enter.</li>
+  <li>Everything runs from the Terminal with copy-paste commands — each step below tells you exactly what to type and what you should see. (LeLab, Hugging Face's GUI app, exists as an alternative, but this guide does not use it.)</li>
+  <li>Values that appear in many commands: your two USB port names (found in Phase 2, shown in <span style="color:var(--brick); font-family:var(--mono); font-size:0.9em;">orange</span> placeholders — replace them), your Hugging Face username (<code>vik101</code>, used to log in), and the team org (<code>sammy-labs</code> — where datasets, policies, and the training credit live). <strong>Because other teams share the org, everything this project pushes there is prefixed <code>brickbot_</code></strong> — that prefix is our territory marker; never push an unprefixed repo.</li>
+  <li>Yellow boxes are warnings — read them before doing the steps next to them. Blue boxes are helpful context — read them once.</li>
+</ul>
+
+<p><strong>Time to expect:</strong> one weekend to build the arms and drive them by hand (Phases 0–3). One more day to record data and train your first policy (Phases 4–6). Then weeks of enjoyable iteration — that loop is where the real learning happens. A first policy that only works when everything is exactly like training is a <em>success</em>. That is what this type of model does.</p>
+
+<h3>Progress tracker</h3>
+<p>Tick items off as you complete them — this page remembers your progress (per browser). Pre-ticked items are already done.</p>
+<div class="check">
+  <span class="check-title">Setup &amp; build</span>
+  <label><input type="checkbox" data-k="p0a"> Kit sorted; power supplies labeled; servo variants checked (Phase 0)</label>
+  <label><input type="checkbox" data-k="p0b"> Extras in hand: wrist camera, hub, clamp — blocks ✓ (stacking-tower set) (Phase 0)</label>
+  <label><input type="checkbox" data-k="p1a" data-default="1"> Mac: LeRobot 0.6.1 installed, <code>lerobot-info</code> verified ✓ done 2026-08-04 (Phase 1)</label>
+  
+  <label><input type="checkbox" data-k="p1b" data-default="1"> Hugging Face login on the Mac as <code>vik101</code> ✓ done (Phase 1)</label>
+  <label><input type="checkbox" data-k="pc1" data-default="1"> Training compute: sammy-labs org credit loaded — training runs on a cloud A100 via HF Jobs ✓ done</label>
+  <label><input type="checkbox" data-k="p2a"> Both USB ports found and written down (Phase 2a)</label>
+  <label><input type="checkbox" data-k="p2b"> All 12 motor IDs programmed (Phase 2b)</label>
+  <label><input type="checkbox" data-k="p2c"> Both arms assembled and clamped (Phase 2b)</label>
+  <label><input type="checkbox" data-k="p2d"> Both arms calibrated as <code>brick_follower</code> / <code>brick_leader</code> (Phase 2c)</label>
+</div>
+<div class="check">
+  <span class="check-title">First policy</span>
+  <label><input type="checkbox" data-k="p3a"> Teleop works; 20 min practice done (Phase 3)</label>
+  <label><input type="checkbox" data-k="p3b"> Cameras mounted, framed, and fixed permanently (Phase 3)</label>
+  <label><input type="checkbox" data-k="p4a"> 50-episode dataset recorded and replay-checked (Phase 4)</label>
+  <label><input type="checkbox" data-k="p5a"> SmolVLA fine-tuned in the cloud via HF Jobs; loss flattened (Phase 5)</label>
+  <label><input type="checkbox" data-k="p6a"> Rollout succeeds at the trained position 8+/10 (Phase 6)</label>
+</div>
+
+<!-- ================================================================ -->
+<h2 id="reality">Reality check: the SO-101 will never lift a real brick — and that's fine</h2>
+
+<p>One number matters before anything else. The SO-101 can lift roughly <strong>200–500 grams</strong>. A standard clay brick weighs <strong>1.9–2.3 kilograms</strong> — four to eight times too heavy. The brick is also 92&nbsp;mm wide, which does not fit the gripper.</p>
+
+<div class="verdict">
+<h3>So what is the SO-101 for?</h3>
+<p>It is your <strong>training ground</strong>. Every commercial brick robot (Hadrian&nbsp;X, SAM100, Monumental) works from CAD plans and precise position control — <em>none of them uses learned AI policies</em>. So the skills you build here are genuinely new territory. Everything you learn on the SO-101 — collecting demonstrations, training policies, evaluating them — transfers directly to a bigger arm later. The plan: miniature bricks on the SO-101 now, a ~$2,500 arm with a 1.5&nbsp;kg payload for real lightweight masonry later, and a $15k+ arm for standard clay bricks only if you get that far and still want it. Full plan in <a href="#bricks">the brick curriculum</a>.</p>
+</div>
+
+<!-- ================================================================ -->
+<h2 id="glossary">Words you will see</h2>
+<div class="tablebox">
+<table>
+  <tr><th>Word</th><th>What it means here</th></tr>
+  <tr><td><strong>Follower arm</strong></td><td>The robot. It has a gripper. It does the work.</td></tr>
+  <tr><td><strong>Leader arm</strong></td><td>Your controller. It looks like the follower but has a handle with a trigger. You move it by hand; the follower copies it.</td></tr>
+  <tr><td><strong>Servo / motor</strong></td><td>The 12 black boxes in your kit (6 per arm). Each one is a motor that knows its own angle and can be told to move to an angle.</td></tr>
+  <tr><td><strong>Teleoperation ("teleop")</strong></td><td>Driving the follower by moving the leader. No AI involved — it is a direct copy.</td></tr>
+  <tr><td><strong>Episode</strong></td><td>One recorded demonstration of the task, start to finish. About 20–30 seconds.</td></tr>
+  <tr><td><strong>Dataset</strong></td><td>Your collection of episodes: camera videos plus motor angles, saved together.</td></tr>
+  <tr><td><strong>Policy</strong></td><td>The trained AI model. It looks at the cameras and decides how to move the motors. "Training a policy" = creating this model from your dataset.</td></tr>
+  <tr><td><strong>SmolVLA</strong></td><td>The policy you'll train: Hugging Face's pre-trained 450M vision-language-action model, fine-tuned on your demonstrations. It reads your task sentence.</td></tr>
+  <tr><td><strong>Calibration</strong></td><td>A one-time procedure that teaches each arm the limits of its joints, so both arms agree on what "elbow at 90°" means.</td></tr>
+  <tr><td><strong>Hugging Face Hub</strong></td><td>A free website (like GitHub, but for AI) where your datasets and policies are stored online. LeRobot uses it automatically.</td></tr>
+  
+  <tr><td><strong>Terminal / command</strong></td><td>The text window where you type commands. Every command in this guide goes there.</td></tr>
+  <tr><td><strong>Environment (conda)</strong></td><td>A clean, separate box of Python software so LeRobot's packages don't clash with anything else on your computer.</td></tr>
+</table>
+</div>
+
+<!-- ================================================================ -->
+<h2 id="concepts">How the robot learns — 3 minutes of theory</h2>
+
+<p>The method is called <strong>imitation learning</strong>. You show the robot the task about 50 times by driving it with the leader arm. Cameras record what the robot sees. The motors record how they moved. Then a neural network learns the pattern: "when the cameras see <em>this</em>, the motors should do <em>that</em>."</p>
+
+<figure>
+<svg viewBox="0 0 760 230" role="img" aria-label="Diagram of the teleoperation loop: your hand moves the leader arm, the computer copies its joint angles to the follower arm about 30 times per second, and two cameras send images of the follower's workspace back to the computer, which records everything.">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+    </marker>
+  </defs>
+  <g stroke="currentColor" fill="none" stroke-width="2">
+    <!-- leader arm -->
+    <rect x="40" y="150" width="70" height="18" rx="3"/>
+    <line x1="75" y1="150" x2="75" y2="100"/>
+    <line x1="75" y1="100" x2="115" y2="70"/>
+    <circle cx="75" cy="100" r="4" fill="currentColor"/>
+    <circle cx="115" cy="70" r="4" fill="currentColor"/>
+    <!-- hand -->
+    <circle cx="132" cy="52" r="9"/>
+    <!-- computer -->
+    <rect x="300" y="80" width="150" height="80" rx="8"/>
+    <!-- follower arm -->
+    <rect x="620" y="150" width="70" height="18" rx="3"/>
+    <line x1="655" y1="150" x2="655" y2="100"/>
+    <line x1="655" y1="100" x2="615" y2="70"/>
+    <circle cx="655" cy="100" r="4" fill="currentColor"/>
+    <!-- gripper -->
+    <line x1="615" y1="70" x2="603" y2="58"/>
+    <line x1="615" y1="70" x2="601" y2="76"/>
+    <!-- camera -->
+    <rect x="520" y="20" width="34" height="22" rx="4"/>
+    <line x1="554" y1="31" x2="566" y2="24"/>
+    <line x1="554" y1="31" x2="566" y2="38"/>
+  </g>
+  <!-- flows -->
+  <g stroke="currentColor" fill="none" stroke-width="1.6">
+    <line x1="150" y1="115" x2="292" y2="115" marker-end="url(#arr)"/>
+    <line x1="458" y1="115" x2="600" y2="115" marker-end="url(#arr)" stroke="var(--brick)"/>
+    <path d="M 520 34 C 470 40, 440 60, 420 76" marker-end="url(#arr)" stroke-dasharray="5 4"/>
+  </g>
+  <g fill="currentColor" font-size="12">
+    <text x="75" y="192" text-anchor="middle">Leader arm (you move it)</text>
+    <text x="655" y="192" text-anchor="middle">Follower arm (copies you)</text>
+    <text x="375" y="112" text-anchor="middle" font-weight="700">Computer</text>
+    <text x="375" y="130" text-anchor="middle">records everything</text>
+    <text x="221" y="103" text-anchor="middle">joint angles</text>
+    <text x="529" y="103" text-anchor="middle" fill="var(--brick)">copies angles ~30×/sec</text>
+    <text x="480" y="14" text-anchor="middle">cameras = what the robot "sees"</text>
+  </g>
+</svg>
+<figcaption>Teleoperation: you move the leader, the computer copies its angles to the follower, the cameras record. No AI yet — this is how you create the training data.</figcaption>
+</figure>
+
+<p>The trained policy then replaces you. At each moment it looks at: the two camera images and the six current motor angles. Nothing else — no memory, no history. It outputs a short plan of future motor angles, called a <strong>chunk</strong>:</p>
+
+<figure>
+<svg viewBox="0 0 760 130" role="img" aria-label="Diagram of action chunking: the policy predicts a chunk of 50 future steps, the robot executes roughly the first half, throws the rest away, and predicts again from a fresh camera image.">
+  <defs>
+    <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+    </marker>
+  </defs>
+  <g>
+    <rect x="40" y="40" width="340" height="26" fill="var(--brick)" opacity="0.85" rx="3"/>
+    <rect x="380" y="40" width="340" height="26" fill="none" stroke="currentColor" stroke-dasharray="5 4" stroke-width="1.6" rx="3"/>
+  </g>
+  <g stroke="currentColor" stroke-width="1.6" fill="none">
+    <path d="M 380 78 C 330 112, 110 112, 60 80" marker-end="url(#arr2)"/>
+  </g>
+  <g fill="currentColor" font-size="12">
+    <text x="210" y="31" text-anchor="middle" fill="var(--brick)" font-weight="700">execute first ~25 steps</text>
+    <text x="550" y="31" text-anchor="middle">rest of the chunk — thrown away</text>
+    <text x="185" y="112" text-anchor="middle">look at cameras again, predict a fresh chunk</text>
+    <text x="40" y="82">step 1</text>
+    <text x="720" y="82" text-anchor="end">step 50</text>
+  </g>
+</svg>
+<figcaption>"Predict a chunk, execute half, re-look, repeat" — SmolVLA predicts 50 steps; the client executes ~25 then re-requests. This keeps the robot responsive to what actually happens.</figcaption>
+</figure>
+
+<p>The policy you will train is <strong>SmolVLA</strong> — Hugging Face's 450-million-parameter vision-language-action model, pre-trained on community robot data and <em>fine-tuned</em> on your demonstrations from the <code>lerobot/smolvla_base</code> checkpoint. Small enough to train and serve cheaply, big enough to read your task sentence and generalize. Three facts that explain most of what you will observe:</p>
+<ul>
+  <li><strong>It starts smart, and your demos specialize it.</strong> Unlike a from-scratch model, SmolVLA already understands objects, language, and manipulation in general; your episodes teach it your specific arm, cameras, and task. It generalizes better than small models — but coverage still comes from varied episodes, not from more training steps.</li>
+  <li><strong>Consistency still beats quantity.</strong> Inconsistent demonstrations still teach a muddled behavior. Pick one style. Repeat it every episode.</li>
+  <li><strong>The cameras and your task sentence are its inputs.</strong> It genuinely reads the instruction — with a language-conditioned model, the task sentence describes the goal, and consistency of wording between recording and rollout matters. If you can't do the task from the camera images alone, neither can the model.</li>
+</ul>
+
+<!-- ================================================================ -->
+<h2 id="versions">Warning: old instructions are everywhere</h2>
+
+<p>LeRobot changed a lot in 2025–2026. Most tutorials on the internet — including the videos and the <code>ADVANCED-robotics</code> repo you cloned — show commands that <strong>no longer exist</strong>. That repo is by Trelis Research, the maker of the three videos. Its <em>advice</em> is excellent. Its <em>commands</em> are from mid-2025 and many rely on his personal fork of LeRobot. (A modernized copy of his Training docs now lives on the <code>modernize-lerobot-v0.6</code> branch of that repo.)</p>
+
+<p><strong>The rule:</strong> take commands from this guide. Take technique and understanding from the videos. When you read the videos' materials, translate with this table:</p>
+
+<div class="tablebox">
+<table>
+  <tr><th>Videos / cloned repo say (mid-2025)</th><th>Type this instead (LeRobot v0.6.x)</th></tr>
+  <tr><td><code>python lerobot/find_port.py</code></td><td><code>lerobot-find-port</code></td></tr>
+  <tr><td><code>python -m lerobot.setup_motors</code></td><td><code>lerobot-setup-motors</code></td></tr>
+  <tr><td><code>python -m lerobot.calibrate</code></td><td><code>lerobot-calibrate</code></td></tr>
+  <tr><td><code>python -m lerobot.teleoperate</code></td><td><code>lerobot-teleoperate</code></td></tr>
+  <tr><td><code>python -m lerobot.find_cameras</code></td><td><code>lerobot-find-cameras opencv</code></td></tr>
+  <tr><td><code>python -m lerobot.record</code> / <code>.replay</code></td><td><code>lerobot-record</code> / <code>lerobot-replay</code></td></tr>
+  <tr><td><code>python lerobot/scripts/train.py</code></td><td><code>lerobot-train</code></td></tr>
+  <tr><td>Evaluate by "recording with a policy"</td><td><code>lerobot-rollout</code></td></tr>
+  <tr><td><code>huggingface-cli login</code></td><td><code>hf auth login</code></td></tr>
+  <tr><td><code>--validation_freq</code>, <code>--robot.p_coefficient</code>, KL annealing</td><td>Don't exist — Trelis-fork-only features. Skip them.</td></tr>
+  <tr><td>Python 3.10, clone the repo, <code>pip install -e .</code></td><td>Python 3.12, <code>pip install 'lerobot[…]'</code></td></tr>
+</table>
+</div>
+
+<p>Also: any tutorial mentioning <code>control_robot.py</code> or telling you to <strong>remove gears from servos</strong> is describing the older SO-100 robot or the 2024 software. Close the tab.</p>
+
+<!-- ================================================================ -->
+<h2 id="phase0"><span class="phase">Phase 0 · Preparation</span>Prepare and sort the kit</h2>
+
+<p>Goal of this phase: parts sorted, dangers understood, extra equipment ordered. You will not assemble anything yet — the motors need software first (Phase 1), because each one must be programmed before it goes into the arm (Phase 2).</p>
+
+<ol class="steps">
+  <li><span class="st">Clear a workspace.</span><p>You need about 1 m × 1 m of desk, near your computer, with room to clamp the follower arm down later. This desk becomes the robot's permanent home — the cameras must never move once you start recording.</p></li>
+
+  <li><span class="st">Sort the parts into two piles: follower and leader.</span><p>The follower has a <strong>gripper</strong> (two pincers). The leader has a <strong>handle with a trigger</strong>. Each arm has 6 servos, one control board, one USB-C cable, and one power supply.</p></li>
+
+  <li><span class="st">Check your power supplies and servo labels.</span>
+  <div class="callout">
+  <strong class="title">This can destroy servos — read carefully</strong>
+  The servos come in two voltage versions. Look at the sticker on each servo — it states the voltage. Count your power supplies.
+  <ul style="margin:8px 0 0;">
+    <li><strong>Two different supplies (5V and 12V):</strong> your follower has 12V servos (stronger) and your leader has 7.4V servos. The <strong>leader always gets the 5V supply. The follower always gets the 12V supply.</strong> This applies to every step in this guide, including calibration. 12V into the leader permanently kills its servos.</li>
+    <li><strong>Identical supplies:</strong> all 12 servos are the 7.4V version. Both arms use the same supply. No danger.</li>
+  </ul>
+  <p style="margin:8px 0 0;">Label the supplies with tape right now: "LEADER" and "FOLLOWER".</p>
+  </div></li>
+
+  <li><span class="st">Check the leader's servo gear labels.</span>
+  <p>The leader's six servos are <strong>not identical</strong> — they have different internal gears so the arm moves freely in your hand. Each has a small code on its label. During assembly, each code must go into its specific joint:</p>
+  <div class="tablebox"><table>
+    <tr><th>Label code</th><th>Goes into (leader only)</th></tr>
+    <tr><td>C001</td><td>Shoulder lift (joint 2)</td></tr>
+    <tr><td>C044</td><td>Shoulder pan (joint 1) and elbow (joint 3)</td></tr>
+    <tr><td>C046</td><td>Wrist flex (4), wrist roll (5), gripper trigger (6)</td></tr>
+  </table></div>
+  <p>The follower's six servos are all the same — no sorting needed there.</p></li>
+
+  <li><span class="st">Find a data-capable USB-C cable (or two).</span><p>Charge-only cables are a classic silent failure: the arm powers on but the computer never sees it. If a cable came with the kit, use that one. If you supply your own, test it later by checking that the port-finding tool in Phase 2 sees the board.</p></li>
+
+  <li><span class="st">Order the extra equipment.</span>
+  <ul>
+    <li><strong>Front camera: already sorted ✓</strong> — the Acer 1080p webcam (generic UVC, plug-and-play).</li>
+    <li><strong>Wrist camera:</strong> check the kit's included camera first — if it's a small bare board camera, use it on the wrist. If it's a full-size webcam, buy a small wide-angle (~130°) fixed-focus UVC board camera (~$30, e.g. InnoMaker). Light and small matters: every gram on the wrist eats payload.</li>
+    <li><strong>A powered USB hub</strong> — you will plug in 4 devices (2 arms, 2 cameras).</li>
+    <li><strong>A clamp</strong> to fix the follower's base to the desk.</li>
+    <li><strong>A wrist-camera mount</strong> — 3D-print one from the <a href="https://github.com/TheRobotStudio/SO-ARM100">SO-ARM100 repo</a>, or improvise with a small bracket. It must hold the camera rigidly.</li>
+    <li><strong>First "bricks": already sorted ✓</strong> — your wooden stacking-tower (Jenga-style) blocks. They're near-ideal brick proxies: brick-shaped, ~10–20&nbsp;g (far inside the payload budget), ~2.5&nbsp;cm wide (fits the gripper), and rigid with real sliding friction — better training objects than foam. Two notes: smooth wood is slippery, so grasp across the narrow face and squeeze decisively; and pick ONE block to be "the brick" for your first dataset — identical-looking spares are your friends when one gets knocked off the table. Later stages: 1:12-scale kiln-fired clay miniature bricks (cheap on Amazon / miniature-craft shops).</li>
+  </ul></li>
+
+  <li><span class="st">Bookmark the official assembly guide.</span><p>It is here, with a video for every joint: <a href="https://huggingface.co/docs/lerobot/so101">huggingface.co/docs/lerobot/so101</a>. You will follow it in Phase 2. Tools you'll need: precision Phillips #0/#1 screwdrivers and a small flathead. Budget 1–2 hours per arm.</p></li>
+</ol>
+
+<!-- ================================================================ -->
+<h2 id="phase1"><span class="phase">Phase 1 · Software</span>Install the software <span style="color:var(--brick);">✓ completed 2026-08-04</span></h2>
+
+<p>Goal of this phase: LeRobot installed and verified, and your free online accounts created. Everything happens in the Terminal. <strong>This phase is done on your Mac</strong> — LeRobot 0.6.1 in conda env <code>lerobot</code> (Python 3.12, PyTorch 2.11 with Apple-GPU support), logged in to Hugging Face as <code>vik101</code>. The steps remain below for reference or for setting up another machine.</p>
+
+<ol class="steps">
+  <li><span class="st">Install Miniconda (a Python manager).</span>
+  <p>If you already have <code>conda</code> (type <code>conda --version</code> to check), skip this step. Otherwise, on a Mac with Homebrew:</p>
+  <pre><code>brew install miniforge</code></pre>
+  <p>No Homebrew? Download the installer from <a href="https://conda-forge.org/download/">conda-forge.org/download</a>, run it, then close and reopen the Terminal. Afterwards run <code>conda init zsh</code> once so <code>conda activate</code> works in new terminals.</p></li>
+
+  <li><span class="st">Create the LeRobot environment.</span>
+  <p>This makes a clean box named "lerobot" for all the robot software:</p>
+  <pre><code>conda create -y -n lerobot python=3.12</code></pre></li>
+
+  <li><span class="st">Activate the environment.</span>
+  <pre><code>conda activate lerobot</code></pre>
+  <p><strong>Remember this command.</strong> You must run it in every new Terminal window before any <code>lerobot-…</code> command. If a command ever says "command not found", this is almost always why.</p></li>
+
+  <li><span class="st">Install ffmpeg (video encoder).</span>
+  <pre><code>conda install -y -c conda-forge ffmpeg</code></pre></li>
+
+  <li><span class="st">Install LeRobot.</span>
+  <p>The extras in brackets matter: <code>feetech</code> talks to your servos, <code>core_scripts</code> provides record/teleop, <code>training</code> provides the trainer.</p>
+  <pre><code>pip install 'lerobot[core_scripts,training,feetech]'</code></pre></li>
+
+  <li><span class="st">Verify the install.</span>
+  <pre><code>lerobot-info</code></pre>
+  <p>It should print version information without errors. If it errors, see <a href="#trouble">Troubleshooting</a>.</p></li>
+
+  
+
+  <li><span class="st">Create a free Hugging Face account.</span>
+  <p>Go to <a href="https://huggingface.co/join">huggingface.co/join</a>. Your datasets and trained policies will live there. Note your username.</p></li>
+
+  <li><span class="st">Create an access token.</span>
+  <p>On huggingface.co: click your avatar → <strong>Settings</strong> → <strong>Access Tokens</strong> → <strong>Create new token</strong>. Choose type <strong>Write</strong>. Copy the token (it looks like <code>hf_…</code>).</p></li>
+
+  <li><span class="st">Log in from the Terminal.</span>
+  <pre><code>hf auth login</code></pre>
+  <p>Paste the token when asked (pasting shows nothing on screen — that's normal). Press Enter.</p></li>
+
+  <li><span class="st">Save your username as a shortcut.</span>
+  <p>This lets later commands say <code>${HF_USER}</code> instead of your username (yours is <code>vik101</code>). Run it in every new Terminal window (or type <code>vik101</code> by hand later):</p>
+  <pre><code>HF_USER=$(NO_COLOR=1 hf auth whoami | awk -F': *' 'NR==1 {print $2}')
+echo $HF_USER   <span class="c"># should print vik101</span></code></pre></li>
+</ol>
+
+<!-- ================================================================ -->
+<h2 id="phase2"><span class="phase">Phase 2 · Build</span>Set up motors, assemble, calibrate</h2>
+
+<p>Goal of this phase: both arms built, every servo programmed, both arms calibrated. This is the longest phase — take a full afternoon per arm.</p>
+
+<div class="note">
+<strong class="title">Which computer? Always the Mac</strong>
+The robot only ever connects to your <strong>Mac</strong> — every hardware step in Phases 2–4 and 6 happens there. Training (Phase 5) doesn't happen on any of your machines at all: it runs on a rented cloud GPU via Hugging Face Jobs, which receives the dataset and returns the policy through the Hub.
+</div>
+
+<h3>2a. Find your USB ports</h3>
+
+<ol class="steps">
+  <li><span class="st">Connect the follower's control board to the Mac.</span><p>Plug its USB-C cable into the Mac and its power supply (the FOLLOWER-labeled one!) into the wall. No servos need to be connected yet.</p></li>
+  <li><span class="st">Run the port finder.</span>
+  <pre><code>lerobot-find-port</code></pre>
+  <p>It asks you to unplug the USB cable. Unplug it. It then prints the port name — something like <code>/dev/tty.usbmodem58760431551</code>. Plug the cable back in.</p></li>
+  <li><span class="st">Write the port name down. Label it "FOLLOWER PORT".</span><p>You will paste it into almost every command from now on. Keep a note open with both port names.</p></li>
+  <li><span class="st">Repeat steps 1–3 with the leader's board.</span><p>Label the result "LEADER PORT". Tip: keep each board plugged into the <em>same physical USB socket</em> from now on — port names can change if you move plugs around.</p></li>
+</ol>
+
+<h3>2b. Program the motor IDs (before assembly)</h3>
+
+<p>Each servo must be told its number (1–6) once, and this must happen <strong>before</strong> the servos are built into the arm — the tool works on <strong>one servo at a time</strong>.</p>
+
+<figure>
+<svg viewBox="0 0 760 220" role="img" aria-label="Left panel: during ID setup, exactly one servo is connected to the control board by a single cable. Right panel: after setup, all six servos are daisy-chained in a line, and servo 1 connects to the board.">
+  <g stroke="currentColor" fill="none" stroke-width="2">
+    <!-- left panel -->
+    <rect x="40" y="60" width="90" height="52" rx="6"/>
+    <rect x="220" y="60" width="70" height="52" rx="6"/>
+    <line x1="130" y1="86" x2="220" y2="86" stroke="var(--brick)" stroke-width="3"/>
+    <!-- right panel -->
+    <rect x="400" y="60" width="70" height="52" rx="6"/>
+    <rect x="500" y="36" width="46" height="34" rx="5"/>
+    <rect x="560" y="36" width="46" height="34" rx="5"/>
+    <rect x="620" y="36" width="46" height="34" rx="5"/>
+    <rect x="500" y="106" width="46" height="34" rx="5"/>
+    <rect x="560" y="106" width="46" height="34" rx="5"/>
+    <rect x="620" y="106" width="46" height="34" rx="5"/>
+    <line x1="470" y1="86" x2="500" y2="53" />
+    <line x1="546" y1="53" x2="560" y2="53"/>
+    <line x1="606" y1="53" x2="620" y2="53"/>
+    <line x1="666" y1="53" x2="686" y2="53"/>
+    <line x1="686" y1="53" x2="686" y2="123"/>
+    <line x1="686" y1="123" x2="666" y2="123"/>
+    <line x1="560" y1="123" x2="546" y2="123"/>
+    <line x1="620" y1="123" x2="606" y2="123"/>
+  </g>
+  <g fill="currentColor" font-size="12">
+    <text x="85" y="82" text-anchor="middle">Control</text>
+    <text x="85" y="98" text-anchor="middle">board</text>
+    <text x="255" y="90" text-anchor="middle">servo</text>
+    <text x="175" y="76" text-anchor="middle" fill="var(--brick)">ONE cable</text>
+    <text x="165" y="150" text-anchor="middle" font-weight="700">During ID setup</text>
+    <text x="165" y="168" text-anchor="middle">one servo at a time</text>
+    <text x="435" y="82" text-anchor="middle">Control</text>
+    <text x="435" y="98" text-anchor="middle">board</text>
+    <text x="523" y="57" text-anchor="middle">1</text>
+    <text x="583" y="57" text-anchor="middle">2</text>
+    <text x="643" y="57" text-anchor="middle">3</text>
+    <text x="523" y="127" text-anchor="middle">6</text>
+    <text x="583" y="127" text-anchor="middle">5</text>
+    <text x="643" y="127" text-anchor="middle">4</text>
+    <text x="545" y="185" text-anchor="middle" font-weight="700">After setup: daisy-chain</text>
+    <text x="545" y="203" text-anchor="middle">each servo cabled to the next, servo 1 to the board</text>
+  </g>
+</svg>
+<figcaption>Motor wiring. IDs are programmed one servo at a time; only after all six are programmed do you connect them in a chain inside the arm.</figcaption>
+</figure>
+
+<ol class="steps">
+  <li><span class="st">Connect ONE follower servo to the follower board.</span><p>Use one 3-pin cable. Any servo — the tool will tell you which joint it becomes. If your board is the Waveshare type, first check its two jumpers are on channel <strong>B</strong>.</p></li>
+  <li><span class="st">Run the motor setup tool for the follower.</span>
+  <pre><code>lerobot-setup-motors \
+    --robot.type=so101_follower \
+    --robot.port=<span class="hl">FOLLOWER_PORT</span></code></pre></li>
+  <li><span class="st">Follow the prompts.</span><p>It says: "Connect the controller board to the gripper motor only and press Enter." That means: the servo currently plugged in becomes the <strong>gripper</strong> (ID 6). Press Enter. Then it asks for the next motor — unplug the current servo, plug in the next one, press Enter. It works down from gripper (6) to shoulder pan (1). Put a sticky label with the number on each servo as it's programmed.</p></li>
+  <li><span class="st">Repeat for the leader — with the right servo at each prompt.</span>
+  <p>The leader's servos differ per joint (gear codes from Phase 0, step 4 — printed on each servo's sticker). Sort them into three piles first (1× C001, 2× C044, 3× C046 — if a label is unreadable, the C046s twist most freely by hand, the C001 resists most), then plug in the right one as the tool asks:</p>
+  <div class="tablebox"><table>
+    <tr><th>Tool asks for</th><th>ID</th><th>Plug in a…</th></tr>
+    <tr><td>Gripper (trigger)</td><td class="num">6</td><td>C046</td></tr>
+    <tr><td>Wrist roll</td><td class="num">5</td><td>C046</td></tr>
+    <tr><td>Wrist flex</td><td class="num">4</td><td>C046</td></tr>
+    <tr><td>Elbow</td><td class="num">3</td><td>C044</td></tr>
+    <tr><td>Shoulder lift</td><td class="num">2</td><td><strong>C001</strong></td></tr>
+    <tr><td>Shoulder pan</td><td class="num">1</td><td>C044</td></tr>
+  </table></div>
+  <pre><code>lerobot-setup-motors \
+    --teleop.type=so101_leader \
+    --teleop.port=<span class="hl">LEADER_PORT</span></code></pre></li>
+  <li><span class="st">Now assemble both arms.</span><p>Follow the <a href="https://huggingface.co/docs/lerobot/so101">official guide</a> joint by joint. Each numbered servo goes into its joint (1 = shoulder pan at the base … 6 = gripper at the tip). Connect the servos in a chain with the 3-pin cables — each servo to the next, and servo 1 to the control board — as in the diagram above. Ignore any instruction anywhere about removing gears (that's the old SO-100).</p></li>
+  <li><span class="st">Clamp the follower's base to the desk.</span><p>It will fight its own movements otherwise.</p></li>
+</ol>
+
+<h3>2c. Calibrate both arms</h3>
+
+<p>Calibration teaches the software each joint's true range. You do it once per arm. It takes two minutes.</p>
+
+<figure>
+<svg viewBox="0 0 760 240" role="img" aria-label="Left: the calibration starting pose — the arm forms an L shape, upright from the base then horizontal forearm, gripper pointing down, every joint in the middle of its range. Right: the sweep — each joint is moved gently all the way to both of its end stops, one joint at a time.">
+  <defs>
+    <marker id="arr3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--brick)"/>
+    </marker>
+  </defs>
+  <g stroke="currentColor" fill="none" stroke-width="2.5">
+    <!-- left: L pose -->
+    <rect x="90" y="160" width="90" height="18" rx="3"/>
+    <line x1="135" y1="160" x2="135" y2="80"/>
+    <line x1="135" y1="80" x2="230" y2="80"/>
+    <line x1="230" y1="80" x2="230" y2="110"/>
+    <circle cx="135" cy="80" r="5" fill="currentColor"/>
+    <circle cx="230" cy="80" r="5" fill="currentColor"/>
+    <!-- gripper down -->
+    <line x1="230" y1="110" x2="222" y2="124"/>
+    <line x1="230" y1="110" x2="238" y2="124"/>
+    <!-- right: sweep -->
+    <rect x="490" y="160" width="90" height="18" rx="3"/>
+    <line x1="535" y1="160" x2="535" y2="80"/>
+    <line x1="535" y1="80" x2="630" y2="80"/>
+    <circle cx="535" cy="80" r="5" fill="currentColor"/>
+  </g>
+  <!-- ghost positions of swept joint -->
+  <g stroke="currentColor" stroke-width="2" opacity="0.35" fill="none">
+    <line x1="535" y1="80" x2="610" y2="30"/>
+    <line x1="535" y1="80" x2="605" y2="135"/>
+  </g>
+  <g stroke="var(--brick)" fill="none" stroke-width="2">
+    <path d="M 625 45 A 85 85 0 0 1 632 112" marker-end="url(#arr3)"/>
+    <path d="M 620 118 A 85 85 0 0 1 615 42" marker-end="url(#arr3)"/>
+  </g>
+  <g fill="currentColor" font-size="12">
+    <text x="160" y="210" text-anchor="middle" font-weight="700">1. Starting pose: "L shape"</text>
+    <text x="160" y="228" text-anchor="middle">every joint mid-range, gripper down → press Enter</text>
+    <text x="580" y="210" text-anchor="middle" font-weight="700">2. Sweep every joint</text>
+    <text x="580" y="228" text-anchor="middle">gently to both end stops, one joint at a time</text>
+    <text x="700" y="80" text-anchor="middle" fill="var(--brick)">full range</text>
+  </g>
+</svg>
+<figcaption>Calibration: hold the L-shape middle pose, confirm, then move each joint through its whole range so the software records the end stops.</figcaption>
+</figure>
+
+<ol class="steps">
+  <li><span class="st">Power and connect both arms.</span><p>Correct power supply for each (check the tape labels!), USB into data ports. In a Terminal: <code>conda activate lerobot</code>.</p></li>
+  <li><span class="st">Start the follower's calibration.</span>
+  <p>The <code>id</code> names this arm's calibration file — pick it once and <strong>never change it</strong>. (Your port values are in the repo's <code>SETUP-LOG.md</code>.)</p>
+  <pre><code>lerobot-calibrate \
+    --robot.type=so101_follower \
+    --robot.port=<span class="hl">FOLLOWER_PORT</span> \
+    --robot.id=brick_follower</code></pre></li>
+  <li><span class="st">Hold the L-pose, press Enter.</span><p>Upright from the base, forearm horizontal, gripper down and closed — every joint near mid-range (diagram above).</p></li>
+  <li><span class="st">Sweep every joint to both ends, then press Enter.</span><p>One joint at a time, gently to both stops: gripper, wrist roll, wrist flex, elbow, shoulder lift, shoulder pan. The numbers on screen record each range. When all six have visited both ends, press Enter to save.</p></li>
+  <li><span class="st">Repeat for the leader.</span>
+  <pre><code>lerobot-calibrate \
+    --teleop.type=so101_leader \
+    --teleop.port=<span class="hl">LEADER_PORT</span> \
+    --teleop.id=brick_leader</code></pre>
+  <p>Same pose, same sweep; the leader's "gripper" is its trigger — squeeze it fully open and closed. Files land in <code>~/.cache/huggingface/lerobot/calibration/</code> (versioned copies live in the repo's <code>hardware/calibration/</code>).</p></li>
+</ol>
+
+<div class="note">
+<strong class="title">If the arm later jumps to a weird pose</strong>
+That's a bad calibration or a mistyped name. Re-run calibration. It's two minutes — never live with a bad one.
+</div>
+
+<!-- ================================================================ -->
+<h2 id="phase3"><span class="phase">Phase 3 · Teleop</span>Drive the robot by hand</h2>
+
+<p>Goal of this phase: you can drive the follower smoothly with the leader, both cameras stream, and the scene is framed and fixed in place.</p>
+
+<ol class="steps">
+  <li><span class="st">Start teleoperation (no cameras yet).</span>
+  <pre><code>lerobot-teleoperate \
+    --robot.type=so101_follower \
+    --robot.port=<span class="hl">FOLLOWER_PORT</span> \
+    --robot.id=brick_follower \
+    --teleop.type=so101_leader \
+    --teleop.port=<span class="hl">LEADER_PORT</span> \
+    --teleop.id=brick_leader</code></pre>
+  <p>Pick up the leader and move it slowly — the follower copies you. Ctrl-C stops it.</p></li>
+
+  <li><span class="st">Practice for 20 minutes.</span><p>Pick things up. Put them down. Your smoothness here is the ceiling on your data quality, and your data quality is the ceiling on your policy. Jerky puppeteering = jerky robot, forever.</p></li>
+
+  <li><span class="st">Plug in both cameras and identify them.</span>
+  <p>This one is a Terminal step — the tool saves a snapshot from each camera, which is the easiest way to tell them apart:</p>
+  <pre><code>lerobot-find-cameras opencv</code></pre>
+  <p>It lists each camera with a number (its "index"). Open the saved snapshots to see which number is which. Write down: wrist camera index = __, front camera index = __. The laptop's built-in camera also appears — ignore it. <strong>The commands below assume front = 0, wrist = 1 (this station's real values, recorded in SETUP-LOG.md) — change them if yours differ.</strong></p></li>
+
+  <li><span class="st">Mount the cameras.</span>
+  <ul>
+    <li><strong>Wrist camera:</strong> on the arm near the gripper, looking at what the gripper is about to grab. Screw it down hard — glue it if it wobbles.</li>
+    <li><strong>Front camera</strong> (the Acer webcam): on the desk-clamp camera arm, high and looking steeply down, so the table fills the frame and nothing beyond the table's back edge is visible.</li>
+  </ul></li>
+
+  <li><span class="st">Open the live alignment view and frame the scene.</span>
+  <p>The repo has a purpose-built tool for this (<code>scripts/camera_align.py</code>) — it shows both cameras live in the rerun viewer:</p>
+  <pre><code>python scripts/camera_align.py --front <span class="hl">0</span> --wrist <span class="hl">1</span> --width 640 --height 480</code></pre>
+  <p>While watching it, physically arrange the world until the front camera sees <em>only</em> what matters:</p>
+  <ul>
+    <li>The brick, the target area, and the follower arm: fully visible at all times.</li>
+    <li>NOT visible: you, your keyboard, the leader arm, the neighbor's desk, clutter, harsh shadows.</li>
+    <li>Plain background; steady lamp light rather than daylight from a window.</li>
+  </ul>
+  <p>Leave the viewer running while you adjust. When it's right, don't touch anything and go to the next step.</p></li>
+
+  
+
+  <li><span class="st">Fix everything in place. Permanently.</span><p>Tighten the camera arm's knobs. Tape the cables. Check the follower's clamp. From this moment until your policy runs, <strong>nothing about the cameras or the arm's position may change</strong>. A camera nudged 2 cm invalidates every episode you've recorded.</p></li>
+
+  <li><span class="st">Stop the alignment viewer: Ctrl-C.</span><p>Two programs can't share a camera — it must be closed before the lock script (next step) or teleop can use the feeds.</p></li>
+
+  <li><span class="st">Lock the front camera's settings.</span><p>One command, run with no camera app open:</p><pre><code>scripts/lock_front_camera.sh</code></pre><p>What it does: the Acer A610 is fixed-focus, and its <em>manual white balance is broken</em> (forcing it off causes a green cast — so white balance stays auto, which is harmless under fixed lighting). The thing worth locking is <strong>exposure</strong>: the script measures the brightness that auto-exposure produces, switches to manual, and searches for the exposure value that matches it — then fixes the frame rate. Without this, the image pulses brighter and darker as the dark arm crosses the white table — noise in every frame. ⚠️ UVC settings can reset on replug or reboot, and the right exposure depends on lighting — <strong>run the script at the start of every recording session, after scene and lighting are final.</strong> (<code>--auto</code> reverts to full auto. Uses <a href="https://github.com/jtfrey/uvc-util">uvc-util</a>, built once to <code>~/.local/bin</code>.)</p></li>
+
+  
+
+  <li><span class="st">Rehearse: teleop with cameras.</span>
+  <p>The camera names <code>front</code> and <code>wrist</code> in this command matter — they're baked into every episode and the trained policy expects them forever:</p>
+  <pre><code>lerobot-teleoperate \
+    --robot.type=so101_follower \
+    --robot.port=<span class="hl">FOLLOWER_PORT</span> \
+    --robot.id=brick_follower \
+    --robot.cameras="{ front: {type: opencv, index_or_path: <span class="hl">0</span>, width: 640, height: 480, fps: 30}, wrist: {type: opencv, index_or_path: <span class="hl">1</span>, width: 640, height: 480, fps: 30}}" \
+    --teleop.type=so101_leader \
+    --teleop.port=<span class="hl">LEADER_PORT</span> \
+    --teleop.id=brick_leader \
+    --display_data=true</code></pre>
+  <p>Practice the task <strong>looking only at the camera feeds in the rerun window — never at the robot</strong>. You are ready for Phase 4 when you can build the whole wall smoothly in under ~50 seconds — same build order (yellow, pink, orange), same grasps, no bumped blocks — several times in a row. 20+ minutes of practice is normal. Ctrl-C to stop.</p></li>
+
+  <li><span class="st">If teleop feels jittery, drop the live view.</span><p>The viewer costs computer power. During plain practice you can run without <code>--display_data=true</code> for smoothness — but during recording you must watch the feeds, so rehearse with the viewer on at least some of the time.</p></li>
+</ol>
+
+<figure>
+<svg viewBox="0 0 760 300" role="img" aria-label="Top-down view of the recording workspace. The front camera's field of view covers the follower arm, the brick, and the target zone. You, the leader arm, and the laptop sit outside the camera's field of view.">
+  <defs>
+    <marker id="arr4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+    </marker>
+  </defs>
+  <!-- table -->
+  <g stroke="currentColor" fill="none" stroke-width="2">
+    <rect x="40" y="30" width="680" height="240" rx="10"/>
+  </g>
+  <!-- FOV wedge -->
+  <g>
+    <path d="M 120 150 L 430 40 L 430 260 Z" fill="var(--brick)" opacity="0.10" stroke="var(--brick)" stroke-width="1.6" stroke-dasharray="6 4"/>
+  </g>
+  <!-- front camera -->
+  <g stroke="currentColor" fill="none" stroke-width="2">
+    <rect x="78" y="136" width="40" height="28" rx="4"/>
+  </g>
+  <!-- follower arm base + arm -->
+  <g stroke="currentColor" fill="none" stroke-width="2">
+    <circle cx="300" cy="150" r="22"/>
+    <line x1="300" y1="150" x2="360" y2="120"/>
+    <line x1="360" y1="120" x2="352" y2="108"/>
+    <line x1="360" y1="120" x2="372" y2="112"/>
+  </g>
+  <!-- wrist cam dot -->
+  <circle cx="352" cy="121" r="5" fill="var(--brick)"/>
+  <!-- brick and target -->
+  <rect x="380" y="170" width="34" height="20" fill="none" stroke="currentColor" stroke-width="2"/>
+  <rect x="330" y="215" width="44" height="30" fill="none" stroke="var(--brick)" stroke-width="2" stroke-dasharray="5 4"/>
+  <!-- outside-FOV zone -->
+  <g stroke="currentColor" fill="none" stroke-width="2" opacity="0.75">
+    <rect x="520" y="60" width="90" height="55" rx="6"/>
+    <rect x="520" y="150" width="90" height="40" rx="6"/>
+    <circle cx="650" cy="215" r="16"/>
+  </g>
+  <g fill="currentColor" font-size="12">
+    <text x="98" y="182" text-anchor="middle">front camera</text>
+    <text x="300" y="192" text-anchor="middle">follower arm</text>
+    <text x="397" y="165" text-anchor="middle">brick</text>
+    <text x="352" y="262" text-anchor="middle" fill="var(--brick)">target zone (in view)</text>
+    <text x="357" y="100" text-anchor="middle" fill="var(--brick)">wrist cam</text>
+    <text x="565" y="92" text-anchor="middle">laptop</text>
+    <text x="565" y="175" text-anchor="middle">leader arm</text>
+    <text x="650" y="248" text-anchor="middle">you</text>
+    <text x="245" y="62" fill="var(--brick)">camera's field of view</text>
+    <text x="592" y="34" text-anchor="middle" font-weight="700">outside the view — invisible to the robot</text>
+  </g>
+</svg>
+<figcaption>The recording workspace from above. Everything the task needs sits inside the front camera's view; you, the laptop, and the leader arm stay out of it.</figcaption>
+</figure>
+
+<!-- ================================================================ -->
+<h2 id="phase4"><span class="phase">Phase 4 · Data</span>Record your demonstrations</h2>
+
+<p>Goal of this phase: a dataset of ~50 good episodes of one task, checked and uploaded. The task: <strong>build a three-block wall</strong> — yellow and pink blocks end to end on the green mat, orange bridging on top of both. With a language-conditioned model like SmolVLA, the task sentence genuinely describes the goal, so it is written to match what happens — and it must stay word-for-word identical from recording through rollout.</p>
+
+<ol class="steps">
+  <li><span class="st">Set the scene.</span><p>Green mat down (it is the visual anchor for "where the wall goes"). Each of the three blocks — yellow, pink, orange — gets one fixed home position, identical every episode. One warning about marks:</p>
+  <div class="note">
+  <strong class="title">Tape is visible to the robot too</strong>
+  Anything in the camera image becomes part of what the policy learns. A taped target square is fine — <em>if it is identical in every episode and still there when the policy runs</em>. For the brick's starting spot, put your alignment mark <strong>outside</strong> the camera's view (e.g. on the table edge) so you can reset precisely without teaching the robot to depend on a mark.
+  </div></li>
+
+  <li><span class="st">Decide your task sentence and never change it.</span><p>Ours: <code>build the block wall on the green mat in the order yellow, pink, orange - yellow and pink end to end, orange on top of both.</code> SmolVLA reads this — keep it word-for-word identical at recording and at rollout.</p></li>
+
+  <li><span class="st">Start recording.</span>
+  <pre><code>lerobot-record \
+    --robot.type=so101_follower \
+    --robot.port=<span class="hl">FOLLOWER_PORT</span> \
+    --robot.id=brick_follower \
+    --robot.cameras="{ front: {type: opencv, index_or_path: <span class="hl">0</span>, width: 640, height: 480, fps: 30}, wrist: {type: opencv, index_or_path: <span class="hl">1</span>, width: 640, height: 480, fps: 30}}" \
+    --teleop.type=so101_leader \
+    --teleop.port=<span class="hl">LEADER_PORT</span> \
+    --teleop.id=brick_leader \
+    --display_data=true \
+    --dataset.repo_id=sammy-labs/brickbot_so101_wall_v1 \
+    --dataset.no_stamp=true \
+    --dataset.num_episodes=50 \
+    --dataset.single_task="build the block wall on the green mat in the order yellow, pink, orange - yellow and pink end to end, orange on top of both." \
+    --dataset.episode_time_s=60 \
+    --dataset.reset_time_s=25</code></pre>
+  <p>(<code>no_stamp</code> matters: without it, LeRobot appends a date-time tag to the dataset name, and every command that expects <code>brickbot_so101_wall_v1</code> misses it.) What happens: recording of episode 1 starts. You have up to 60 seconds per episode (the wall takes longer than a single placement — end early with → when the orange block settles), then a 25-second break to reset all three blocks to their homes, then the next episode starts automatically. Three keys control everything:</p>
+  <div class="tablebox"><table>
+    <tr><th>Key</th><th>What it does</th></tr>
+    <tr><td class="num">→ (right arrow)</td><td>"Done" — ends the episode now and accepts it. Press it the moment the brick is placed.</td></tr>
+    <tr><td class="num">← (left arrow)</td><td>"Redo" — throws away the current episode and restarts it. A redo is cheap, a bad episode is expensive.</td></tr>
+    <tr><td class="num">ESC</td><td>Stops the whole session cleanly, saves, and uploads.</td></tr>
+  </table></div></li>
+
+  <li><span class="st">Record each episode by these rules.</span>
+  <ul>
+    <li><strong>Watch only the camera feeds on screen — never the physical robot.</strong> The policy will only ever see the feeds. If you can't do it from the feeds, it can't either.</li>
+    <li><strong>Start moving immediately.</strong> A pause at the start teaches the robot to sit still.</li>
+    <li><strong>Same style every time.</strong> Same approach path, same grasp. Open the gripper wide at the start; open it clearly wide when releasing.</li>
+    <li><strong>Reset precisely</strong> during the 10-second break: brick back to its exact spot (use your out-of-view mark).</li>
+    <li>Bumped the target? Grabbed badly? Redo the episode. Only keep episodes you're happy with.</li>
+  </ul></li>
+
+  <li><span class="st">Check the recording quality by replaying it (Terminal step).</span>
+  <p>Replay makes the follower physically re-execute a recorded episode (place the brick at its start spot — the arm moves exactly as recorded):</p>
+  <pre><code>lerobot-replay \
+    --robot.type=so101_follower \
+    --robot.port=<span class="hl">FOLLOWER_PORT</span> \
+    --robot.id=brick_follower \
+    --dataset.repo_id=sammy-labs/brickbot_so101_wall_v1 \
+    --dataset.episode=0</code></pre>
+  <p>Replay a handful of episodes (change the number). Smooth motion = good data. You can also watch all episodes as videos at the <a href="https://huggingface.co/spaces/lerobot/visualize_dataset">dataset visualizer</a> — enter your dataset name (<code>sammy-labs/brickbot_so101_wall_v1</code>).</p></li>
+
+  <li><span class="st">Know your privacy setting.</span><p>The dataset — including the videos of your desk — uploads to the Hugging Face Hub automatically. To keep it offline, add <code>--dataset.push_to_hub=false</code> to the record command (but cloud training then needs it on the Hub). Or after upload, open the dataset page on huggingface.co → Settings → change visibility to Private.</p></li>
+
+  <li><span class="st">To add more episodes later, resume — don't restart (Terminal step).</span>
+  <pre><code>lerobot-record \
+    ... same command as before ... \
+    --resume=true \
+    --dataset.root=~/.cache/huggingface/lerobot/sammy-labs/brickbot_so101_wall_v1 \
+    --dataset.num_episodes=25   <span class="c"># number of ADDITIONAL episodes</span></code></pre></li>
+</ol>
+
+<!-- ================================================================ -->
+<h2 id="phase5"><span class="phase">Phase 5 · Training</span>Train the policy</h2>
+
+<p>Goal of this phase: a fine-tuned SmolVLA policy, stored on the Hugging Face Hub. Training needs a beefy graphics card (GPU) for an hour or so. <strong>Your plan: a rented cloud A100 via Hugging Face Jobs, paid from your loaded HF credit.</strong> Everything is launched from the Mac; no other computer is involved: the Mac records → the dataset uploads to the Hub → an A100 in HF's cloud trains it → the trained policy uploads back → the Mac runs it.</p>
+
+<ol class="steps">
+  <li><span class="st">Choose where to train.</span>
+  <div class="tablebox"><table>
+    <tr><th>Option</th><th>When</th><th>Time (6k steps)</th></tr>
+    <tr><td><strong>HF Jobs on an A10G</strong> ⭐ — <code>--job.target=a10g-large</code></td><td>Default choice — SmolVLA (450M) fine-tunes comfortably in 24 GB. Launched from the Mac, billed to the org.</td><td class="num">~1.5–2 h</td></tr>
+    <tr><td><strong>HF Jobs on an A100</strong> — <code>--job.target=a100-large</code></td><td>Faster, pricier; unnecessary at this model size</td><td class="num">~1 h</td></tr>
+    <tr><td><strong>Mac (Apple Silicon)</strong> — <code>--policy.device=mps</code></td><td>Possible for SmolVLA but slow; cloud is the plan</td><td class="num">overnight</td></tr>
+  </table></div></li>
+
+  <li><span class="st">One-time check: Jobs access, org billing, and the exact hardware names.</span>
+  <p>The credits live in the <strong><a href="https://huggingface.co/sammy-labs">sammy-labs</a> org</strong>, so jobs must run under that namespace — billing follows the namespace. Confirm access and list GPU flavors with current prices:</p>
+  <pre><code>hf jobs hardware</code></pre>
+  <p>Find the a10g entry and note its exact flavor name — this guide assumes <code>a10g-large</code>; if the listing shows a different name, use that. The training script (step 4) injects the org namespace so the job runs — and bills — under sammy-labs rather than your personal account. Two prerequisites: your org membership must have <strong>write</strong> permission, and if your access token is the fine-grained kind, it must include sammy-labs org access (a 403 on push = recreate the token with org scope). Useful companions: <code>hf jobs logs &lt;job-id&gt;</code>, <code>hf jobs cancel &lt;job-id&gt;</code> (billing stops with it), <code>--job.timeout=4h</code> as a runaway guard.</p></li>
+
+  <li><span class="st">Create a free Weights &amp; Biases account (recommended).</span>
+  <p>It gives you live charts of training progress. Sign up at <a href="https://wandb.ai">wandb.ai</a>, then in the Terminal:</p>
+  <pre><code>wandb login   <span class="c"># paste the API key from wandb.ai/authorize</span></code></pre>
+  <p>Don't want it? Use <code>--wandb.enable=false</code> in the next step.</p></li>
+
+  <li><span class="st">Run the training script — from the Mac's Terminal.</span>
+  <p>One command; it fine-tunes <strong>SmolVLA</strong> on your dataset on a cloud GPU <strong>billed to the sammy-labs org</strong>:</p>
+  <pre><code>conda run -n lerobot python scripts/train_wall_smolvla.py          <span class="c"># full run, 6,000 steps</span>
+conda run -n lerobot python scripts/train_wall_smolvla.py 1000     <span class="c"># cheap smoke test</span></code></pre>
+  <p>Why a script: LeRobot's job submitter has no org-namespace option — it always bills the personal account (which has no credits → "402 Payment Required"). The script injects <code>namespace=sammy-labs</code> into the job API before launching the standard trainer, and carries the SmolVLA recipe: fine-tune from <code>lerobot/smolvla_base</code> (<code>--policy.path</code>, not a from-scratch policy type), batch 64, <strong>6,000 steps</strong> on the 100-episode dataset, a checkpoint saved and pushed to the Hub every 1,000 steps (a failure at any point costs at most 1,000 steps — final pushes have failed before), policy landing at <code>sammy-labs/brickbot_smolvla_v1</code>. Expect ~1.5–2 h on the a10g. Afterwards, run <code>scripts/tune_policy_for_serving.py</code> once — it promotes the newest checkpoint to the repo root and squashes history so checkpoints never re-create the storage-quota problem.</p></li>
+
+  <li><span class="st">Watch the loss go down.</span><p>On the wandb page, watch the loss chart. Good: falls steeply, then flattens. Fine-tuning loss won't reach zero — flat is the signal, not small. When it's been flat for a long while, further training buys nothing — better data beats more steps, always.</p></li>
+
+  <li><span class="st">Confirm the policy is on the Hub.</span><p>Because of <code>--policy.repo_id</code>, the trained policy uploads automatically. Check that <code>huggingface.co/sammy-labs/brickbot_smolvla_v1</code> exists. If it doesn't, upload the result by hand:</p>
+  <pre><code>hf upload sammy-labs/brickbot_smolvla_v1 outputs/train/brickbot_smolvla_v1/checkpoints/last/pretrained_model</code></pre></li>
+</ol>
+
+<!-- ================================================================ -->
+<h2 id="phase6"><span class="phase">Phase 6 · Showtime</span>Run the policy</h2>
+
+<p>Goal of this phase: the robot does the task by itself — and you evaluate it the right way.</p>
+
+<ol class="steps">
+  <li><span class="st">Restore the scene exactly as trained.</span><p>Same lighting, same cameras untouched, same mat, same brick. Any visible change is an unseen situation for the policy.</p></li>
+
+  <li><span class="st">Find the exact trained brick position (Terminal step).</span><p>Run the replay command from Phase 4 on episode 0 and watch where the gripper goes to pick. Place the brick exactly there. This reconstructs a scene the policy definitely knows.</p></li>
+
+  <li><span class="st">Let the robot take over — via the cloud policy server.</span>
+  <p><strong>Why cloud:</strong> measured on 2026-08-13 (with the earlier 3B model), Mac-local inference could not hold the 30 Hz control target, so the policy runs on a rented GPU (HF Jobs, org-billed) and the Mac keeps only a lightweight robot client, connected through an SSH tunnel. SmolVLA is 7× smaller — once the pipeline is stable we can test whether Mac-local inference suffices and retire the server. Three commands, three terminals, in order:</p>
+  <pre><code><span class="c"># 1. Start the cloud policy server (bills while running!)</span>
+conda run -n lerobot python scripts/serve_policy_cloud.py
+
+<span class="c"># 2. Open the tunnel (own terminal, leave it running)</span>
+scripts/connect_policy_tunnel.sh
+
+<span class="c"># 3. Run the robot client (arm moves!)</span>
+scripts/rollout_wall_async.sh</code></pre>
+  <p>Wait for the server job's logs to show it started (command printed by step 1) before step 3. The leader arm stays on the shelf; camera names and the task sentence are baked into the client script. <strong>When you finish a session, stop the server</strong> — <code>hf jobs cancel &lt;job-id&gt; --namespace sammy-labs</code> (the id is printed at step 1 and saved in <code>scripts/.cloud_policy_job.json</code>); it also auto-stops after 4 h as a safety net. One-time prerequisite: an SSH key registered at <a href="https://huggingface.co/settings/keys">huggingface.co/settings/keys</a>.</p></li>
+
+  <li><span class="st">Judge the result by this rule.</span>
+  <ul>
+    <li><strong>Works at the trained position:</strong> success! Run it 10 times; 8+/10 is a solid first policy.</li>
+    <li><strong>Fails even at the trained position:</strong> something in the pipeline is broken — wrong calibration name, moved camera, wrong camera names, wrong policy path. Fix the pipeline. Do not touch training settings.</li>
+    <li><strong>Works at the trained setup, fails when things move:</strong> common, though a pretrained VLA generalizes better than from-scratch models. Cure: record a v2 dataset with varied block start positions and retrain.</li>
+  </ul></li>
+
+  <li><span class="st">Read the failure body-language.</span>
+  <ul>
+    <li>Drifts toward familiar poses and hovers → it's in a situation it never saw.</li>
+    <li>Won't close the gripper → in training, the brick was never at that angle between the pincers.</li>
+    <li>Sits still → your dataset probably contains pauses. Record cleaner data.</li>
+  </ul></li>
+</ol>
+
+<div class="check">
+  <span class="check-title">Milestone 1 — complete when</span>
+  <label><input type="checkbox" data-k="m1a"> Follower mirrors leader smoothly with cameras streaming</label>
+  <label><input type="checkbox" data-k="m1b"> 50-episode dataset recorded, replayed, checked</label>
+  <label><input type="checkbox" data-k="m1c"> SmolVLA policy fine-tuned; loss curve flattened</label>
+  <label><input type="checkbox" data-k="m1d"> Robot succeeds at the trained position 8+ times out of 10</label>
+</div>
+
+<!-- ================================================================ -->
+<h2 id="bricks">The brick curriculum — from foam minis to real masonry</h2>
+
+<p>The numbers that shape the plan: standard clay brick <span class="num">1.9–2.3&nbsp;kg</span>. Lightweight AAC block cut to brick size <span class="num">~1&nbsp;kg</span>. Half-scale fired clay brick <span class="num">250–400&nbsp;g</span>. 1:12 kiln-fired minis: grams. SO-101 payload: <span class="num">200–500&nbsp;g</span>.</p>
+
+<div class="stages">
+  <div class="stage">
+    <div class="snum">1<small>now</small></div>
+    <div>
+      <h4>Miniature masonry on the SO-101 — with your stacking-tower blocks</h4>
+      <p>Your wooden tower blocks are the stage-1 bricks. Make the <em>task</em> harder, not the object: single placement → a straight course of blocks along a guide line with even 3–5&nbsp;mm gaps → two stacked courses → a corner → the endgame party trick: <strong>rebuilding the tower itself</strong>, three blocks per layer, alternating direction each layer. A neat, evenly-spaced, squarely-stacked course IS bricklaying — in miniature. Then swap in 1:12–1:6 kiln-fired clay minis (real ceramic, different friction) and watch how much re-learning the change of material costs.</p>
+      <p class="cost">~$0–50 · uses Phases 0–6 as-is</p>
+    </div>
+  </div>
+  <div class="stage">
+    <div class="snum">2<small>+2–3 mo</small></div>
+    <div>
+      <h4>Half-scale real bricks — the SO-101's ceiling</h4>
+      <p>Work up to 250–400&nbsp;g half-scale fired clay bricks. Print a wider gripper with soft pads. Keep the work close to the robot's base — this weight is its ragged edge. Learn: stacking tolerances, chipped corners, and recovery demonstrations (deliberately record fixing a misplaced brick). When servos overheat or strain, stop. Don't fight the hardware.</p>
+      <p class="cost">~$50–150 · same pipeline, harder task</p>
+    </div>
+  </div>
+  <div class="stage">
+    <div class="snum">3<small>overlaps</small></div>
+    <div>
+      <h4>Adhesive skills — the mortar question, answered small</h4>
+      <p>Skip traditional mortar (see next section — the professionals mostly did too). Build a servo-triggered glue-gun end effector. Practice with hot glue on stage-2 bricks: laying an even bead, clean starts and stops, pressing the brick to a set height. These are exactly the skills real robot masonry systems need.</p>
+      <p class="cost">~$100 tooling</p>
+    </div>
+  </div>
+  <div class="stage">
+    <div class="snum">4<small>the goal</small></div>
+    <div>
+      <h4>Real masonry on a bigger arm</h4>
+      <p>Recommended target: <strong>AAC blocks + thin-bed adhesive on an AgileX PiPER arm</strong> (1.5&nbsp;kg payload, ~$2,499). AAC is real, building-code-recognized masonry designed for light units, ±1&nbsp;mm accuracy, and 1–3&nbsp;mm glued joints — a system that happens to fit robots perfectly. Standard clay bricks need a Unitree Z1 Pro (4&nbsp;kg, ~$15k) or used UR5e (~$30k+). You retrain the policy on the new arm — trained weights don't transfer between robots, but your datasets, tools, and skills all do.</p>
+      <p class="cost">~$3k credible real-masonry demo · $15–40k for standard clay brick</p>
+    </div>
+  </div>
+</div>
+
+<div class="note">
+<strong class="title">What carries over between stages — and what doesn't</strong>
+Carries over: the whole LeRobot pipeline, your recording rig and habits, training and evaluation know-how, task design. Doesn't: the trained model itself (each new arm = retrain), heavy-object physics intuition (light demos teach nothing about 2&nbsp;kg swings), the gripper, and precision — hobby servos land within ±2–3&nbsp;mm, real thin-bed masonry wants ±1&nbsp;mm, and that is a hardware property no amount of training can fix.
+</div>
+
+<!-- ================================================================ -->
+<h2 id="mortar">Robot-friendly mortar: what the industry actually uses</h2>
+
+<p>Your instinct about "specialised mortar that robots can handle" is exactly right — and the industry's answer is mostly to <strong>abandon traditional mortar</strong>:</p>
+
+<div class="tablebox">
+<table>
+  <tr><th>System</th><th>How it bonds bricks</th><th>Lesson for you</th></tr>
+  <tr><td><strong>FBR Hadrian X</strong> (Australia)</td><td>No mortar. The machine lays a bead of quick-curing construction adhesive; structural in ~45 min.</td><td>Adhesive beats mortar for robots: no slump, thin bead, fast strength.</td></tr>
+  <tr><td><strong>Monumental</strong> (Netherlands)</td><td>Real mortar, extruded from a computer-controlled nozzle. Three robots work as a team; ~0.5&nbsp;mm accuracy.</td><td>Real mortar is solvable — but controlling its flow is their core company secret. Not a garage project.</td></tr>
+  <tr><td><strong>SAM100</strong> (USA)</td><td>Mortar pumped to a nozzle that butters each brick; a human finishes the joints.</td><td>Even the pragmatic approach keeps a human in the mortar loop.</td></tr>
+  <tr><td><strong>AAC thin-bed mortar</strong> (ASTM C1660)</td><td>Glue-like cement in 1–3&nbsp;mm joints — possible because AAC blocks are accurate to ±1&nbsp;mm.</td><td><strong>Your stage-4 system.</strong> Accurate blocks are what make joints robot-friendly.</td></tr>
+  <tr><td><strong>PU masonry foam</strong> (Porotherm Dryfix, Tytan)</td><td>A foam gun lays a bead on flat blocks; wall is loadable in hours.</td><td><strong>Most hobby-robot-friendly of all:</strong> a foam gun is a trivially easy robot tool. No pumps, no rheology.</td></tr>
+</table>
+</div>
+
+<p>What makes a bonding system robot-handleable: minutes of open working time, flows without separating, thin joints (no wiggle-and-squeeze mason technique needed), forgiving of small errors, and quick early strength so lower courses don't shift. PU foam and AAC thin-bed score best on all five. Trowel mortar scores worst.</p>
+
+<p>Strategic note: every commercial system above uses CAD plans and position control — <strong>none uses learned policies</strong>. Learned masonry exists only in a handful of 2025 academic papers. Your imitation-learning route is genuinely fresh ground, and the industry's history says the hard parts are mortar flow, tolerances, and payload — which is exactly what the staged curriculum practices.</p>
+
+<!-- ================================================================ -->
+<h2 id="ladder">The hardware ladder</h2>
+
+<div class="tablebox">
+<table>
+  <tr><th>Arm</th><th>Payload</th><th>Price</th><th>Brick capability</th></tr>
+  <tr><td><strong>SO-101</strong> (you are here)</td><td class="num">0.2–0.5 kg</td><td class="num">$120–500</td><td>Mini bricks; half-scale clay at the limit</td></tr>
+  <tr><td>Koch v1.1</td><td class="num">sub-kg</td><td class="num">~$250/arm</td><td>Sideways move — skip</td></tr>
+  <tr><td>Trossen WidowX / ViperX</td><td class="num">0.25 / 0.75 kg</td><td class="num">$3.1k / $4.8k</td><td>Weak value next to PiPER — skip</td></tr>
+  <tr><td><strong>AgileX PiPER</strong> ⭐</td><td class="num">1.5 kg</td><td class="num">~$2,499</td><td>AAC brick-size units; LeRobot support</td></tr>
+  <tr><td>ARX R5/X5</td><td class="num">~1.5 kg</td><td class="num">~$5–10k</td><td>Research favorite, same class as PiPER</td></tr>
+  <tr><td><strong>Unitree Z1 Pro</strong></td><td class="num">4 kg</td><td class="num">~$15k</td><td><strong>First arm that lifts a standard clay brick with margin</strong></td></tr>
+  <tr><td>UR5e / UR10e</td><td class="num">5 / 12.5 kg</td><td class="num">$30–60k</td><td>Industrial-grade; what SAM100 built on</td></tr>
+</table>
+</div>
+<p>At the Z1/UR tier, budget another $1–5k for a wide gripper — brick geometry demands one.</p>
+
+<!-- ================================================================ -->
+<h2 id="trouble">Troubleshooting</h2>
+
+<div class="tablebox">
+<table>
+  <tr><th>Problem</th><th>Cause → fix</th></tr>
+  <tr><td>"command not found" for any <code>lerobot-…</code> command</td><td>The environment isn't active in this Terminal window → <code>conda activate lerobot</code></td></tr>
+  
+  <tr><td><code>lerobot-find-port</code> finds nothing</td><td>Charge-only USB cable (swap it); board not powered; Waveshare board jumpers not on channel B</td></tr>
+  <tr><td>Servo not found during motor setup</td><td>More than one servo connected — connect exactly ONE; check the 3-pin cable is seated</td></tr>
+  <tr><td>Permission denied on the port (Linux)</td><td><code>sudo chmod 666 /dev/ttyACM*</code> now; <code>sudo usermod -aG dialout $USER</code> + log out/in, forever</td></tr>
+  <tr><td>Arm jumps to a weird pose</td><td>Bad calibration or mistyped arm name → recalibrate; keep names identical everywhere</td></tr>
+  <tr><td>Cameras swapped or missing</td><td>Indices change when replugging → re-run <code>lerobot-find-cameras opencv</code>; keep cameras in the same USB sockets</td></tr>
+  <tr><td>Teleop is jittery</td><td>The live viewer costs compute → close it; use a powered USB hub</td></tr>
+  <tr><td>ffmpeg / video decoding errors</td><td><code>conda install -c conda-forge ffmpeg=7.1.1</code></td></tr>
+  <tr><td>A tutorial's command doesn't exist</td><td>It's a pre-late-2025 tutorial or a Trelis-fork flag → use the <a href="#versions">translation table</a></td></tr>
+  <tr><td>Recording to a reused dataset name misbehaves</td><td>Stale local leftovers → <code>rm -rf ~/.cache/huggingface/lerobot/&lt;user&gt;/&lt;dataset&gt;</code> and start clean (resuming, by contrast, needs those files intact)</td></tr>
+  <tr><td>Policy fails even at the exact trained position</td><td>Pipeline bug, not a training problem: check arm names, camera names, camera positions, policy path</td></tr>
+  <tr><td>Policy works at the trained position, fails elsewhere</td><td>Normal — record varied start positions (~10 regions × 10 episodes) and retrain</td></tr>
+  <tr><td>Robot freezes mid-task</td><td>Pauses in your demos, or an unseen situation → cleaner data; recovery demos</td></tr>
+  <tr><td>Servos hot or straining</td><td>The object is too heavy or too far out → lighter object, work closer to the base. This is the signal to start planning the stage-4 arm</td></tr>
+</table>
+</div>
+
+<!-- ================================================================ -->
+<h2 id="sources">Sources</h2>
+<ul style="font-family: var(--sans); font-size: 14.5px;">
+  <li><strong>Official docs:</strong> <a href="https://huggingface.co/docs/lerobot/so101">SO-101 assembly &amp; calibration</a> · <a href="https://huggingface.co/docs/lerobot/installation">Installation</a> · <a href="https://huggingface.co/docs/lerobot/il_robots">Teleop, record, train, rollout</a> · <a href="https://huggingface.co/docs/lerobot/cameras">Cameras</a> · <a href="https://huggingface.co/docs/lerobot/smolvla">SmolVLA</a> · <a href="https://github.com/huggingface/lerobot/releases">Release notes</a></li>
+  <li><strong>Hardware:</strong> <a href="https://github.com/TheRobotStudio/SO-ARM100">TheRobotStudio/SO-ARM100</a> · <a href="https://wiki.seeedstudio.com/lerobot_so100m/">Seeed wiki</a> (power-supply warning)</li>
+  <li><strong>Trelis Research series (technique):</strong> <a href="https://www.youtube.com/watch?v=JjCUX4sxrJQ">Part 1 — hardware &amp; concepts</a> · <a href="https://www.youtube.com/watch?v=ZW8OiBGAe0M">Part 2 — how the models work</a> · <a href="https://www.youtube.com/watch?v=-tkEMLOLEwo">Part 3 — full training walkthrough</a> · your local repo <code>~/Code/sammy/ADVANCED-robotics/Training/</code> (modernized commands on its <code>modernize-lerobot-v0.6</code> branch)</li>
+  <li><strong>SmolVLA:</strong> <a href="https://huggingface.co/docs/lerobot/smolvla">fine-tuning docs</a> · <a href="https://huggingface.co/lerobot/smolvla_base">lerobot/smolvla_base</a></li>
+  
+  <li><strong>Brick robots &amp; mortar:</strong> <a href="https://www.fbr.com.au/">FBR Hadrian X</a> · <a href="https://www.monumental.co/">Monumental</a> · <a href="https://www.construction-robotics.com/sam-2/">SAM100</a> · <a href="https://imiweb.org/wp-content/uploads/2015/10/01.02-AAC-MASONRY-UNITS.pdf">AAC thin-bed masonry</a> · <a href="https://tytan.com/en/product/foam-adhesives/foam-adhesive-for-bricklaying/">Tytan PU foam</a></li>
+  <li><strong>Next arms:</strong> <a href="https://global.agilex.ai/products/piper">AgileX PiPER</a> · <a href="https://shop.unitree.com/products/unitree-z1">Unitree Z1</a> · <a href="https://github.com/real-stanford/arx5-sdk">ARX5 SDK</a></li>
+</ul>
+
+<footer>
+  Compiled 2026-08-04 from the official LeRobot v0.6.1 documentation, full transcripts of the Trelis Research three-part series, the ADVANCED-robotics companion repo, and current masonry-robotics industry research. If a command errors, check the <a href="#versions">translation table</a> first. Source of this page is versioned in the project repo (<code>guide-source/</code>).
+</footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.check input').forEach(function (box) {
+    var key = 'brickbot-' + box.dataset.k;
+    try {
+      var saved = localStorage.getItem(key);
+      box.checked = saved === null ? box.dataset.default === '1' : saved === '1';
+    } catch (e) { box.checked = box.dataset.default === '1'; }
+    box.addEventListener('change', function () {
+      try { localStorage.setItem(key, box.checked ? '1' : '0'); } catch (e) {}
+    });
+  });
+</script>
