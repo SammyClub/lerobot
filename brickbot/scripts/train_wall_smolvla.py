@@ -35,6 +35,10 @@ steps = sys.argv[1] if len(sys.argv) > 1 else "6000"
 sys.argv = [
     "lerobot-train",
     "--dataset.repo_id=sammy-labs/brickbot_so101_wall_v1",
+    # smolvla_base was pretrained with cameras named camera1/2/3; our dataset
+    # says front/wrist. rename_map alone satisfies the feature check (probed
+    # locally 2026-08-14 — no third camera needed).
+    '--rename_map={"observation.images.front": "observation.images.camera1", "observation.images.wrist": "observation.images.camera2"}',
     "--policy.path=lerobot/smolvla_base",
     "--batch_size=64",
     f"--steps={steps}",
