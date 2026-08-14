@@ -36,7 +36,7 @@ Details: [docs/10-brick-curriculum.md](docs/10-brick-curriculum.md)
 - [x] Phase 2 — ports found, 12 motor IDs programmed, arms assembled, both arms calibrated (2026-08-10; calibration versioned in `hardware/calibration/`) — **Phase 2 complete ✓**
 - [x] Phase 3 — teleop works, cameras mounted/framed/locked (2026-08-13) — **complete ✓**
 - [x] Phase 4 — **100-episode** wall dataset recorded and pushed (2026-08-13) — **complete ✓**
-- [~] Phase 5 — plan changed to **SmolVLA, 6,000 steps on the 100-episode dataset** (2026-08-14); run pending. (History: GR00T interim 4k policy trained + pipeline-validated; the full GR00T 20k run completed but its weights were lost to the storage-quota failure.)
+- [x] Phase 5 — **SmolVLA fine-tuned: 6,000 steps on all 100 episodes, A100** (2026-08-14) → `sammy-labs/brickbot_smolvla_v1` — **complete ✓**
 - [~] Phase 6 — cloud async inference pipeline VALIDATED (70 min continuous rollout, zero server errors, 2026-08-13); formal 8+/10 evaluation pending the full policy
 
 Next action: finish [Phase 3](docs/06-phase3-teleop-cameras.md) — rehearse the wall build to the ~50 s bar, then record ([Phase 4](docs/07-phase4-recording.md)).
