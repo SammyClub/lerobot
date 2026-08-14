@@ -38,6 +38,9 @@ sys.argv = [
     "--policy.path=lerobot/smolvla_base",
     "--batch_size=64",
     f"--steps={steps}",
+    # checkpoint every 1000 steps, each pushed to the Hub (save_checkpoint_to_hub)
+    # — a mid-run failure or upload error costs at most 1000 steps, never the run
+    "--save_freq=1000",
     "--seed=42",
     "--output_dir=outputs/train/brickbot_smolvla_v1",
     "--job_name=brickbot_smolvla_v1",
