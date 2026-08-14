@@ -18,7 +18,7 @@ import re
 
 from huggingface_hub import CommitOperationAdd, CommitOperationCopy, HfApi, hf_hub_download
 
-REPO = "sammy-labs/brickbot_groot_v1"
+REPO = "sammy-labs/brickbot_smolvla_v1"
 api = HfApi()
 
 files = api.list_repo_files(REPO)
@@ -32,12 +32,7 @@ lfs = {s.rfilename for s in info.siblings if s.lfs is not None}
 ops = []
 for f in [f for f in files if f.startswith(src)]:
     dest = f[len(src):]
-    if dest == "config.json":
-        cfg = json.load(open(hf_hub_download(REPO, f, force_download=True)))
-        cfg["num_inference_timesteps"] = 4
-        ops.append(CommitOperationAdd(path_in_repo=dest,
-                   path_or_fileobj=io.BytesIO(json.dumps(cfg, indent=2).encode())))
-    elif f in lfs:
+    if f in lfs:
         ops.append(CommitOperationCopy(src_path_in_repo=f, path_in_repo=dest))
     else:
         ops.append(CommitOperationAdd(path_in_repo=dest, path_or_fileobj=hf_hub_download(REPO, f, force_download=True)))

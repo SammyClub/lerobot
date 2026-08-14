@@ -258,7 +258,7 @@
   <label><input type="checkbox" data-k="p3a"> Teleop works; 20 min practice done (Phase 3)</label>
   <label><input type="checkbox" data-k="p3b"> Cameras mounted, framed, and fixed permanently (Phase 3)</label>
   <label><input type="checkbox" data-k="p4a"> 50-episode dataset recorded and replay-checked (Phase 4)</label>
-  <label><input type="checkbox" data-k="p5a"> GR00T N1.7 fine-tuned on the cloud A100 via HF Jobs; loss flattened (Phase 5)</label>
+  <label><input type="checkbox" data-k="p5a"> SmolVLA fine-tuned in the cloud via HF Jobs; loss flattened (Phase 5)</label>
   <label><input type="checkbox" data-k="p6a"> Rollout succeeds at the trained position 8+/10 (Phase 6)</label>
 </div>
 
@@ -284,7 +284,7 @@
   <tr><td><strong>Episode</strong></td><td>One recorded demonstration of the task, start to finish. About 20–30 seconds.</td></tr>
   <tr><td><strong>Dataset</strong></td><td>Your collection of episodes: camera videos plus motor angles, saved together.</td></tr>
   <tr><td><strong>Policy</strong></td><td>The trained AI model. It looks at the cameras and decides how to move the motors. "Training a policy" = creating this model from your dataset.</td></tr>
-  <tr><td><strong>GR00T N1.7</strong></td><td>The policy you'll train: NVIDIA's pre-trained 3B vision-language-action model, fine-tuned on your ~50 demonstrations. It reads your task sentence.</td></tr>
+  <tr><td><strong>SmolVLA</strong></td><td>The policy you'll train: Hugging Face's pre-trained 450M vision-language-action model, fine-tuned on your demonstrations. It reads your task sentence.</td></tr>
   <tr><td><strong>Calibration</strong></td><td>A one-time procedure that teaches each arm the limits of its joints, so both arms agree on what "elbow at 90°" means.</td></tr>
   <tr><td><strong>Hugging Face Hub</strong></td><td>A free website (like GitHub, but for AI) where your datasets and policies are stored online. LeRobot uses it automatically.</td></tr>
   
@@ -351,7 +351,7 @@
 <p>The trained policy then replaces you. At each moment it looks at: the two camera images and the six current motor angles. Nothing else — no memory, no history. It outputs a short plan of future motor angles, called a <strong>chunk</strong>:</p>
 
 <figure>
-<svg viewBox="0 0 760 130" role="img" aria-label="Diagram of action chunking: the policy predicts a chunk of 16 future steps, the robot executes the first 8, throws the rest away, and predicts again from a fresh camera image.">
+<svg viewBox="0 0 760 130" role="img" aria-label="Diagram of action chunking: the policy predicts a chunk of 50 future steps, the robot executes roughly the first half, throws the rest away, and predicts again from a fresh camera image.">
   <defs>
     <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
@@ -365,19 +365,19 @@
     <path d="M 380 78 C 330 112, 110 112, 60 80" marker-end="url(#arr2)"/>
   </g>
   <g fill="currentColor" font-size="12">
-    <text x="210" y="31" text-anchor="middle" fill="var(--brick)" font-weight="700">execute first 8 steps</text>
-    <text x="550" y="31" text-anchor="middle">8 more predicted steps — thrown away</text>
+    <text x="210" y="31" text-anchor="middle" fill="var(--brick)" font-weight="700">execute first ~25 steps</text>
+    <text x="550" y="31" text-anchor="middle">rest of the chunk — thrown away</text>
     <text x="185" y="112" text-anchor="middle">look at cameras again, predict a fresh chunk</text>
     <text x="40" y="82">step 1</text>
-    <text x="720" y="82" text-anchor="end">step 16</text>
+    <text x="720" y="82" text-anchor="end">step 50</text>
   </g>
 </svg>
-<figcaption>"Predict a chunk, execute half, re-look, repeat" — GR00T predicts 16 steps and executes 8. This keeps the robot responsive to what actually happens.</figcaption>
+<figcaption>"Predict a chunk, execute half, re-look, repeat" — SmolVLA predicts 50 steps; the client executes ~25 then re-requests. This keeps the robot responsive to what actually happens.</figcaption>
 </figure>
 
-<p>The policy you will train is <strong>NVIDIA GR00T N1.7</strong> — a 3-billion-parameter vision-language-action model, pre-trained by NVIDIA on huge amounts of robot data and <em>fine-tuned</em> on your demonstrations (it joined LeRobot natively in July 2026). Three facts that explain most of what you will observe:</p>
+<p>The policy you will train is <strong>SmolVLA</strong> — Hugging Face's 450-million-parameter vision-language-action model, pre-trained on community robot data and <em>fine-tuned</em> on your demonstrations from the <code>lerobot/smolvla_base</code> checkpoint. Small enough to train and serve cheaply, big enough to read your task sentence and generalize. Three facts that explain most of what you will observe:</p>
 <ul>
-  <li><strong>It starts smart, and your demos specialize it.</strong> Unlike a from-scratch model, GR00T already understands objects, language, and manipulation in general; your 50 episodes teach it your specific arm, cameras, and task. It generalizes better than small models — but coverage still comes from varied episodes, not from more training steps.</li>
+  <li><strong>It starts smart, and your demos specialize it.</strong> Unlike a from-scratch model, SmolVLA already understands objects, language, and manipulation in general; your episodes teach it your specific arm, cameras, and task. It generalizes better than small models — but coverage still comes from varied episodes, not from more training steps.</li>
   <li><strong>Consistency still beats quantity.</strong> Inconsistent demonstrations still teach a muddled behavior. Pick one style. Repeat it every episode.</li>
   <li><strong>The cameras and your task sentence are its inputs.</strong> It genuinely reads the instruction — with a language-conditioned model, the task sentence describes the goal, and consistency of wording between recording and rollout matters. If you can't do the task from the camera images alone, neither can the model.</li>
 </ul>
@@ -791,7 +791,7 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
 <!-- ================================================================ -->
 <h2 id="phase4"><span class="phase">Phase 4 · Data</span>Record your demonstrations</h2>
 
-<p>Goal of this phase: a dataset of ~50 good episodes of one task, checked and uploaded. The task: <strong>build a three-block wall</strong> — yellow and pink blocks end to end on the green mat, orange bridging on top of both. With a language-conditioned model like GR00T, the task sentence genuinely describes the goal, so it is written to match what happens — and it must stay word-for-word identical from recording through rollout.</p>
+<p>Goal of this phase: a dataset of ~50 good episodes of one task, checked and uploaded. The task: <strong>build a three-block wall</strong> — yellow and pink blocks end to end on the green mat, orange bridging on top of both. With a language-conditioned model like SmolVLA, the task sentence genuinely describes the goal, so it is written to match what happens — and it must stay word-for-word identical from recording through rollout.</p>
 
 <ol class="steps">
   <li><span class="st">Set the scene.</span><p>Green mat down (it is the visual anchor for "where the wall goes"). Each of the three blocks — yellow, pink, orange — gets one fixed home position, identical every episode. One warning about marks:</p>
@@ -800,7 +800,7 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
   Anything in the camera image becomes part of what the policy learns. A taped target square is fine — <em>if it is identical in every episode and still there when the policy runs</em>. For the brick's starting spot, put your alignment mark <strong>outside</strong> the camera's view (e.g. on the table edge) so you can reset precisely without teaching the robot to depend on a mark.
   </div></li>
 
-  <li><span class="st">Decide your task sentence and never change it.</span><p>Ours: <code>build the block wall on the green mat in the order yellow, pink, orange - yellow and pink end to end, orange on top of both.</code> GR00T reads this — keep it word-for-word identical at recording and at rollout.</p></li>
+  <li><span class="st">Decide your task sentence and never change it.</span><p>Ours: <code>build the block wall on the green mat in the order yellow, pink, orange - yellow and pink end to end, orange on top of both.</code> SmolVLA reads this — keep it word-for-word identical at recording and at rollout.</p></li>
 
   <li><span class="st">Start recording.</span>
   <pre><code>lerobot-record \
@@ -858,22 +858,21 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
 <!-- ================================================================ -->
 <h2 id="phase5"><span class="phase">Phase 5 · Training</span>Train the policy</h2>
 
-<p>Goal of this phase: a fine-tuned GR00T N1.7 policy, stored on the Hugging Face Hub. Training needs a beefy graphics card (GPU) for an hour or so. <strong>Your plan: a rented cloud A100 via Hugging Face Jobs, paid from your loaded HF credit.</strong> Everything is launched from the Mac; no other computer is involved: the Mac records → the dataset uploads to the Hub → an A100 in HF's cloud trains it → the trained policy uploads back → the Mac runs it.</p>
+<p>Goal of this phase: a fine-tuned SmolVLA policy, stored on the Hugging Face Hub. Training needs a beefy graphics card (GPU) for an hour or so. <strong>Your plan: a rented cloud A100 via Hugging Face Jobs, paid from your loaded HF credit.</strong> Everything is launched from the Mac; no other computer is involved: the Mac records → the dataset uploads to the Hub → an A100 in HF's cloud trains it → the trained policy uploads back → the Mac runs it.</p>
 
 <ol class="steps">
   <li><span class="st">Choose where to train.</span>
   <div class="tablebox"><table>
-    <tr><th>Option</th><th>When</th><th>Time (50k steps)</th></tr>
-    <tr><td><strong>HF Jobs on an A100 (80 GB)</strong> ⭐ — <code>--job.target=a100-large</code></td><td>Default choice — GR00T fine-tuning needs ~40 GB VRAM. Launched from the Mac, billed to the org.</td><td class="num">a few hours (20k steps)</td></tr>
-    <tr><td><strong>HF Jobs on an A10G</strong></td><td>Not viable for GR00T (24 GB &lt; the ~40 GB it needs)</td><td class="num">—</td></tr>
-    
-    <tr><td><strong>Mac (Apple Silicon)</strong></td><td>Not viable for GR00T fine-tuning (needs ~40 GB VRAM)</td><td class="num">—</td></tr>
+    <tr><th>Option</th><th>When</th><th>Time (6k steps)</th></tr>
+    <tr><td><strong>HF Jobs on an A10G</strong> ⭐ — <code>--job.target=a10g-large</code></td><td>Default choice — SmolVLA (450M) fine-tunes comfortably in 24 GB. Launched from the Mac, billed to the org.</td><td class="num">~1.5–2 h</td></tr>
+    <tr><td><strong>HF Jobs on an A100</strong> — <code>--job.target=a100-large</code></td><td>Faster, pricier; unnecessary at this model size</td><td class="num">~1 h</td></tr>
+    <tr><td><strong>Mac (Apple Silicon)</strong> — <code>--policy.device=mps</code></td><td>Possible for SmolVLA but slow; cloud is the plan</td><td class="num">overnight</td></tr>
   </table></div></li>
 
   <li><span class="st">One-time check: Jobs access, org billing, and the exact hardware names.</span>
   <p>The credits live in the <strong><a href="https://huggingface.co/sammy-labs">sammy-labs</a> org</strong>, so jobs must run under that namespace — billing follows the namespace. Confirm access and list GPU flavors with current prices:</p>
   <pre><code>hf jobs hardware</code></pre>
-  <p>Find the A100 entry and note its exact flavor name — this guide assumes <code>a100-large</code>; if the listing shows a different name, use that. The training script (step 4) injects the org namespace so the job runs — and bills — under sammy-labs rather than your personal account. Two prerequisites: your org membership must have <strong>write</strong> permission, and if your access token is the fine-grained kind, it must include sammy-labs org access (a 403 on push = recreate the token with org scope). Useful companions: <code>hf jobs logs &lt;job-id&gt;</code>, <code>hf jobs cancel &lt;job-id&gt;</code> (billing stops with it), <code>--job.timeout=4h</code> as a runaway guard.</p></li>
+  <p>Find the a10g entry and note its exact flavor name — this guide assumes <code>a10g-large</code>; if the listing shows a different name, use that. The training script (step 4) injects the org namespace so the job runs — and bills — under sammy-labs rather than your personal account. Two prerequisites: your org membership must have <strong>write</strong> permission, and if your access token is the fine-grained kind, it must include sammy-labs org access (a 403 on push = recreate the token with org scope). Useful companions: <code>hf jobs logs &lt;job-id&gt;</code>, <code>hf jobs cancel &lt;job-id&gt;</code> (billing stops with it), <code>--job.timeout=4h</code> as a runaway guard.</p></li>
 
   <li><span class="st">Create a free Weights &amp; Biases account (recommended).</span>
   <p>It gives you live charts of training progress. Sign up at <a href="https://wandb.ai">wandb.ai</a>, then in the Terminal:</p>
@@ -881,15 +880,15 @@ That's a bad calibration or a mistyped name. Re-run calibration. It's two minute
   <p>Don't want it? Use <code>--wandb.enable=false</code> in the next step.</p></li>
 
   <li><span class="st">Run the training script — from the Mac's Terminal.</span>
-  <p>One command; it fine-tunes <strong>NVIDIA GR00T N1.7</strong> on your dataset on a cloud A100 <strong>billed to the sammy-labs org</strong>:</p>
-  <pre><code>conda run -n lerobot python scripts/train_wall_groot.py          <span class="c"># full run, 20,000 steps</span>
-conda run -n lerobot python scripts/train_wall_groot.py 2000     <span class="c"># cheap smoke test first</span></code></pre>
-  <p>Why a script: LeRobot's job submitter has no org-namespace option — it always bills the personal account (which has no credits → "402 Payment Required"). The script injects <code>namespace=sammy-labs</code> into the job API before launching the standard trainer, and carries the full GR00T recipe: image augmentation ON (right for VLA fine-tuning), chunk 16/16 (execute 8 at rollout), ABSOLUTE actions — required because the async policy server cannot stream-decode GR00T relative actions (silent-hang failure, diagnosed 2026-08-13), bf16, batch 64, checkpoints pushed to the Hub mid-run. It streams the job's logs in your terminal; the policy lands at <code>sammy-labs/brickbot_groot_v1</code>. Expect a few hours for the full run. Confirm after the first submission that the job shows on the <a href="https://huggingface.co/sammy-labs">org's</a> Jobs page — that's the proof it's billing org credit.</p></li>
+  <p>One command; it fine-tunes <strong>SmolVLA</strong> on your dataset on a cloud GPU <strong>billed to the sammy-labs org</strong>:</p>
+  <pre><code>conda run -n lerobot python scripts/train_wall_smolvla.py          <span class="c"># full run, 6,000 steps</span>
+conda run -n lerobot python scripts/train_wall_smolvla.py 1000     <span class="c"># cheap smoke test</span></code></pre>
+  <p>Why a script: LeRobot's job submitter has no org-namespace option — it always bills the personal account (which has no credits → "402 Payment Required"). The script injects <code>namespace=sammy-labs</code> into the job API before launching the standard trainer, and carries the SmolVLA recipe: fine-tune from <code>lerobot/smolvla_base</code> (<code>--policy.path</code>, not a from-scratch policy type), batch 64, <strong>6,000 steps</strong> on the 100-episode dataset, checkpoints pushed to the Hub mid-run (the reliable path — final pushes have failed before), policy landing at <code>sammy-labs/brickbot_smolvla_v1</code>. Expect ~1.5–2 h on the a10g. Afterwards, run <code>scripts/tune_policy_for_serving.py</code> once — it promotes the newest checkpoint to the repo root and squashes history so checkpoints never re-create the storage-quota problem.</p></li>
 
   <li><span class="st">Watch the loss go down.</span><p>On the wandb page, watch the loss chart. Good: falls steeply, then flattens. Fine-tuning loss won't reach zero — flat is the signal, not small. When it's been flat for a long while, further training buys nothing — better data beats more steps, always.</p></li>
 
-  <li><span class="st">Confirm the policy is on the Hub.</span><p>Because of <code>--policy.repo_id</code>, the trained policy uploads automatically. Check that <code>huggingface.co/sammy-labs/brickbot_groot_v1</code> exists. If it doesn't, upload the result by hand:</p>
-  <pre><code>hf upload sammy-labs/brickbot_groot_v1 outputs/train/brickbot_groot_v1/checkpoints/last/pretrained_model</code></pre></li>
+  <li><span class="st">Confirm the policy is on the Hub.</span><p>Because of <code>--policy.repo_id</code>, the trained policy uploads automatically. Check that <code>huggingface.co/sammy-labs/brickbot_smolvla_v1</code> exists. If it doesn't, upload the result by hand:</p>
+  <pre><code>hf upload sammy-labs/brickbot_smolvla_v1 outputs/train/brickbot_smolvla_v1/checkpoints/last/pretrained_model</code></pre></li>
 </ol>
 
 <!-- ================================================================ -->
@@ -903,7 +902,7 @@ conda run -n lerobot python scripts/train_wall_groot.py 2000     <span class="c"
   <li><span class="st">Find the exact trained brick position (Terminal step).</span><p>Run the replay command from Phase 4 on episode 0 and watch where the gripper goes to pick. Place the brick exactly there. This reconstructs a scene the policy definitely knows.</p></li>
 
   <li><span class="st">Let the robot take over — via the cloud policy server.</span>
-  <p><strong>Why cloud:</strong> measured on 2026-08-13, the Mac runs 3B GR00T inference at 0.6–4 Hz against the 30 Hz control target — not viable. The policy therefore runs on a rented GPU (HF Jobs, org-billed) and the Mac keeps only a lightweight robot client, connected through an SSH tunnel. Three commands, three terminals, in order:</p>
+  <p><strong>Why cloud:</strong> measured on 2026-08-13 (with the earlier 3B model), Mac-local inference could not hold the 30 Hz control target, so the policy runs on a rented GPU (HF Jobs, org-billed) and the Mac keeps only a lightweight robot client, connected through an SSH tunnel. SmolVLA is 7× smaller — once the pipeline is stable we can test whether Mac-local inference suffices and retire the server. Three commands, three terminals, in order:</p>
   <pre><code><span class="c"># 1. Start the cloud policy server (bills while running!)</span>
 conda run -n lerobot python scripts/serve_policy_cloud.py
 
@@ -918,7 +917,7 @@ scripts/rollout_wall_async.sh</code></pre>
   <ul>
     <li><strong>Works at the trained position:</strong> success! Run it 10 times; 8+/10 is a solid first policy.</li>
     <li><strong>Fails even at the trained position:</strong> something in the pipeline is broken — wrong calibration name, moved camera, wrong camera names, wrong policy path. Fix the pipeline. Do not touch training settings.</li>
-    <li><strong>Works at the trained setup, fails when things move:</strong> common, though GR00T generalizes better than small models. Cure: record a v2 dataset with varied block start positions and retrain.</li>
+    <li><strong>Works at the trained setup, fails when things move:</strong> common, though a pretrained VLA generalizes better than from-scratch models. Cure: record a v2 dataset with varied block start positions and retrain.</li>
   </ul></li>
 
   <li><span class="st">Read the failure body-language.</span>
@@ -933,7 +932,7 @@ scripts/rollout_wall_async.sh</code></pre>
   <span class="check-title">Milestone 1 — complete when</span>
   <label><input type="checkbox" data-k="m1a"> Follower mirrors leader smoothly with cameras streaming</label>
   <label><input type="checkbox" data-k="m1b"> 50-episode dataset recorded, replayed, checked</label>
-  <label><input type="checkbox" data-k="m1c"> GR00T policy fine-tuned; loss curve flattened</label>
+  <label><input type="checkbox" data-k="m1c"> SmolVLA policy fine-tuned; loss curve flattened</label>
   <label><input type="checkbox" data-k="m1d"> Robot succeeds at the trained position 8+ times out of 10</label>
 </div>
 
@@ -1049,7 +1048,7 @@ Carries over: the whole LeRobot pipeline, your recording rig and habits, trainin
   <li><strong>Official docs:</strong> <a href="https://huggingface.co/docs/lerobot/so101">SO-101 assembly &amp; calibration</a> · <a href="https://huggingface.co/docs/lerobot/installation">Installation</a> · <a href="https://huggingface.co/docs/lerobot/il_robots">Teleop, record, train, rollout</a> · <a href="https://huggingface.co/docs/lerobot/cameras">Cameras</a> · <a href="https://huggingface.co/docs/lerobot/smolvla">SmolVLA</a> · <a href="https://github.com/huggingface/lerobot/releases">Release notes</a></li>
   <li><strong>Hardware:</strong> <a href="https://github.com/TheRobotStudio/SO-ARM100">TheRobotStudio/SO-ARM100</a> · <a href="https://wiki.seeedstudio.com/lerobot_so100m/">Seeed wiki</a> (power-supply warning)</li>
   <li><strong>Trelis Research series (technique):</strong> <a href="https://www.youtube.com/watch?v=JjCUX4sxrJQ">Part 1 — hardware &amp; concepts</a> · <a href="https://www.youtube.com/watch?v=ZW8OiBGAe0M">Part 2 — how the models work</a> · <a href="https://www.youtube.com/watch?v=-tkEMLOLEwo">Part 3 — full training walkthrough</a> · your local repo <code>~/Code/sammy/ADVANCED-robotics/Training/</code> (modernized commands on its <code>modernize-lerobot-v0.6</code> branch)</li>
-  <li><strong>GR00T N1.7:</strong> <a href="https://huggingface.co/blog/nvidia/nvidia-isaac-teleop-and-gr00t17-in-lerobot">GR00T 1.7 in LeRobot (official workflow)</a> · <a href="https://huggingface.co/blog/nvidia/gr00t-n1-7">model announcement</a> · <a href="https://huggingface.co/nvidia/GR00T-N1.7-3B">nvidia/GR00T-N1.7-3B</a></li>
+  <li><strong>SmolVLA:</strong> <a href="https://huggingface.co/docs/lerobot/smolvla">fine-tuning docs</a> · <a href="https://huggingface.co/lerobot/smolvla_base">lerobot/smolvla_base</a></li>
   
   <li><strong>Brick robots &amp; mortar:</strong> <a href="https://www.fbr.com.au/">FBR Hadrian X</a> · <a href="https://www.monumental.co/">Monumental</a> · <a href="https://www.construction-robotics.com/sam-2/">SAM100</a> · <a href="https://imiweb.org/wp-content/uploads/2015/10/01.02-AAC-MASONRY-UNITS.pdf">AAC thin-bed masonry</a> · <a href="https://tytan.com/en/product/foam-adhesives/foam-adhesive-for-bricklaying/">Tytan PU foam</a></li>
   <li><strong>Next arms:</strong> <a href="https://global.agilex.ai/products/piper">AgileX PiPER</a> · <a href="https://shop.unitree.com/products/unitree-z1">Unitree Z1</a> · <a href="https://github.com/real-stanford/arx5-sdk">ARX5 SDK</a></li>

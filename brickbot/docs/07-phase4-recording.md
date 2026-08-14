@@ -2,13 +2,13 @@
 
 [← Phase 3](06-phase3-teleop-cameras.md) · [README](../README.md) · [Next: Phase 5 →](08-phase5-training.md)
 
-**Goal:** a dataset of ~50 good episodes of one task, checked and uploaded. The task: **build a three-block wall** — yellow and pink blocks end to end on the green mat, orange bridging on top of both. With a language-conditioned model like GR00T, the task sentence genuinely describes the goal, so it is written to match what happens — and it must stay word-for-word identical from recording through rollout.
+**Goal:** a dataset of ~50 good episodes of one task, checked and uploaded. The task: **build a three-block wall** — yellow and pink blocks end to end on the green mat, orange bridging on top of both. With a language-conditioned model like SmolVLA, the task sentence genuinely describes the goal, so it is written to match what happens — and it must stay word-for-word identical from recording through rollout.
 
 1. **Set the scene.** Green mat down (it is the visual anchor for "where the wall goes"). Each of the three blocks — yellow, pink, orange — gets one fixed home position, identical every episode.
 
    > **Tape is visible to the robot too.** Anything in the camera image becomes part of what the policy learns. The green mat is fine — it is identical in every episode and still there when the policy runs. For the blocks' home positions, put alignment marks **outside** the camera's view (e.g. on the table edge) so you can reset precisely without teaching the robot to depend on a mark.
 
-2. **Decide the task sentence and never change it.** Ours: `build the block wall on the green mat in the order yellow, pink, orange - yellow and pink end to end, orange on top of both.` GR00T reads this — keep it word-for-word identical at recording and at rollout.
+2. **Decide the task sentence and never change it.** Ours: `build the block wall on the green mat in the order yellow, pink, orange - yellow and pink end to end, orange on top of both.` SmolVLA reads this — keep it word-for-word identical at recording and at rollout.
 
 3. **Start recording:**
 

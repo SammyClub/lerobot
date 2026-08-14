@@ -40,12 +40,13 @@ Calibration files are versioned in [`hardware/calibration/`](hardware/calibratio
 | Item | Name | Created |
 |---|---|---|
 | First dataset | `sammy-labs/brickbot_so101_wall_v1` (three-block wall task) | COMPLETE: 100 episodes, pushed to Hub 2026-08-13 |
-| First policy | `sammy-labs/brickbot_groot_v1` (GR00T N1.7 fine-tune) | interim v1: 4,000 steps on 38 episodes, org A100 via HF Jobs, 1h41m clean run (2026-08-12). Full 20k run pending 100 episodes. |
+| First policy | `sammy-labs/brickbot_smolvla_v1` (SmolVLA fine-tune) | _pending_ — 6,000 steps on the 100-episode dataset (plan of record 2026-08-14) |
+| Legacy policy | `sammy-labs/brickbot_groot_v1` (GR00T N1.7) | interim: 4k steps / 38 episodes, absolute actions — remains on the Hub as a legacy artifact; superseded by the SmolVLA plan |
 
 ## Machines
 
 - Mac (robot machine): conda env `lerobot`, LeRobot 0.6.1, HF `vik101`, wandb `vikramt-sammy` — ready 2026-08-04
-- Training: **GR00T N1.7 fine-tune** (`nvidia/GR00T-N1.7-3B`, `--policy.type=groot`) on **HF Jobs cloud A100** (`--job.target=a100-large`; GR00T needs ~40 GB VRAM, so the 80 GB A100 is the only viable Jobs flavor), paid from the sammy-labs org credit (org namespace injected by scripts/train_wall_groot.py) — plan of record since 2026-08-12. Verify flavor names/prices with `hf jobs hardware`. (PC "Shav", 2× RTX 3090 + WSL2, retired from the plan; its env setup was never completed.)
+- Training: **SmolVLA fine-tune** (`lerobot/smolvla_base` via `--policy.path`) on **HF Jobs cloud a10g** (`--job.target=a10g-large`; 450M fits easily in 24 GB — checkpoints are 1–2 GB, ending the storage-quota pressure), paid from the sammy-labs org credit (org namespace injected by scripts/train_wall_smolvla.py) — plan of record since 2026-08-14. Verify flavor names/prices with `hf jobs hardware`. (PC "Shav", 2× RTX 3090 + WSL2, retired from the plan; its env setup was never completed.)
 - ⚠️ Lesson (2026-08-12): the Acer A610's MANUAL white balance is broken — AWB off = strong green cast (green-ratio 1.42 vs 1.00 auto), temperature value ignored. WB must stay auto. Manual exposure works but applies a wrong stored value; `scripts/lock_front_camera.sh` binary-searches exposure to match the auto-exposure brightness baseline (found: ~46-50 under current lighting). Re-run after any lighting change.
 - ⚠️ Lesson (2026-08-11): follower gripper not tracking the trigger → the leader trigger horn screw was loose (lever moved, servo shaft did not). Diagnosed by live-reading Present_Position — frozen value = mechanical decoupling. After re-seating any horn, recalibrate that arm and re-export to hardware/calibration/.
 | Test dataset | `sammy-labs/brickbot_so101_wall_v1_20260812_162234` | 1 episode, 2026-08-12 — pipeline test; real dataset records as `brickbot_so101_wall_v1` with `--dataset.no_stamp=true` |

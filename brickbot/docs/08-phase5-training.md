@@ -2,16 +2,16 @@
 
 [← Phase 4](07-phase4-recording.md) · [README](../README.md) · [Next: Phase 6 →](09-phase6-rollout.md)
 
-**Goal:** a fine-tuned **NVIDIA GR00T N1.7** policy, stored on the Hugging Face Hub.
+**Goal:** a fine-tuned **SmolVLA** policy, stored on the Hugging Face Hub.
 
-**Plan of record (2026-08-12):** fine-tune `nvidia/GR00T-N1.7-3B` — a pre-trained 3B vision-language-action model, native in LeRobot since July 2026 (`--policy.type=groot`) — on a **rented cloud A100 via Hugging Face Jobs**, paid per second from the sammy-labs org credit. Everything launches from the Mac; no other machine is involved.
+**Plan of record (2026-08-14):** fine-tune `lerobot/smolvla_base` — Hugging Face's pre-trained 450M vision-language-action model — for **6,000 steps** on the 100-episode wall dataset, on a **rented cloud a10g via Hugging Face Jobs**, paid per second from the sammy-labs org credit. Everything launches from the Mac; no other machine is involved. (SmolVLA replaced GR00T N1.7: it trains on a 24 GB GPU instead of an A100, its checkpoints are 1–2 GB instead of 12.6 GB — which ended the storage-quota pain — and it has none of GR00T's async-serving incompatibilities.)
 
 ## The workflow
 
 ```
-Mac (arms + cameras)          Hugging Face Hub              HF Jobs (cloud A100)
+Mac (arms + cameras)          Hugging Face Hub              HF Jobs (cloud a10g)
 ────────────────────          ────────────────              ────────────────────
-record dataset  ──────────▶   dataset repo   ──────────▶   job pulls it, fine-tunes GR00T
+record dataset  ──────────▶   dataset repo   ──────────▶   job pulls it, fine-tunes SmolVLA
 rollout policy  ◀──────────   policy repo    ◀──────────   policy + checkpoints push back
 ```
 
@@ -19,13 +19,13 @@ Nothing to install, maintain, or SSH into. Billing runs only while a job runs; `
 
 ## Where to train — priority order
 
-GR00T fine-tuning needs **~40 GB of VRAM**, which rules out most options:
+SmolVLA (450M params) fine-tunes comfortably in 24 GB of VRAM:
 
-| Priority | Option | Verdict | Time (20k steps) |
+| Priority | Option | Verdict | Time (6k steps) |
 |---|---|---|---|
-| **1 — the plan** | **HF Jobs, A100 (80 GB)** — `--job.target=a100-large` | Comfortably sized; billed to the org | a few hours |
-| — | HF Jobs, A10G (24 GB) | **Not viable** — under the ~40 GB GR00T needs | — |
-| — | Mac (Apple Silicon) | **Not viable** for fine-tuning a 3B model | — |
+| **1 — the plan** | **HF Jobs, a10g** — `--job.target=a10g-large` | Comfortable fit; billed to the org | ~1.5–2 h |
+| 2 | HF Jobs, A100 — `--job.target=a100-large` | Faster, pricier; unnecessary at this model size | ~1 h |
+| 3 | Mac (Apple Silicon) — `--policy.device=mps` | Possible for SmolVLA but slow; cloud is the plan | overnight |
 
 ## One-time check (on the Mac)
 
@@ -35,7 +35,7 @@ Credits live in the [sammy-labs org](https://huggingface.co/sammy-labs); jobs mu
 hf jobs hardware
 ```
 
-Find the A100 entry. These docs assume the flavor is named `a100-large` — if the listing differs, use the listed name. Companions: `hf jobs logs <job-id>` (stream output), `hf jobs cancel <job-id>` (stop + stop billing), `--job.timeout=8h` (runaway guard).
+Find the a10g entry. These docs assume the flavor is named `a10g-large` — if the listing differs, use the listed name. Companions: `hf jobs logs <job-id>` (stream output), `hf jobs cancel <job-id>` (stop + stop billing), `--job.timeout=6h` (runaway guard).
 
 ## Weights & Biases
 
@@ -44,11 +44,19 @@ Account exists (`vikramt-sammy`), Mac is logged in — the API key is forwarded 
 ## The training command (run on the Mac)
 
 ```bash
-conda run -n lerobot python scripts/train_wall_groot.py          # full run, 20,000 steps
-conda run -n lerobot python scripts/train_wall_groot.py 2000     # cheap smoke test first
+conda run -n lerobot python scripts/train_wall_smolvla.py          # full run, 6,000 steps
+conda run -n lerobot python scripts/train_wall_smolvla.py 1000     # cheap smoke test
 ```
 
-Why a script: LeRobot's job submitter has **no org-namespace option** — it always submits to the personal account (`/api/jobs/<user>`), which has no credits → `402 Payment Required`. [scripts/train_wall_groot.py](../scripts/train_wall_groot.py) injects `namespace=sammy-labs` into the job API calls, then runs the standard trainer with the full GR00T N1.7 recipe (augmentation ON, chunk 16/16, ABSOLUTE actions (async server cannot stream-decode GR00T relative actions — silent hang, diagnosed 2026-08-13), bf16, batch 64, A100-large, checkpoints pushed mid-run, policy to `sammy-labs/brickbot_groot_v1`). It streams the job logs in your terminal. After the first submission, confirm the job appears on the org's Jobs page — that's the proof it bills org credit. (`HF_NAMESPACE` does NOT work for this path — earlier docs claimed it did; corrected 2026-08-12.)
+Why a script: LeRobot's job submitter has **no org-namespace option** — it always submits to the personal account (`/api/jobs/<user>`), which has no credits → `402 Payment Required`. [scripts/train_wall_smolvla.py](../scripts/train_wall_smolvla.py) injects `namespace=sammy-labs` into the job API calls, then runs the standard trainer with the SmolVLA recipe: fine-tune from `lerobot/smolvla_base` (`--policy.path`, not a from-scratch policy type), batch 64, 6,000 steps, checkpoints pushed to the Hub mid-run (the reliable path — final pushes have failed before), policy landing at `sammy-labs/brickbot_smolvla_v1`. It streams the job logs in your terminal. After the first submission, confirm the job appears on the org's Jobs page — that's the proof it bills org credit. (`HF_NAMESPACE` does NOT work for this path — earlier docs claimed it did; corrected 2026-08-12.)
+
+## After training: prep for serving
+
+```bash
+conda run -n lerobot python scripts/tune_policy_for_serving.py
+```
+
+Promotes the newest checkpoint's files to the repo root (immune to final-push failures) and squashes the repo history to a single revision so checkpoints never re-create the storage-quota problem.
 
 ## Read the loss, then stop
 
@@ -56,11 +64,11 @@ Watch the loss chart on wandb.ai: falls steeply, then flattens. **Fine-tuning lo
 
 ## Confirm the policy is on the Hub
 
-`--policy.repo_id` uploads the trained policy automatically. Check `huggingface.co/sammy-labs/brickbot_groot_v1` exists. Then go to [Phase 6](09-phase6-rollout.md) — rollout happens on the Mac.
+Check `huggingface.co/sammy-labs/brickbot_smolvla_v1` exists (the tune script prints the promoted state). Then go to [Phase 6](09-phase6-rollout.md) — rollout happens on the Mac.
 
 ## Sources
 
-- [GR00T 1.7 in LeRobot — official workflow](https://huggingface.co/blog/nvidia/nvidia-isaac-teleop-and-gr00t17-in-lerobot)
-- [nvidia/GR00T-N1.7-3B](https://huggingface.co/nvidia/GR00T-N1.7-3B)
+- [SmolVLA fine-tuning docs](https://huggingface.co/docs/lerobot/smolvla)
+- [lerobot/smolvla_base](https://huggingface.co/lerobot/smolvla_base)
 
 [← Phase 4](07-phase4-recording.md) · [README](../README.md) · [Next: Phase 6 →](09-phase6-rollout.md)
